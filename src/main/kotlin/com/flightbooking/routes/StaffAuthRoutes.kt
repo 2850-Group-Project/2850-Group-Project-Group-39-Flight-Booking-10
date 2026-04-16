@@ -2,12 +2,16 @@ package com.flightbooking.routes
 
 import com.flightbooking.models.StaffSession
 import com.flightbooking.service.StaffAuthService
-import io.ktor.server.application.*
-import io.ktor.server.pebble.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
+import io.ktor.server.application.call
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.sessions.set
+import io.ktor.server.sessions.sessions
 
 /**
  * Staff authentication routes (login + registration).

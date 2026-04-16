@@ -1,30 +1,48 @@
 package com.flightbooking.routes
 
-import io.ktor.server.routing.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.application.call
+import io.ktor.server.request.receiveParameters
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.response.*
-import io.ktor.server.pebble.*
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.response.respond
 import io.ktor.server.pebble.PebbleContent
-import io.ktor.server.sessions.*
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
 
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.AirportTableAccess
 
-import com.flightbooking.tables.*
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
+import com.flightbooking.tables.AirportTable
+import com.flightbooking.tables.BookingSegmentTable
+import com.flightbooking.tables.BookingTable
+import com.flightbooking.tables.FlightTable
+import com.flightbooking.tables.SeatAssignmentTable
+import com.flightbooking.tables.SeatTable
+import com.flightbooking.tables.UserTable
+
+import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.alias
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.lowerCase
+import org.jetbrains.exposed.sql.compoundAnd
+
 import com.flightbooking.models.UserSession
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
 
-import com.flightbooking.routes.authRoutes
-
 import java.time.LocalDate
-import org.jetbrains.exposed.sql.compoundAnd
+import java.time.Instant
 
 /**
  * Page routes for user-facing pages (home, profile, profile sub-pages, bookings) and a shared 404 page.

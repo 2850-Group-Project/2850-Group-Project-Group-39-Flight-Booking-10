@@ -1,17 +1,19 @@
 package com.flightbooking.routes
 
-import io.ktor.server.routing.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.pebble.*
-import io.ktor.server.sessions.*
-
-import io.ktor.http.HttpStatusCode
-
 import com.flightbooking.models.UserSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.BookingSession
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.post
+import io.ktor.server.application.call
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.response.respond
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.set
+import io.ktor.server.sessions.sessions
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.http.HttpStatusCode
 
 fun Route.flightRoutes() {
     post("/flights/select") {
