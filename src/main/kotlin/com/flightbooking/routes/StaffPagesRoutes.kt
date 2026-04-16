@@ -18,14 +18,18 @@ import java.time.LocalDate
  * Registers the staff page routes (dashboard + flight management UI).
  *
  * Routes included:
- * - **GET `/staff/dashboard`**: Requires [StaffSession]. Loads staff info + flight/complaint metrics and renders `staff_dashboard.peb`.
+ * - **GET `/staff/dashboard`**: Requires [StaffSession]. :
+ *      Loads staff info + flight/complaint metrics and renders `staff_dashboard.peb`.
  * - **GET `/staff/flights`**: Requires [StaffSession]. Supports optional query params:
  *   - `edit` (Int): loads a flight into the edit form
  *   - `q` (String): filters flights by flight number
  *   Renders `staff_flights.peb`.
- * - **POST `/staff/flights/create`**: Requires [StaffSession]. Creates a new flight and initialises seats for that flight, then redirects back to `/staff/flights`.
- * - **POST `/staff/flights/update`**: Requires [StaffSession]. Updates an existing flight and ensures seats exist, then redirects back to `/staff/flights`.
- * - **POST `/staff/flights/delete`**: Requires [StaffSession]. Deletes a flight, then redirects back to `/staff/flights`.
+ * - **POST `/staff/flights/create`**: Requires [StaffSession]. :
+ * Creates a new flight and initialises seats for that flight, then redirects back to `/staff/flights`.
+ * - **POST `/staff/flights/update`**: Requires [StaffSession]. :
+ *      Updates an existing flight and ensures seats exist, then redirects back to `/staff/flights`.
+ * - **POST `/staff/flights/delete`**: Requires [StaffSession]. :
+ *      Deletes a flight, then redirects back to `/staff/flights`.
  * - **GET `/staff/logout`**: Clears [StaffSession] and redirects to `/staff/login`.
  */
 fun Route.staffPagesRoutes() {
@@ -74,8 +78,10 @@ fun Route.staffPagesRoutes() {
             val dest = AirportTable.alias("dest")
 
             val flightList = (FlightTable
-                .join(origin, JoinType.INNER, additionalConstraint = { FlightTable.originAirport eq origin[AirportTable.id] })
-                .join(dest, JoinType.INNER, additionalConstraint = { FlightTable.destinationAirport eq dest[AirportTable.id] })
+                .join(origin, JoinType.INNER, additionalConstraint = { 
+                    FlightTable.originAirport eq origin[AirportTable.id] })
+                .join(dest, JoinType.INNER, additionalConstraint = { 
+                    FlightTable.destinationAirport eq dest[AirportTable.id] })
                 .slice(
                     FlightTable.id,
                     FlightTable.flightNumber,
@@ -92,7 +98,9 @@ fun Route.staffPagesRoutes() {
                     val no = row[FlightTable.flightNumber]?.toString() ?: row[FlightTable.id].toString()
                     val destination = row[dest[AirportTable.iataCode]]
                     val departureTimeRaw = row[FlightTable.scheduledDepartureTime] ?: ""
-                    val depTime = if (departureTimeRaw.length >= 16) departureTimeRaw.substring(11, 16) else departureTimeRaw
+                    val depTime = if  (departureTimeRaw.length >= 16) {
+                        departureTimeRaw.substring(11, 16) 
+                    } else { departureTimeRaw }
                     val status = row[FlightTable.status]
                     val cap = row[FlightTable.capacity]?.toString() ?: ""
 
@@ -150,8 +158,10 @@ fun Route.staffPagesRoutes() {
             val dest = AirportTable.alias("dest")
 
             val flights = (FlightTable
-                .join(origin, JoinType.INNER, additionalConstraint = { FlightTable.originAirport eq origin[AirportTable.id] })
-                .join(dest, JoinType.INNER, additionalConstraint = { FlightTable.destinationAirport eq dest[AirportTable.id] })
+                .join(origin, JoinType.INNER, additionalConstraint = { 
+                    FlightTable.originAirport eq origin[AirportTable.id] })
+                .join(dest, JoinType.INNER, additionalConstraint = { 
+                    FlightTable.destinationAirport eq dest[AirportTable.id] })
                 .slice(
                     FlightTable.id,
                     FlightTable.flightNumber,

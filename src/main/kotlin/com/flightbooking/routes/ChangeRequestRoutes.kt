@@ -40,7 +40,7 @@ fun Route.changeRequestRoutes() {
      * Behaviour:
      * - Requires UserSession. If missing -> redirect /login
      * - Verifies the booking belongs to the logged-in user. If not -> redirect /404
-     * - Uses existing access logic where available (UserTableAccess, BookingTableAccess, BookingSegmentTableAccess, SeatTableAccess, AirportTableAccess)
+     * - Uses existing access logic where available (eg. UserTableAccess)
      * - Uses direct Exposed query in-route for flight number searching (since access does not provide it)
      * - Renders "change_request.peb"
      */

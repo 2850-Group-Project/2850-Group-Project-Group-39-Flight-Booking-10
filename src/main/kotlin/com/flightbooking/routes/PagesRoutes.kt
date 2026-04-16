@@ -84,7 +84,7 @@ fun Route.pagesRoutes() {
 
         val airports = AirportTableAccess()
 
-        // TODO: properly handle error when the inputted airport is not found, just isnt great
+        // to do: properly handle error when the inputted airport is not found, just isnt great
         // this should be checked beforehand however, on the home page, since we should only ever pass error free
         // form inputs to stages further up
         val originAirportCode = airports.getAirportCodeByOrigin(search.origin) ?: ""
@@ -99,12 +99,19 @@ fun Route.pagesRoutes() {
 
         // get outbound flight data
         val flightTable = FlightTableAccess()
-        val outboundFlights = flightTable.getFlightsAroundDate(originAirportCode, destinationAirportCode, LocalDate.parse(search.departureDate))
+        val outboundFlights = flightTable.getFlightsAroundDate(
+            originAirportCode, 
+            destinationAirportCode, 
+            LocalDate.parse(search.departureDate)
+        )
 
         // get inbound flight data (for trip type = return)
         var inboundFlights: List<FlightWithFares> = emptyList()
         if (search.tripType == "return") {
-            inboundFlights = flightTable.getFlightsAroundDate(destinationAirportCode, originAirportCode, LocalDate.parse(search.returnDate))
+            inboundFlights = flightTable.getFlightsAroundDate(
+                destinationAirportCode, 
+                originAirportCode, 
+                LocalDate.parse(search.returnDate))
             println("INBOUND FLIGHT DATA VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV")
             println(inboundFlights)
         }
@@ -120,34 +127,37 @@ fun Route.pagesRoutes() {
 
     get("/flights/passengers") {
         // need to add check to a booking/user session exists before loading the page
-        val UserSession = call.sessions.get<UserSession>()
-        val BookingSession = call.sessions.get<BookingSession>()
+        val userSession = call.sessions.get<UserSession>()
+        val bookingSession = call.sessions.get<BookingSession>()
 
-        println(BookingSession)
+        println(bookingSession)
 
-        if (UserSession == null) {
+        if (userSession == null) {
             call.respondRedirect("/login")
             return@get
         }
 
-        if (BookingSession == null) {
+        if (bookingSession == null) {
             call.respondRedirect("/home")
             return@get
         }
 
-        val adultsCount = BookingSession.search?.adults?.toIntOrNull() ?: 0
-        val childrenCount = BookingSession.search?.children?.toIntOrNull() ?: 0
-        val infantsCount = BookingSession.search?.infants?.toIntOrNull() ?: 0
+        val adultsCount = bookingSession.search?.adults?.toIntOrNull() ?: 0
+        val childrenCount = bookingSession.search?.children?.toIntOrNull() ?: 0
+        val infantsCount = bookingSession.search?.infants?.toIntOrNull() ?: 0
 
-        val adultsList = (0 until adultsCount).map { mapOf("label" to it + 1, "idx" to it) }
-        val childrenList = (0 until childrenCount).map { mapOf("label" to it + 1, "idx" to adultsCount + it) }
-        val infantsList = (0 until infantsCount).map { mapOf("label" to it + 1, "idx" to adultsCount + childrenCount + it) }
+        val adultsList = (0 until adultsCount).map { 
+            mapOf("label" to it + 1, "idx" to it) }
+        val childrenList = (0 until childrenCount).map { 
+            mapOf("label" to it + 1, "idx" to adultsCount + it) }
+        val infantsList = (0 until infantsCount).map { 
+            mapOf("label" to it + 1, "idx" to adultsCount + childrenCount + it) }
 
 
         call.respond(PebbleContent("flight_passengers.peb", mapOf<String, Any>(
-            "userSession" to UserSession,
-            "bookingSession" to BookingSession,
-            "search" to (BookingSession.search ?: ""),
+            "userSession" to userSession,
+            "bookingSession" to bookingSession,
+            "search" to (bookingSession.search ?: ""),
             "adults" to adultsList,
             "children" to childrenList,
             "infants" to infantsList,
@@ -268,12 +278,18 @@ fun Route.pagesRoutes() {
             }
 
             val rows = (BookingTable
-                .join(BookingSegmentTable, JoinType.INNER, additionalConstraint = { BookingSegmentTable.bookingId eq BookingTable.id })
-                .join(FlightTable, JoinType.LEFT, additionalConstraint = { FlightTable.id eq BookingSegmentTable.flightId })
-                .join(origin, JoinType.LEFT, additionalConstraint = { FlightTable.originAirport eq origin[AirportTable.id] })
-                .join(dest, JoinType.LEFT, additionalConstraint = { FlightTable.destinationAirport eq dest[AirportTable.id] })
-                .join(SeatAssignmentTable, JoinType.LEFT, additionalConstraint = { SeatAssignmentTable.bookingSegmentId eq BookingSegmentTable.id })
-                .join(SeatTable, JoinType.LEFT, additionalConstraint = { SeatTable.id eq SeatAssignmentTable.seatId })
+                .join(BookingSegmentTable, JoinType.INNER, additionalConstraint = { 
+                    BookingSegmentTable.bookingId eq BookingTable.id })
+                .join(FlightTable, JoinType.LEFT, additionalConstraint = { 
+                    FlightTable.id eq BookingSegmentTable.flightId })
+                .join(origin, JoinType.LEFT, additionalConstraint = { 
+                    FlightTable.originAirport eq origin[AirportTable.id] })
+                .join(dest, JoinType.LEFT, additionalConstraint = { 
+                    FlightTable.destinationAirport eq dest[AirportTable.id] })
+                .join(SeatAssignmentTable, JoinType.LEFT, additionalConstraint = { 
+                    SeatAssignmentTable.bookingSegmentId eq BookingSegmentTable.id })
+                .join(SeatTable, JoinType.LEFT, additionalConstraint = { 
+                    SeatTable.id eq SeatAssignmentTable.seatId })
                 .slice(
                     BookingTable.id,
                     BookingTable.bookingReference,

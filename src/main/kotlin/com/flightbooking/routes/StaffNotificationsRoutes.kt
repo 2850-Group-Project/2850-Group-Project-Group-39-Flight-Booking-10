@@ -73,12 +73,18 @@ fun Route.staffNotificationsRoutes() {
                 else ChangeRequestTable.id eq qId
 
             val requests = (ChangeRequestTable
-                .join(UserTable, JoinType.LEFT, additionalConstraint = { ChangeRequestTable.userId eq UserTable.id })
-                .join(currentFlight, JoinType.LEFT, additionalConstraint = { ChangeRequestTable.currentFlightId eq currentFlight[FlightTable.id] })
-                .join(origin, JoinType.LEFT, additionalConstraint = { currentFlight[FlightTable.originAirport] eq origin[AirportTable.id] })
-                .join(dest, JoinType.LEFT, additionalConstraint = { currentFlight[FlightTable.destinationAirport] eq dest[AirportTable.id] })
-                .join(requestedFlight, JoinType.LEFT, additionalConstraint = { ChangeRequestTable.requestedFlightId eq requestedFlight[FlightTable.id] })
-                .join(requestedSeat, JoinType.LEFT, additionalConstraint = { ChangeRequestTable.requestedSeatId eq requestedSeat[SeatTable.id] })
+                .join(UserTable, JoinType.LEFT, additionalConstraint = { 
+                    ChangeRequestTable.userId eq UserTable.id })
+                .join(currentFlight, JoinType.LEFT, additionalConstraint = { 
+                    ChangeRequestTable.currentFlightId eq currentFlight[FlightTable.id] })
+                .join(origin, JoinType.LEFT, additionalConstraint = { 
+                    currentFlight[FlightTable.originAirport] eq origin[AirportTable.id] })
+                .join(dest, JoinType.LEFT, additionalConstraint = { 
+                    currentFlight[FlightTable.destinationAirport] eq dest[AirportTable.id] })
+                .join(requestedFlight, JoinType.LEFT, additionalConstraint = { 
+                    ChangeRequestTable.requestedFlightId eq requestedFlight[FlightTable.id] })
+                .join(requestedSeat, JoinType.LEFT, additionalConstraint = { 
+                    ChangeRequestTable.requestedSeatId eq requestedSeat[SeatTable.id] })
                 .slice(
                     ChangeRequestTable.id,
                     ChangeRequestTable.userId,
@@ -117,8 +123,14 @@ fun Route.staffNotificationsRoutes() {
                         "createdAt" to (r.getOrNull(ChangeRequestTable.createdAt) ?: ""),
                         "updatedAt" to (r.getOrNull(ChangeRequestTable.updatedAt) ?: ""),
 
-                        "currentFlightNo" to (r.getOrNull(currentFlight[FlightTable.flightNumber])?.toString() ?: ""),
-                        "requestedFlightNo" to (r.getOrNull(requestedFlight[FlightTable.flightNumber])?.toString() ?: ""),
+                        "currentFlightNo" to (
+                            r.getOrNull(
+                                currentFlight[FlightTable.flightNumber]
+                            )?.toString() ?: ""),
+                        "requestedFlightNo" to (
+                            r.getOrNull(
+                                requestedFlight[FlightTable.flightNumber]
+                            )?.toString() ?: ""),
 
                         "currentRoute" to route,
                         "requestedSeatCode" to r.getOrNull(requestedSeat[SeatTable.seatCode])

@@ -145,7 +145,7 @@ private fun Application.registerRoutes() {
     routing {
         staticResources("/static", "static") // allows easy stylesheet reference (like pebble "templates" prefix)
         
-        // TODO: WE NEED TO MOVE THESE AWAY
+        // to do: WE NEED TO MOVE THESE AWAY
         get("/") {
             call.respondRedirect("/login")
         }

@@ -40,22 +40,24 @@ class FlightImportService(
         println("importAllFlights done")
     }
 
-    private suspend fun fetchAllFlights(): Sequence<ApiFlight> = sequence {
+    private suspend fun fetchAllFlights(): List<ApiFlight> {
+        val flights = mutableListOf<ApiFlight>()
         var offset = 0
         var total = Int.MAX_VALUE
+
         while (offset < total) {
             val response = client.getFlights(FLIGHT_IMPORT_LIMIT, offset)
             val pagination = response.pagination
-            val totalFromResponse = pagination?.total
-            if (totalFromResponse == null) {
-                break
-            }
+            val totalFromResponse = pagination?.total ?: break
             total = totalFromResponse
 
-            yieldAll(response.data)
+            flights.addAll(response.data)
             offset += FLIGHT_IMPORT_LIMIT
         }
+
+        return flights
     }
+
 
     private fun validateFlight(
         apiFlight: ApiFlight,
@@ -76,8 +78,8 @@ class FlightImportService(
         } else {
             ValidatedFlight(
                 apiFlight = apiFlight,
-                originID = originID,
-                destID = destID
+                originID = originID!!,
+                destID = destID!!
             )
         }
     }

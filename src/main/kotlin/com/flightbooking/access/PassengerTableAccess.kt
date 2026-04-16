@@ -40,6 +40,7 @@ class PassengerTableAccess {
         PassengerTable.select { attribute eq value } 
             .map { it.toPassenger() } 
     }
+    @Suppress("LongParameterList")
     fun createPassenger(
         bookingId: Int?,
         email: String?,

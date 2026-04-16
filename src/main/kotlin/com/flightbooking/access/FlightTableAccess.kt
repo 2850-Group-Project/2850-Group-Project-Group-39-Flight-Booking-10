@@ -25,8 +25,6 @@ import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.JoinType
 
 import java.time.LocalDate
@@ -34,7 +32,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.Duration
 
-const val HOURS_DENOMINATOR : Int = 60
+const val HOURS_DENOMINATOR: Int = 60
 
 /**
  * Provides database access operations for the [FlightTable].
@@ -56,8 +54,31 @@ class FlightTableAccess {
      * @param value the value to match
      */
     fun <T> getByAttribute(attribute: Column<T>, value: T): List<Flight> = transaction {
-        FlightTable.select { attribute eq value } 
-            .map { it.toFlight() } 
+        FlightTable.select { attribute eq value }
+            .map { it.toFlight() }
+    }
+
+    private fun calculateDuration(dep: LocalDateTime?, arr: LocalDateTime?): String {
+        return if (dep != null && arr != null) {
+            val mins = Duration.between(dep, arr).toMinutes()
+            val hours = mins / HOURS_DENOMINATOR
+            val remaining = mins % HOURS_DENOMINATOR
+            if (remaining == 0L) "${hours}h" else "${hours}h ${remaining}m"
+        } else "N/A"
+    }
+
+    private fun mapFares(rows: List<ResultRow>): List<FareOption> {
+        return rows.map { row ->
+            FareOption(
+                fareId = row[FlightFareTable.id],
+                fareClassId = row[FlightFareTable.fareClassId],
+                displayName = row[FareClassTable.displayName],
+                cabinClass = row[FareClassTable.cabinClass],
+                price = row[FlightFareTable.price],
+                currency = row[FlightFareTable.currency],
+                seatsAvailable = row[FlightFareTable.seatsAvailable]
+            )
+        }
     }
 
     /**
@@ -70,32 +91,22 @@ class FlightTableAccess {
      * @return list of [FlightWithFares], each containing flight info and available fare options
      */
     fun getFlightsAroundDate(
-        originCode: String, 
-        destinationCode: String, 
-        date: LocalDate,
-        ): List<FlightWithFares> {
-        // clamp to today so we don't show flights that have already departed (previous days)
+        originCode: String,
+        destinationCode: String,
+        date: LocalDate
+    ): List<FlightWithFares> {
         val dateFrom = maxOf(date.minusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW), LocalDate.now()).toString()
         val dateTo = date.plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW).toString()
 
-        // aliases for simplicity
         val originAirport = AirportTable.alias("origin")
         val destinationAirport = AirportTable.alias("destination")
 
         return transaction {
             FlightTable
-                .join(
-                    originAirport, 
-                    JoinType.INNER, 
-                    FlightTable.originAirport, 
-                    originAirport[AirportTable.id]
-                )
-                .join(
-                    destinationAirport, 
-                    JoinType.INNER, 
+                .join(originAirport, JoinType.INNER, FlightTable.originAirport, originAirport[AirportTable.id])
+                .join(destinationAirport, JoinType.INNER, 
                     FlightTable.destinationAirport, 
-                    destinationAirport[AirportTable.id]
-                )
+                    destinationAirport[AirportTable.id])
                 .join(FlightFareTable, JoinType.LEFT, FlightTable.id, FlightFareTable.flightId)
                 .join(FareClassTable, JoinType.LEFT, FlightFareTable.fareClassId, FareClassTable.id)
                 .select {
@@ -105,24 +116,16 @@ class FlightTableAccess {
                     (FlightTable.scheduledDepartureTime lessEq dateTo)
                 }
                 .toList()
-                // exposed LEFT JOIN returns null fare columns for flights with no fares so we filter these out
                 .filter { row -> row.getOrNull(FlightFareTable.id) != null }
                 .groupBy { it[FlightTable.id] }
                 .map { (_, rows) ->
-
                     val first = rows.first()
-
-                    val dep = first[FlightTable.scheduledDepartureTime]
-                        ?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) }
-                    val arr = first[FlightTable.scheduledArrivalTime]
-                        ?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) }
-
-                    val duration = if (dep != null && arr != null) {
-                        val mins = Duration.between(dep, arr).toMinutes()
-                        val hours = mins / HOURS_DENOMINATOR
-                        val remaining = mins % HOURS_DENOMINATOR
-                        if (remaining == 0L) "${hours}h" else "${hours}h ${remaining}m"
-                    } else "N/A"
+                    val dep = first[FlightTable.scheduledDepartureTime]?.let {
+                        LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                    }
+                    val arr = first[FlightTable.scheduledArrivalTime]?.let {
+                        LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                    }
 
                     FlightWithFares(
                         flightId = first[FlightTable.id],
@@ -130,22 +133,12 @@ class FlightTableAccess {
                         departureDay = dep?.format(DateTimeFormatter.ofPattern("d MMMM")),
                         departureTime = dep?.format(DateTimeFormatter.ofPattern("HH:mm")),
                         arrivalTime = arr?.format(DateTimeFormatter.ofPattern("HH:mm")),
-                        duration = duration,
+                        duration = calculateDuration(dep, arr),
                         status = first[FlightTable.status],
                         capacity = first[FlightTable.capacity],
                         originCode = first[originAirport[AirportTable.iataCode]],
                         destinationCode = first[destinationAirport[AirportTable.iataCode]],
-                        fares = rows.map { row ->
-                            FareOption(
-                                fareId = row[FlightFareTable.id],
-                                fareClassId = row[FlightFareTable.fareClassId],
-                                displayName = row[FareClassTable.displayName],
-                                cabinClass = row[FareClassTable.cabinClass],
-                                price = row[FlightFareTable.price],
-                                currency = row[FlightFareTable.currency],
-                                seatsAvailable = row[FlightFareTable.seatsAvailable]
-                            )
-                        }
+                        fares = mapFares(rows)
                     )
                 }
         }
@@ -158,16 +151,16 @@ class FlightTableAccess {
      */
     @Suppress("LongParameterList")
     fun createFlight(
-        flightNumber: Int?, 
-        originAirport: Int, 
-        destinationAirport: Int, 
-        scheduledDepartureTime: String?, 
-        scheduledArrivalTime: String?, 
-        status: String, 
+        flightNumber: Int?,
+        originAirport: Int,
+        destinationAirport: Int,
+        scheduledDepartureTime: String?,
+        scheduledArrivalTime: String?,
+        status: String,
         capacity: Int?
-        ): Boolean = transaction { 
-        FlightTable.insert { 
-            it[FlightTable.flightNumber] = flightNumber 
+    ): Boolean = transaction {
+        FlightTable.insert {
+            it[FlightTable.flightNumber] = flightNumber
             it[FlightTable.originAirport] = originAirport
             it[FlightTable.destinationAirport] = destinationAirport
             it[FlightTable.scheduledDepartureTime] = scheduledDepartureTime
@@ -182,8 +175,8 @@ class FlightTableAccess {
      * Deletes a flight by its primary key.
      * @param id the flight ID to delete
      */
-    fun deleteByID(id: Int) = transaction { 
-        FlightTable.deleteWhere { FlightTable.id eq id } 
+    fun deleteByID(id: Int) = transaction {
+        FlightTable.deleteWhere { FlightTable.id eq id }
     }
 
     /**
@@ -193,11 +186,15 @@ class FlightTableAccess {
      * @param value the new value
      * @return true if at least one row was updated
      */
-    fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = FlightTable.update({ FlightTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+    fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction {
+        val rows = FlightTable.update({ FlightTable.id eq id }) { stmt -> stmt[column] = value }
+        rows > 0
+    }
 
+    /**
+     * Returns flights where both origin and destination are UK airports.
+     * @param ukAirportIDs list of airport IDs in the UK
+     */
     fun getDomesticUKFlights(ukAirportIDs: List<Int>): List<Flight> = transaction {
         FlightTable.select {
             (FlightTable.originAirport inList ukAirportIDs) and

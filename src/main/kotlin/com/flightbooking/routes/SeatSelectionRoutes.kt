@@ -239,7 +239,10 @@ private data class SeatLayout(
             else -> {
                 val leftEdge = index
                 val rightEdge = index + 1
-                if (aisleGapsAfterIndex.contains(leftEdge) || aisleGapsAfterIndex.contains(rightEdge)) "aisle" else "middle"
+                if (
+                    aisleGapsAfterIndex.contains(leftEdge) || 
+                    aisleGapsAfterIndex.contains(rightEdge)
+                    ) "aisle" else "middle"
             }
         }
     }

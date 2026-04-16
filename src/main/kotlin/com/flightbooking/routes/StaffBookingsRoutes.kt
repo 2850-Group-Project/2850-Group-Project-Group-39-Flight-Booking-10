@@ -52,15 +52,20 @@ fun Route.staffBookingsRoutes() {
                 return@transaction mapOf<String, Any>("error" to "Staff not found, please login again.")
             }
 
-            val staffName = listOfNotNull(staffRow[StaffTable.firstName], staffRow[StaffTable.lastName]).joinToString(" ").ifBlank { "Staff" }
+            val staffName = listOfNotNull(
+                staffRow[StaffTable.firstName], 
+                staffRow[StaffTable.lastName]
+                ).joinToString(" ").ifBlank { "Staff" }
             val staffRole = staffRow[StaffTable.role] ?: "Staff"
 
             val origin = AirportTable.alias("origin")
             val dest = AirportTable.alias("dest")
 
             val flights = (FlightTable
-                .join(origin, JoinType.INNER, additionalConstraint = { FlightTable.originAirport eq origin[AirportTable.id] })
-                .join(dest, JoinType.INNER, additionalConstraint = { FlightTable.destinationAirport eq dest[AirportTable.id] })
+                .join(origin, JoinType.INNER, additionalConstraint = { 
+                    FlightTable.originAirport eq origin[AirportTable.id] })
+                .join(dest, JoinType.INNER, additionalConstraint = { 
+                    FlightTable.destinationAirport eq dest[AirportTable.id] })
                 .slice(
                     FlightTable.id,
                     FlightTable.flightNumber,
@@ -77,7 +82,10 @@ fun Route.staffBookingsRoutes() {
                 .map { r ->
                     val fid = r[FlightTable.id]
                     val flightNo = r[FlightTable.flightNumber]?.toString() ?: fid.toString()
-                    val label = "${r[origin[AirportTable.iataCode]]} → ${r[dest[AirportTable.iataCode]]} | $flightNo | ${r[FlightTable.status]}"
+                    val label =
+                        "${r[origin[AirportTable.iataCode]]} → " +
+                        "${r[dest[AirportTable.iataCode]]} | " +
+                        "$flightNo | ${r[FlightTable.status]}"
                     mapOf(
                         "id" to fid,
                         "label" to label
@@ -85,10 +93,14 @@ fun Route.staffBookingsRoutes() {
                 })
 
             val bookingsList = (BookingTable
-                .join(PassengerTable, JoinType.LEFT, additionalConstraint = { PassengerTable.bookingId eq BookingTable.id })
-                .join(BookingSegmentTable, JoinType.LEFT, additionalConstraint = { BookingSegmentTable.bookingId eq BookingTable.id })
-                .join(FlightTable, JoinType.LEFT, additionalConstraint = { FlightTable.id eq BookingSegmentTable.flightId })
-                .join(SeatAssignmentTable, JoinType.LEFT, additionalConstraint = { SeatAssignmentTable.bookingSegmentId eq BookingSegmentTable.id })
+                .join(PassengerTable, JoinType.LEFT, additionalConstraint = 
+                    { PassengerTable.bookingId eq BookingTable.id })
+                .join(BookingSegmentTable, JoinType.LEFT, additionalConstraint = 
+                    { BookingSegmentTable.bookingId eq BookingTable.id })
+                .join(FlightTable, JoinType.LEFT, additionalConstraint = 
+                    { FlightTable.id eq BookingSegmentTable.flightId })
+                .join(SeatAssignmentTable, JoinType.LEFT, additionalConstraint = 
+                    { SeatAssignmentTable.bookingSegmentId eq BookingSegmentTable.id })
                 .join(SeatTable, JoinType.LEFT, additionalConstraint = { SeatTable.id eq SeatAssignmentTable.seatId })
                 .slice(
                     BookingTable.id,
@@ -117,7 +129,11 @@ fun Route.staffBookingsRoutes() {
                 .limit(300)
                 .map { r ->
                     val bookingId = r[BookingTable.id]
-                    val passengerName = listOfNotNull(r[PassengerTable.title], r[PassengerTable.firstName], r[PassengerTable.lastName]).joinToString(" ").ifBlank { "" }
+                    val passengerName = listOfNotNull(
+                        r[PassengerTable.title], 
+                        r[PassengerTable.firstName], 
+                        r[PassengerTable.lastName]
+                    ).joinToString(" ").ifBlank { "" }
                     val flightId = r.getOrNull(BookingSegmentTable.flightId)
                     val seatId = r.getOrNull(SeatAssignmentTable.seatId)
                     val seatCode = r.getOrNull(SeatTable.seatCode)
@@ -196,7 +212,9 @@ fun Route.staffBookingsRoutes() {
                 }
             }
 
-            val segRow = BookingSegmentTable.select { BookingSegmentTable.bookingId eq bookingId }.limit(1).firstOrNull()
+            val segRow = BookingSegmentTable.select { 
+                BookingSegmentTable.bookingId eq bookingId 
+            }.limit(1).firstOrNull()
             val segId = segRow?.get(BookingSegmentTable.id)
 
             if (segId != null && newFlightId != null) {
@@ -204,7 +222,9 @@ fun Route.staffBookingsRoutes() {
                 val flightChanged = currentFlightId != newFlightId
 
                 if (flightChanged) {
-                    val saRow = SeatAssignmentTable.select { SeatAssignmentTable.bookingSegmentId eq segId }.limit(1).firstOrNull()
+                    val saRow = SeatAssignmentTable.select { 
+                        SeatAssignmentTable.bookingSegmentId eq segId 
+                    }.limit(1).firstOrNull()
                     val oldSeatId = saRow?.get(SeatAssignmentTable.seatId)
 
                     if (oldSeatId != null) {
@@ -223,14 +243,18 @@ fun Route.staffBookingsRoutes() {
                         it[flightId] = newFlightId
                     }
                 } else {
-                    val saRow = SeatAssignmentTable.select { SeatAssignmentTable.bookingSegmentId eq segId }.limit(1).firstOrNull()
+                    val saRow = SeatAssignmentTable.select { 
+                        SeatAssignmentTable.bookingSegmentId eq segId 
+                    }.limit(1).firstOrNull()
                     if (saRow != null) {
                         val oldSeatId = saRow[SeatAssignmentTable.seatId]
                         if (newSeatId == null) {
                             if (oldSeatId != null) {
                                 SeatTable.update({ SeatTable.id eq oldSeatId }) { it[status] = "available" }
                             }
-                            SeatAssignmentTable.update({ SeatAssignmentTable.id eq saRow[SeatAssignmentTable.id] }) { it[seatId] = null }
+                            SeatAssignmentTable.update({ 
+                                SeatAssignmentTable.id eq saRow[SeatAssignmentTable.id] 
+                            }) { it[seatId] = null }
                         } else {
                             val seatRow = SeatTable.select { SeatTable.id eq newSeatId }.limit(1).firstOrNull()
                             val seatOk = seatRow != null && seatRow[SeatTable.flightId] == currentFlightId
@@ -240,7 +264,9 @@ fun Route.staffBookingsRoutes() {
                                     SeatTable.update({ SeatTable.id eq oldSeatId }) { it[status] = "available" }
                                 }
                                 SeatTable.update({ SeatTable.id eq newSeatId }) { it[status] = "occupied" }
-                                SeatAssignmentTable.update({ SeatAssignmentTable.id eq saRow[SeatAssignmentTable.id] }) { it[seatId] = newSeatId }
+                                SeatAssignmentTable.update({ 
+                                    SeatAssignmentTable.id eq saRow[SeatAssignmentTable.id] 
+                                }) { it[seatId] = newSeatId }
                             }
                         }
                     }
@@ -332,7 +358,9 @@ fun Route.staffBookingsRoutes() {
 
                 if (ok) {
                     SeatTable.update({ SeatTable.id eq seatId }) { it[SeatTable.status] = "occupied" }
-                    SeatAssignmentTable.update({ SeatAssignmentTable.id eq seatAssignmentId }) { it[SeatAssignmentTable.seatId] = seatId }
+                    SeatAssignmentTable.update({ 
+                        SeatAssignmentTable.id eq seatAssignmentId }) 
+                        { it[SeatAssignmentTable.seatId] = seatId }
                 }
             }
         }
