@@ -52,6 +52,10 @@ import java.time.Instant
  * - POST /profile/bookings/change
  *   Creates a new change request in the database (requires UserSession).
  */
+
+private const val MAX_SEAT_RESULTS = 200
+private const val MAX_FLIGHT_SEARCH_RESULTS = 30
+
 fun Route.changeRequestRoutes() {
 
     /**
@@ -148,7 +152,7 @@ fun Route.changeRequestRoutes() {
                         FlightTable.flightNumber.castTo<String>(VarCharColumnType()).like("%$flightQ%")
                     }
                     .orderBy(FlightTable.id, SortOrder.DESC)
-                    .limit(30)
+                    .limit(MAX_FLIGHT_SEARCH_RESULTS)
                     .map { r ->
                         mapOf(
                             "id" to r[FlightTable.id],
@@ -168,7 +172,7 @@ fun Route.changeRequestRoutes() {
                 seatAccess
                     .getByAttribute(SeatTable.flightId, targetFlightId)
                     .filter { it.status == "available" }
-                    .take(200)
+                    .take(MAX_SEAT_RESULTS)
                     .map { s ->
                         mapOf(
                             "id" to s.id,

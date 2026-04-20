@@ -59,6 +59,11 @@ import java.util.UUID
  *   - Enforces that a seat (if selected) belongs to the selected flight.
  *   - Redirects back to `/staff/bookings`.
  */
+
+private const val BOOKING_REF_LENGTH = 10
+private const val BOOKING_LIST_LIMIT = 300
+private const val FLIGHT_LIST_LIMIT = 300
+
 fun Route.staffBookingsRoutes() {
 
     get("/staff/bookings") {
@@ -99,7 +104,7 @@ fun Route.staffBookingsRoutes() {
                 )
                 .selectAll()
                 .orderBy(FlightTable.id, SortOrder.DESC)
-                .limit(300)
+                .limit(FLIGHT_LIST_LIMIT)
                 .orderBy(FlightTable.id, SortOrder.DESC)
                 .map { r ->
                     val fid = r[FlightTable.id]
@@ -148,7 +153,7 @@ fun Route.staffBookingsRoutes() {
                     }
                 }
                 .orderBy(BookingTable.id, SortOrder.DESC)
-                .limit(300)
+                .limit(BOOKING_LIST_LIMIT)
                 .map { r ->
                     val bookingId = r[BookingTable.id]
                     val passengerName = listOfNotNull(
@@ -331,7 +336,7 @@ fun Route.staffBookingsRoutes() {
             }
 
             val userIdOrNull = userRow[UserTable.id]
-            val bookingRef = "BK-" + UUID.randomUUID().toString().replace("-", "").take(10).uppercase()
+            val bookingRef = "BK-" + UUID.randomUUID().toString().replace("-", "").take(BOOKING_REF_LENGTH).uppercase()
             val createdAtStr = Instant.now().toString()
 
             val bookingId = BookingTable.insert {

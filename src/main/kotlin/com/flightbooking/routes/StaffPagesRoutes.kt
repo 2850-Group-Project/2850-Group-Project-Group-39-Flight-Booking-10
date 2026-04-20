@@ -55,6 +55,13 @@ import org.jetbrains.exposed.sql.castTo
  *      Deletes a flight, then redirects back to `/staff/flights`.
  * - **GET `/staff/logout`**: Clears [StaffSession] and redirects to `/staff/login`.
  */
+
+private const val FLIGHT_LIST_LIMIT = 8
+private const val MIN_TIMESTAMP_LENGTH = 16
+private const val ISO_TIME_START_INDEX = 11
+private const val ISO_TIME_END_INDEX = 16
+private const val DEFAULT_CAPACITY = 180
+
 fun Route.staffPagesRoutes() {
 
     get("/staff/dashboard") {
@@ -116,13 +123,13 @@ fun Route.staffPagesRoutes() {
                 )
                 .select { FlightTable.status neq "cancelled" }
                 .orderBy(FlightTable.id, SortOrder.DESC)
-                .limit(8)
+                .limit(FLIGHT_LIST_LIMIT)
                 .map { row ->
                     val no = row[FlightTable.flightNumber]?.toString() ?: row[FlightTable.id].toString()
                     val destination = row[dest[AirportTable.iataCode]]
                     val departureTimeRaw = row[FlightTable.scheduledDepartureTime] ?: ""
-                    val depTime = if  (departureTimeRaw.length >= 16) {
-                        departureTimeRaw.substring(11, 16) 
+                    val depTime = if  (departureTimeRaw.length >= MIN_TIMESTAMP_LENGTH) {
+                        departureTimeRaw.substring(ISO_TIME_START_INDEX, ISO_TIME_END_INDEX) 
                     } else { departureTimeRaw }
                     val status = row[FlightTable.status]
                     val cap = row[FlightTable.capacity]?.toString() ?: ""
@@ -360,7 +367,7 @@ private fun createSeatsForFlight(flightId: Int, capacity: Int?) {
     val existing = SeatTable.select { SeatTable.flightId eq flightId }.count()
     if (existing > 0L) return
 
-    val total = (capacity ?: 180).coerceAtLeast(1)
+    val total = (capacity ?: DEFAULT_CAPACITY).coerceAtLeast(1)
     val letters = listOf("A", "B", "C", "D", "E", "F")
     val seatMaps = ArrayList<Map<String, Any>>(total)
 

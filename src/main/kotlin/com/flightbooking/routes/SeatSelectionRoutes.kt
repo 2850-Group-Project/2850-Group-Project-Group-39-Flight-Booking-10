@@ -39,6 +39,17 @@ import kotlin.math.ceil
  * - This route does NOT update `seat_assignment` or `seat.status` because booking/segment/assignment
  *   may not exist yet in the DB at this stage.
  */
+
+private const val SMALL_AISLE_GAP_INDEX = 3
+private const val MEDIUM_FIRST_AISLE_GAP_INDEX = 2
+private const val MEDIUM_SECOND_AISLE_GAP_INDEX = 6
+private const val LARGE_FIRST_AISLE_GAP_INDEX = 3
+private const val LARGE_SECOND_AISLE_GAP_INDEX = 7
+private const val SMALL_SEATS_PER_ROW = 6
+private const val MEDIUM_SEATS_PER_ROW = 8
+private const val SMALL_AIRCRAFT_CAP_THRESHOLD = 180
+private const val MEDIUM_AIRCRAFT_CAP_THRESHOLD = 350
+
 fun Route.seatSelectionRoutes() {
 
     /**
@@ -87,10 +98,10 @@ fun Route.seatSelectionRoutes() {
         val origin = airportAccess.getByAttribute(AirportTable.id, flight.originAirport).firstOrNull()
         val dest = airportAccess.getByAttribute(AirportTable.id, flight.destinationAirport).firstOrNull()
 
-        val capacity = (flight.capacity ?: 180).coerceAtLeast(1)
+        val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
         val aircraftType = when {
-            capacity <= 180 -> "Narrow-body"
-            capacity <= 350 -> "Wide-body"
+            capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD -> "Narrow-body"
+            capacity <= MEDIUM_AIRCRAFT_CAP_THRESHOLD -> "Wide-body"
             else -> "Jumbo-jet"
         }
 
@@ -100,23 +111,30 @@ fun Route.seatSelectionRoutes() {
         val seatStatusByCode = seatRowsFromDb.associate { it.seatCode to it.status }
 
         val layout = when {
-            capacity <= 180 -> SeatLayout(
-                seatsPerRow = 6,
+            capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD -> SeatLayout(
+                seatsPerRow = SMALL_SEATS_PER_ROW,
                 letters = listOf("A", "B", "C", "D", "E", "F"),
-                aisleGapsAfterIndex = setOf(3) // ABC | DEF
+                aisleGapsAfterIndex = setOf(SMALL_AISLE_GAP_INDEX) // ABC | DEF
             )
 
-            capacity <= 350 -> SeatLayout(
-                seatsPerRow = 8,
+            capacity <= MEDIUM_AIRCRAFT_CAP_THRESHOLD -> SeatLayout(
+                seatsPerRow = MEDIUM_SEATS_PER_ROW,
                 letters = listOf("A", "B", "C", "D", "E", "F", "G", "H"),
-                aisleGapsAfterIndex = setOf(2, 6) // AB | CDEF | GH
+                aisleGapsAfterIndex = setOf(
+                    MEDIUM_FIRST_AISLE_GAP_INDEX, 
+                    MEDIUM_SECOND_AISLE_GAP_INDEX
+                ) // AB | CDEF | GH
             )
 
             else -> SeatLayout(
                 seatsPerRow = 10,
                 letters = listOf("A", "B", "C", "D", "E", "F", "G", "H", "J", "K"),
-                aisleGapsAfterIndex = setOf(3, 7) // ABC | DEFG | HJK
+                aisleGapsAfterIndex = setOf(
+                    LARGE_FIRST_AISLE_GAP_INDEX, 
+                    LARGE_SECOND_AISLE_GAP_INDEX
+                ) // ABC | DEFG | HJK
             )
+
         }
 
         val totalRows = ceil(capacity / layout.seatsPerRow.toDouble()).toInt().coerceAtLeast(1)
