@@ -77,8 +77,8 @@ class FlightImportService(
         } else {
             ValidatedFlight(
                 apiFlight = apiFlight,
-                originID = originID,
-                destID = destID
+                originID = originID!!,
+                destID = destID!!
             )
         }
     }
