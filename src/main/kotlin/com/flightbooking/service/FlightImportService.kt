@@ -40,7 +40,8 @@ class FlightImportService(
         println("importAllFlights done")
     }
 
-    private suspend fun fetchAllFlights(): List<ApiFlight> = sequence {
+    private suspend fun fetchAllFlights(): List<ApiFlight> {
+        val results = mutableListOf<ApiFlight>()
         var offset = 0
         var total = Int.MAX_VALUE
         while (offset < total) {
@@ -51,10 +52,10 @@ class FlightImportService(
                 break
             }
             total = totalFromResponse
-
-            yieldAll(response.data)
+            results.addAll(response.data)
             offset += FLIGHT_IMPORT_LIMIT
         }
+        return results
     }
 
     private fun validateFlight(
