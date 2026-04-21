@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 
 const val RAND_CANCELLED_UPPER : Int = 10
 const val RAND_CANCELLED_AT_UPPER : Int = 300
-const val RAND_BOOKING_MAX : INt = 2
+const val RAND_BOOKING_MAX : Int = 2
 const val RAND_LETTER_COUNT : Int = 3
 const val RAND_NUMBER_MIN : Int = 100
 const val RAND_NUMBER_MAX : Int = 999
