@@ -40,7 +40,7 @@ class FlightImportService(
         println("importAllFlights done")
     }
 
-    private suspend fun fetchAllFlights(): Sequence<ApiFlight> = sequence {
+    private suspend fun fetchAllFlights(): List<ApiFlight> = sequence {
         var offset = 0
         var total = Int.MAX_VALUE
         while (offset < total) {
