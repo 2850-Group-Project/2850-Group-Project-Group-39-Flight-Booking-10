@@ -41,7 +41,7 @@ class FlightImportService(
     }
 
     private suspend fun fetchAllFlights(): List<ApiFlight> {
-        val flights = mutableListOf<ApiFlight>()
+        val results = mutableListOf<ApiFlight>()
         var offset = 0
         var total = Int.MAX_VALUE
 
@@ -50,12 +50,10 @@ class FlightImportService(
             val pagination = response.pagination
             val totalFromResponse = pagination?.total ?: break
             total = totalFromResponse
-
-            flights.addAll(response.data)
+            results.addAll(response.data)
             offset += FLIGHT_IMPORT_LIMIT
         }
-
-        return flights
+        return results
     }
 
 
