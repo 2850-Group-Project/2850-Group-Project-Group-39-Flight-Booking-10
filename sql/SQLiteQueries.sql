@@ -3,8 +3,110 @@
 --      RUN WITH CTRL+SHIFT+Q         --
 ----------------------------------------
 
-SELECT MAX(flight_id) FROM flight;
-SELECT MAX(flight_fare_id) FROM flight_fare;
+-- SELECT iata_code, name, city 
+-- FROM airport 
+-- WHERE iata_code IN ('ABD', 'MHD');
+
+-- THESE ARE THE AIRPORTS WE WILL USE FOR THE DEMO
+-- SELECT airport_id, iata_code, city FROM airport WHERE iata_code IN ('MHD', 'ABD');
+
+
+
+
+
+
+
+
+
+
+
+
+-- INSERT INTO flight (flight_number, origin_airport, destination_airport, scheduled_departure_time, scheduled_arrival_time, status, capacity) VALUES
+-- (601, 27, 3421, '2026-08-20 08:00:00', '2026-08-20 12:30:00', 'scheduled', 300),
+-- (602, 27, 3421, '2026-08-21 14:00:00', '2026-08-21 18:30:00', 'scheduled', 280),
+-- (603, 27, 3421, '2026-08-22 21:00:00', '2026-08-23 01:30:00', 'scheduled', 300);
+
+-- INSERT INTO flight_fare (flight_id, fare_class_id, price, currency, seats_available, sale_start, sale_end)
+-- SELECT f.flight_id, fc.fare_class_id,
+--     CASE fc.fare_class_id WHEN 1 THEN 349.99 WHEN 2 THEN 449.99 WHEN 3 THEN 1899.99 WHEN 4 THEN 899.99 WHEN 5 THEN 1499.99 END,
+--     'GBP',
+--     CASE fc.fare_class_id WHEN 1 THEN 120 WHEN 2 THEN 80 WHEN 3 THEN 20 WHEN 4 THEN 40 WHEN 5 THEN 30 END,
+--     '2026-01-01', '2026-08-23'
+-- FROM flight f
+-- CROSS JOIN fare_class fc
+-- WHERE f.flight_number IN (601, 602, 603);
+
+
+-- INSERT INTO flight (flight_number, origin_airport, destination_airport, scheduled_departure_time, scheduled_arrival_time, status, capacity) VALUES
+-- -- ABD -> MHD
+-- (701, 27, 3421, '2026-08-10 06:00:00', '2026-08-10 10:30:00', 'scheduled', 300),
+-- (702, 27, 3421, '2026-08-10 14:00:00', '2026-08-10 18:30:00', 'scheduled', 280),
+-- (703, 27, 3421, '2026-08-11 08:00:00', '2026-08-11 12:30:00', 'scheduled', 300),
+-- (704, 27, 3421, '2026-08-11 19:00:00', '2026-08-11 23:30:00', 'scheduled', 280),
+-- (705, 27, 3421, '2026-08-12 07:00:00', '2026-08-12 11:30:00', 'scheduled', 300),
+-- (706, 27, 3421, '2026-08-12 15:00:00', '2026-08-12 19:30:00', 'scheduled', 280),
+-- (707, 27, 3421, '2026-08-12 22:00:00', '2026-08-13 02:30:00', 'scheduled', 300),
+-- (708, 27, 3421, '2026-08-13 09:00:00', '2026-08-13 13:30:00', 'scheduled', 280),
+-- (709, 27, 3421, '2026-08-13 17:00:00', '2026-08-13 21:30:00', 'scheduled', 300),
+-- (710, 27, 3421, '2026-08-14 05:00:00', '2026-08-14 09:30:00', 'scheduled', 280),
+-- (711, 27, 3421, '2026-08-14 13:00:00', '2026-08-14 17:30:00', 'scheduled', 300),
+-- (712, 27, 3421, '2026-08-15 07:00:00', '2026-08-15 11:30:00', 'scheduled', 280),
+-- (713, 27, 3421, '2026-08-15 16:00:00', '2026-08-15 20:30:00', 'scheduled', 300),
+-- (714, 27, 3421, '2026-08-16 08:00:00', '2026-08-16 12:30:00', 'scheduled', 280),
+-- (715, 27, 3421, '2026-08-16 20:00:00', '2026-08-17 00:30:00', 'scheduled', 300),
+-- (716, 27, 3421, '2026-08-17 10:00:00', '2026-08-17 14:30:00', 'scheduled', 280),
+-- (717, 27, 3421, '2026-08-17 22:00:00', '2026-08-18 02:30:00', 'scheduled', 300),
+-- (718, 27, 3421, '2026-08-18 09:00:00', '2026-08-18 13:30:00', 'scheduled', 280),
+-- (719, 27, 3421, '2026-08-18 17:00:00', '2026-08-18 21:30:00', 'scheduled', 300),
+-- (720, 27, 3421, '2026-08-19 06:00:00', '2026-08-19 10:30:00', 'scheduled', 280),
+-- -- MHD -> ABD
+-- (721, 3421, 27, '2026-08-10 07:00:00', '2026-08-10 11:30:00', 'scheduled', 300),
+-- (722, 3421, 27, '2026-08-10 16:00:00', '2026-08-10 20:30:00', 'scheduled', 280),
+-- (723, 3421, 27, '2026-08-11 09:00:00', '2026-08-11 13:30:00', 'scheduled', 300),
+-- (724, 3421, 27, '2026-08-11 21:00:00', '2026-08-12 01:30:00', 'scheduled', 280),
+-- (725, 3421, 27, '2026-08-12 08:00:00', '2026-08-12 12:30:00', 'scheduled', 300),
+-- (726, 3421, 27, '2026-08-12 17:00:00', '2026-08-12 21:30:00', 'scheduled', 280),
+-- (727, 3421, 27, '2026-08-13 06:00:00', '2026-08-13 10:30:00', 'scheduled', 300),
+-- (728, 3421, 27, '2026-08-13 14:00:00', '2026-08-13 18:30:00', 'scheduled', 280),
+-- (729, 3421, 27, '2026-08-13 22:00:00', '2026-08-14 02:30:00', 'scheduled', 300),
+-- (730, 3421, 27, '2026-08-14 07:00:00', '2026-08-14 11:30:00', 'scheduled', 280),
+-- (731, 3421, 27, '2026-08-14 15:00:00', '2026-08-14 19:30:00', 'scheduled', 300),
+-- (732, 3421, 27, '2026-08-15 08:00:00', '2026-08-15 12:30:00', 'scheduled', 280),
+-- (733, 3421, 27, '2026-08-15 18:00:00', '2026-08-15 22:30:00', 'scheduled', 300),
+-- (734, 3421, 27, '2026-08-16 09:00:00', '2026-08-16 13:30:00', 'scheduled', 280),
+-- (735, 3421, 27, '2026-08-16 21:00:00', '2026-08-17 01:30:00', 'scheduled', 300),
+-- (736, 3421, 27, '2026-08-17 11:00:00', '2026-08-17 15:30:00', 'scheduled', 280),
+-- (737, 3421, 27, '2026-08-17 23:00:00', '2026-08-18 03:30:00', 'scheduled', 300),
+-- (738, 3421, 27, '2026-08-18 10:00:00', '2026-08-18 14:30:00', 'scheduled', 280),
+-- (739, 3421, 27, '2026-08-18 19:00:00', '2026-08-18 23:30:00', 'scheduled', 300),
+-- (740, 3421, 27, '2026-08-19 07:00:00', '2026-08-19 11:30:00', 'scheduled', 280);
+
+-- INSERT INTO flight_fare (flight_id, fare_class_id, price, currency, seats_available, sale_start, sale_end)
+-- SELECT f.flight_id, fc.fare_class_id,
+--     CASE fc.fare_class_id WHEN 1 THEN 349.99 WHEN 2 THEN 449.99 WHEN 3 THEN 1899.99 WHEN 4 THEN 899.99 WHEN 5 THEN 1499.99 END,
+--     'GBP',
+--     CASE fc.fare_class_id WHEN 1 THEN 120 WHEN 2 THEN 80 WHEN 3 THEN 20 WHEN 4 THEN 40 WHEN 5 THEN 30 END,
+--     '2026-01-01', '2026-08-20'
+-- FROM flight f
+-- CROSS JOIN fare_class fc
+-- WHERE f.flight_number BETWEEN 701 AND 740;
+
+
+
+
+
+
+-- SELECT 
+--     date(f.scheduled_departure_time) AS "Date",
+--     o.name AS "Origin",
+--     d.name AS "Destination",
+--     COUNT(*) AS "Flights"
+-- FROM flight f
+-- JOIN airport o ON f.origin_airport = o.airport_id
+-- JOIN airport d ON f.destination_airport = d.airport_id
+-- WHERE f.scheduled_departure_time BETWEEN '2026-08-10' AND '2026-08-17'
+-- GROUP BY date(f.scheduled_departure_time), o.airport_id, d.airport_id
+-- ORDER BY date(f.scheduled_departure_time), o.name;
 
 ----------------------------------------
 --            TABLE NAMES             --
