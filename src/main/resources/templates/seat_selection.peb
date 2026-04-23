@@ -131,6 +131,12 @@
 
       <div class="divider" style="margin-top:18px;">CHOOSE A SEAT</div>
 
+      <p class="sub" style="margin-bottom:16px;">
+        Assigning seat for: <b>{{ currentPassenger }}</b>
+      </p>
+
+      <div class="legend" style="margin:14px 0 10px;">
+
       <div class="legend" style="margin:14px 0 10px;">
         <span class="lg"><span class="sq available"></span> Available</span>
         <span class="lg"><span class="sq occupied"></span> Occupied</span>

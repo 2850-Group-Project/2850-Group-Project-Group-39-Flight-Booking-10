@@ -3,12 +3,16 @@ package com.flightbooking.routes
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
+import com.flightbooking.access.SeatAssignmentTableAccess
+import com.flightbooking.access.BookingSegmentTableAccess
 import com.flightbooking.access.PassengerTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.SeatTable
+import com.flightbooking.tables.BookingSegmentTable
+import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.PassengerTable
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
@@ -224,26 +228,74 @@ fun Route.seatSelectionRoutes() {
             return@post
         }
 
-        val seatAccess = SeatTableAccess()
-        val seats = seatAccess.getByAttribute(SeatTable.flightId, flightId)
-
-        // If we have DB seats, validate against DB availability.
-        if (seats.isNotEmpty()) {
-            val seatRow = seats.firstOrNull { it.seatCode == seatCode }
-            if (seatRow == null) {
-                call.respondRedirect("/flights/seats?error=Seat not found for this flight")
-                return@post
-            }
-            if (seatRow.status != "available") {
-                call.respondRedirect("/flights/seats?error=Seat is already occupied")
-                return@post
+        val passengers = transaction {
+            PassengerTable.select(PassengerTable.bookingId eq bookingSession.bookingId).map {
+                it[PassengerTable.id]
             }
         }
 
-        // At this stage we usually haven't created booking/segment yet, so we pass seatCode forward.
-        // Next step route (payment) can read seatCode from query params and/or store it into session later.
+        val assignedPassengers = transaction {
+            SeatAssignmentTable.selectAll().map {
+                it[SeatAssignmentTable.passengerId]
+            }.toSet()
+        }
 
-        call.respondRedirect("/flights/payment?seatCode=$seatCode")
+        val unassignedPassenger = passengers.firstOrNull { it !in assignedPassengers }
+        if (unassignedPassenger == null) {
+            call.respondRedirect("/flights/seats?error=All passengers assigned")
+            return@post
+        }
+
+        val seatAccess = SeatTableAccess()
+        val seats = seatAccess.getByAttribute(SeatTable.flightId, flightId)
+
+        // Find seat_id by code
+        val seatId = seats.firstOrNull { it.seatCode == seatCode }?.id
+        if (seatId == null) {
+            call.respondRedirect("/flights/seats?error=Seat not found for this flight")
+            return@post
+        }
+
+        val seatRow = seats.firstOrNull { it.seatCode == seatCode }
+        if (seatRow?.status != "available") {
+            call.respondRedirect("/flights/seats?error=Seat is already occupied")
+            return@post
+        }
+
+        // create booking segment and get its id
+        val bookingSegmentId = transaction {
+            val existing = BookingSegmentTable.select { 
+                (BookingSegmentTable.bookingId eq bookingSession.bookingId) and 
+                (BookingSegmentTable.flightId eq flightId)
+            }.firstOrNull()
+            
+            if (existing != null) {
+                existing[BookingSegmentTable.id]
+            } else {
+                BookingSegmentTable.insert {
+                    it[BookingSegmentTable.bookingId] = bookingSession.bookingId
+                    it[BookingSegmentTable.flightId] = flightId
+                    it[BookingSegmentTable.flightFareId] = bookingSession.outboundFareId?.toInt() ?: 0
+                }
+
+                BookingSegmentTable.selectAll().orderBy(BookingSegmentTable.id to SortOrder.DESC).limit(1).firstOrNull()?.get(BookingSegmentTable.id) ?: 0
+            }
+        }
+
+        // puts seat assignment in
+        transaction {
+            SeatAssignmentTable.insert {
+                it[SeatAssignmentTable.passengerId] = unassignedPassenger
+                it[SeatAssignmentTable.seatId] = seatId
+                it[SeatAssignmentTable.bookingSegmentId] = bookingSegmentId
+            }
+        }
+
+        if (assignedPassengers.size + 1 < passengers.size) {
+            call.respondRedirect("/flights/seats?selected=$seatCode&ok=Seat assigned. Next passenger...")
+        } else {
+            call.respondRedirect("/flights/payment")
+        }
     }
 }
 
