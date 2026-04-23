@@ -169,6 +169,20 @@ fun Route.seatSelectionRoutes() {
             )
         }
 
+        val assignedSeats = transaction {
+            SeatAssignmentTable.selectAll().map {
+                it[SeatAssignmentTable.passengerId]
+            }.toSet()
+        }
+
+        val unassignedPassenger = passengers.firstOrNull { passenger ->
+            passenger["id"] as? Int !in assignedSeats
+        }
+
+        val currentPassengerName = unassignedPassenger?.let { 
+            "${it["firstName"]} ${it["lastName"]}"
+        } ?: "All assigned"
+
         val selectedSeatCode = call.request.queryParameters["selected"]?.trim().orEmpty()
 
         val model: Map<String, Any> = mapOf(
@@ -181,6 +195,7 @@ fun Route.seatSelectionRoutes() {
             "destName" to (dest?.name ?: "—"),
             "aircraftType" to aircraftType,
             "currentSeatCode" to selectedSeatCode,
+            "currentPassenger" to currentPassengerName,
             "seatRows" to seatRows,
             "passengers" to passengers,
             "error" to (call.request.queryParameters["error"] ?: ""),
@@ -235,10 +250,12 @@ fun Route.seatSelectionRoutes() {
         }
 
         val assignedPassengers = transaction {
-            SeatAssignmentTable.selectAll().map {
-                it[SeatAssignmentTable.passengerId]
-            }.toSet()
+            (SeatAssignmentTable innerJoin PassengerTable)
+                .select { PassengerTable.bookingId eq bookingSession.bookingId }
+                .map { it[SeatAssignmentTable.passengerId] }
+                .toSet()
         }
+        println(assignedPassengers)
 
         val unassignedPassenger = passengers.firstOrNull { it !in assignedPassengers }
         if (unassignedPassenger == null) {
@@ -290,6 +307,9 @@ fun Route.seatSelectionRoutes() {
                 it[SeatAssignmentTable.bookingSegmentId] = bookingSegmentId
             }
         }
+
+        println(assignedPassengers.size)
+        println(passengers.size)
 
         if (assignedPassengers.size + 1 < passengers.size) {
             call.respondRedirect("/flights/seats?selected=$seatCode&ok=Seat assigned. Next passenger...")
