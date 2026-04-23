@@ -3,14 +3,87 @@
 --      RUN WITH CTRL+SHIFT+Q         --
 ----------------------------------------
 
--- SELECT iata_code, name, city 
+
+
+
+
+
+
+
+-- ADDED LONDON TO NEW YORK
+-- INSERT INTO flight_fare (
+--     flight_fare_id, flight_id, fare_class_id,
+--     price, currency, seats_available
+-- ) VALUES (
+--     3001, 10001, 1,
+--     349.99, 'GBP', 100
+-- );
+
+-- INSERT INTO flight (
+--     flight_id, flight_number, origin_airport, destination_airport,
+--     scheduled_departure_time, scheduled_arrival_time, status, capacity
+-- ) VALUES (
+--     10001, 1001, 1, 2,
+--     '2026-08-12 10:00:00',
+--     '2026-08-12 13:00:00',
+--     'scheduled',
+--     180
+-- );
+
+
+-- SELECT 
+--     f.flight_id,
+--     f.flight_number,
+--     a1.iata_code AS origin,
+--     a2.iata_code AS destination,
+--     COUNT(DISTINCT s.seat_id) AS seat_count,
+--     COUNT(DISTINCT ff.flight_fare_id) AS fare_options
+-- FROM flight f
+-- JOIN airport a1 ON f.origin_airport = a1.airport_id
+-- JOIN airport a2 ON f.destination_airport = a2.airport_id
+
+-- -- must have seats
+-- JOIN seat s ON s.flight_id = f.flight_id
+
+-- -- must have fares
+-- JOIN flight_fare ff ON ff.flight_id = f.flight_id
+
+-- GROUP BY f.flight_id
+-- HAVING seat_count > 0 AND fare_options > 0
+-- ORDER BY seat_count DESC, fare_options DESC;
+
+
+
+-- SELECT iata_code, name, city, airport_id 
 -- FROM airport 
--- WHERE iata_code IN ('ABD', 'MHD');
+-- WHERE iata_code IN ('GLA', 'LHR');
+
+-- select * from flight where origin_airport = 1919;
 
 -- THESE ARE THE AIRPORTS WE WILL USE FOR THE DEMO
 -- SELECT airport_id, iata_code, city FROM airport WHERE iata_code IN ('MHD', 'ABD');
 
+-- select * from flight where flight_id = 503;
+-- select * from airport where airport.airport_id = 911;
 
+-- SELECT 
+--     f.flight_id,
+--     f.flight_number,
+--     a1.iata_code AS origin,
+--     a2.iata_code AS destination,
+--     s.seat_id,
+--     s.seat_code,
+--     s.cabin_class,
+--     s.status,
+--     sa.passenger_id
+-- FROM flight f
+-- JOIN airport a1 ON f.origin_airport = a1.airport_id
+-- JOIN airport a2 ON f.destination_airport = a2.airport_id
+-- JOIN seat s ON s.flight_id = f.flight_id
+-- LEFT JOIN seat_assignment sa ON s.seat_id = sa.seat_id
+-- WHERE a1.iata_code IN ('MHD', 'ABD')
+--    OR a2.iata_code IN ('MHD', 'ABD')
+-- ORDER BY f.flight_id, s.seat_code;
 
 
 

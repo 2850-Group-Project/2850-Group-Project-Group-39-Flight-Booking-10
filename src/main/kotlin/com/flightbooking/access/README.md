@@ -1,5 +1,5 @@
-Use Abadan => Mashhad for flights (August 12 - August 20)
-This will return the most flights (since we have flight data and fare class data for all of them)
+Use London => New York for flights (August 12 - August 20)
+
 
 
 

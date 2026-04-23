@@ -51,6 +51,8 @@ fun Route.seatSelectionRoutes() {
      * - ok (String): success message to show
      */
     get("/flights/seats") {
+        println("we are here")
+
         val session = call.sessions.get<UserSession>()
         if (session == null) {
             call.respondRedirect("/login")
@@ -180,6 +182,8 @@ fun Route.seatSelectionRoutes() {
      * - Redirects to the next step (payment) with `seatCode` carried as a query parameter.
      */
     post("/flights/seats") {
+        println("WE ARE HERE")
+
         val session = call.sessions.get<UserSession>()
         if (session == null) {
             call.respondRedirect("/login")
