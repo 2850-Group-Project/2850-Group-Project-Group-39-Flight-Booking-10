@@ -5,8 +5,8 @@
 
 
 
-
-
+select * from seat;
+select * from seat_assignment;
 
 
 
