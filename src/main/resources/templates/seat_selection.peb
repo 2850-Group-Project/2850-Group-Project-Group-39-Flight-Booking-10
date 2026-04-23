@@ -59,6 +59,12 @@
     .sq.occupied { background: rgba(239,68,68,.22); }
     .sq.current { background: rgba(56,189,248,.25); }
 
+    .seatmap-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .seatmap { margin-top: 10px; padding: 16px; border-radius: 16px;
       border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
       overflow-x:auto;
@@ -125,42 +131,45 @@
 
       <!-- booking flow: submit to /flights/seats, no bookingId/segmentId hidden fields -->
       <form action="/flights/seats" method="post">
-        <div class="seatmap">
-          {% for row in seatRows %}
-            <div class="seat-row">
-              <div class="row-num">{{ row.rowNumber }}</div>
+        <div class="seatmap-container">
+          <div class="seatmap">
+            {% for row in seatRows %}
+              <div class="seat-row">
+                <div class="row-num">{{ row.rowNumber }}</div>
 
-              <div class="row-seats">
-                {% for s in row.seats %}
-                  {% if s.isAisleGap %}
-                    <div class="aisle-gap"></div>
-                  {% else %}
-                    {% set cls = "seat" %}
-                    {% if s.status == "occupied" %}
-                      {% set cls = cls ~ " occupied" %}
+                <div class="row-seats">
+                  {% for s in row.seats %}
+                    {% if s.isAisleGap %}
+                      <div class="aisle-gap"></div>
                     {% else %}
-                      {% set cls = cls ~ " available" %}
-                    {% endif %}
-                    {% if currentSeatCode and s.code == currentSeatCode %}
-                      {% set cls = cls ~ " current" %}
-                    {% endif %}
+                      {% set cls = "seat" %}
+                      {% if s.status == "occupied" %}
+                        {% set cls = cls ~ " occupied" %}
+                      {% else %}
+                        {% set cls = cls ~ " available" %}
+                      {% endif %}
+                      {% if currentSeatCode and s.code == currentSeatCode %}
+                        {% set cls = cls ~ " current" %}
+                      {% endif %}
 
-                    <button
-                      class="{{ cls }}"
-                      type="submit"
-                      name="seatCode"
-                      value="{{ s.code }}"
-                      {% if s.status == "occupied" %}disabled{% endif %}
-                      title="{{ s.code }} • {{ s.position }}"
-                    >
-                      {{ s.letter }}
-                    </button>
-                  {% endif %}
-                {% endfor %}
+                      <button
+                        class="{{ cls }}"
+                        type="submit"
+                        name="seatCode"
+                        value="{{ s.code }}"
+                        {% if s.status == "occupied" %}disabled{% endif %}
+                        title="{{ s.code }} • {{ s.position }}"
+                      >
+                        {{ s.letter }}
+                      </button>
+                    {% endif %}
+                  {% endfor %}
+                </div>
               </div>
-            </div>
-          {% endfor %}
+            {% endfor %}
+          </div>
         </div>
+        
       </form>
     </div>
 
