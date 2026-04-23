@@ -7,7 +7,7 @@
 -- select * from passenger where passenger_id = 1234;
 -- select * from seat_assignment where passenger_id = 1234;
 select * from seat where flight_id = 10001 and extra_legroom = 1;
-
+select * from passenger;
 
 -- ADDED LONDON TO NEW YORK
 -- INSERT INTO flight_fare (

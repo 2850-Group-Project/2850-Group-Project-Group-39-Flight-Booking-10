@@ -119,6 +119,16 @@
         <div class="pill">Selected Seat: <b>{% if currentSeatCode %}{{ currentSeatCode }}{% else %}None{% endif %}</b></div>
       </div>
 
+      <div class="divider" style="margin-top:18px;">PASSENGERS</div>
+
+      <div style="margin:14px 0; display:flex; flex-wrap:wrap; gap:10px;">
+        {% for passenger in passengers %}
+          <div class="pill">
+            <b>{{ passenger.firstName }} {{ passenger.lastName }}</b>
+          </div>
+        {% endfor %}
+      </div>
+
       <div class="divider" style="margin-top:18px;">CHOOSE A SEAT</div>
 
       <div class="legend" style="margin:14px 0 10px;">

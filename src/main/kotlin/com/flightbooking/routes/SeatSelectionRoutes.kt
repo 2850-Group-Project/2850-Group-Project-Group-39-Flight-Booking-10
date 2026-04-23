@@ -3,11 +3,13 @@ package com.flightbooking.routes
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
+import com.flightbooking.access.PassengerTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.SeatTable
+import com.flightbooking.tables.PassengerTable
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.request.*
@@ -15,6 +17,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import kotlin.math.ceil
+
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.select
 
 /**
  * Seat selection routes (booking flow).
@@ -82,6 +89,17 @@ fun Route.seatSelectionRoutes() {
 
         val origin = airportAccess.getByAttribute(AirportTable.id, flight.originAirport).firstOrNull()
         val dest = airportAccess.getByAttribute(AirportTable.id, flight.destinationAirport).firstOrNull()
+
+        val passengerAccess = PassengerTableAccess()
+        val passengers = transaction {
+            PassengerTable.select(PassengerTable.bookingId eq bookingSession.bookingId).map {
+                mapOf(
+                    "id" to it[PassengerTable.id],
+                    "firstName" to it[PassengerTable.firstName],
+                    "lastName" to it[PassengerTable.lastName],
+                )
+            }
+        }
 
         val capacity = (flight.capacity ?: 180).coerceAtLeast(1)
         val aircraftType = when {
@@ -160,6 +178,7 @@ fun Route.seatSelectionRoutes() {
             "aircraftType" to aircraftType,
             "currentSeatCode" to selectedSeatCode,
             "seatRows" to seatRows,
+            "passengers" to passengers,
             "error" to (call.request.queryParameters["error"] ?: ""),
             "ok" to (call.request.queryParameters["ok"] ?: "")
         )
