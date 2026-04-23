@@ -29,7 +29,6 @@
       font-weight:800;
     }
     .navbtn.red { border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.12); }
-    .muted { color: rgba(255,255,255,.55); }
 
     .card { margin-top: 18px; padding:18px; border-radius:16px;
       background: rgba(10,14,25,.6); border: 1px solid rgba(255,255,255,.12);
@@ -48,7 +47,7 @@
 
     .pill { display:inline-flex; gap:8px; align-items:center; padding:10px 12px; border-radius:999px;
       border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.88); font-weight:800;
+      color: rgba(255,255,255,.88); font-weight:400;
     }
     .info-grid { display:flex; flex-wrap:wrap; gap:10px; }
 
@@ -96,7 +95,6 @@
       <div class="right">
         <!-- booking flow: go back to passenger details (or flights list) -->
         <a class="navbtn" href="/flights/passengers">← Back to Passenger Details</a>
-        <span class="muted">•</span>
         <a class="navbtn red" href="/logout">Logout</a>
       </div>
     </div>
