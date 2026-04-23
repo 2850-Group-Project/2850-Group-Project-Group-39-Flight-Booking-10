@@ -79,7 +79,8 @@ fun Route.bookingRoutes() {
         // instead of storing passengers list in cookie (which cannot be deserialised)
         // we will store it in the database table
         val bookingId = bookingSession.bookingId
-
+        println("booking idddddddddddddddddddd")
+        println(bookingId)
 
         transaction {
             passengers.forEach { p ->

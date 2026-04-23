@@ -223,6 +223,7 @@ fun Route.seatSelectionRoutes() {
 
         // At this stage we usually haven't created booking/segment yet, so we pass seatCode forward.
         // Next step route (payment) can read seatCode from query params and/or store it into session later.
+
         call.respondRedirect("/flights/payment?seatCode=$seatCode")
     }
 }
