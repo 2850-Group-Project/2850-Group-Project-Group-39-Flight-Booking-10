@@ -165,5 +165,6 @@ private fun Application.registerRoutes() {
         bookingRoutes()
         changeRequestRoutes()
         seatSelectionRoutes()
+        paymentRoutes()
     }
 }
