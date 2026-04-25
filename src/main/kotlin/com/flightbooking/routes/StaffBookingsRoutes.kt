@@ -70,13 +70,9 @@ fun Route.staffBookingsRoutes() {
                     origin[AirportTable.iataCode],
                     dest[AirportTable.iataCode]
                 )
-                .select {
-                  if (q.isBlank()) Op.TRUE
-                  else {
-                      val id = q.toIntOrNull()
-                      if (id == null) Op.FALSE else FlightTable.id eq id
-                  }
-                }
+                .selectAll()
+                .orderBy(FlightTable.id, SortOrder.DESC)
+                .limit(300)
                 .orderBy(FlightTable.id, SortOrder.DESC)
                 .map { r ->
                     val fid = r[FlightTable.id]
@@ -87,18 +83,6 @@ fun Route.staffBookingsRoutes() {
                         "label" to label
                     )
                 })
-
-            val seatsByFlight: Map<Int, List<Map<String, Any>>> =
-                SeatTable.selectAll()
-                    .map { r ->
-                        val fid = r[SeatTable.flightId]
-                        fid to mapOf(
-                            "id" to r[SeatTable.id],
-                            "seatCode" to r[SeatTable.seatCode],
-                            "status" to r[SeatTable.status]
-                        )
-                    }
-                    .groupBy({ it.first }, { it.second })
 
             val bookingsList = (BookingTable
                 .join(PassengerTable, JoinType.LEFT, additionalConstraint = { PassengerTable.bookingId eq BookingTable.id })
@@ -130,6 +114,7 @@ fun Route.staffBookingsRoutes() {
                     }
                 }
                 .orderBy(BookingTable.id, SortOrder.DESC)
+                .limit(300)
                 .map { r ->
                     val bookingId = r[BookingTable.id]
                     val passengerName = listOfNotNull(r[PassengerTable.title], r[PassengerTable.firstName], r[PassengerTable.lastName]).joinToString(" ").ifBlank { "" }
@@ -152,6 +137,21 @@ fun Route.staffBookingsRoutes() {
                         "seatCode" to seatCode
                     )
                 })
+
+            val flightIdsInBookings = bookingsList.mapNotNull { it["flightId"] as Int? }.distinct()
+            val seatsByFlight: Map<Int, List<Map<String, Any>>> =
+                if (flightIdsInBookings.isEmpty()) emptyMap()
+                else SeatTable
+                    .select { SeatTable.flightId inList flightIdsInBookings }
+                    .map { r ->
+                        val fid = r[SeatTable.flightId]
+                        fid to mapOf(
+                            "id" to r[SeatTable.id],
+                            "seatCode" to r[SeatTable.seatCode],
+                            "status" to r[SeatTable.status]
+                        )
+                    }
+        .groupBy({ it.first }, { it.second })
 
             mapOf(
                 "staffName" to staffName,

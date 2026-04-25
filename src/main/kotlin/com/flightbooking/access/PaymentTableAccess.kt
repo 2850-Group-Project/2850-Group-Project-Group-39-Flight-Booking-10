@@ -22,6 +22,15 @@ import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.FlightFareTable
 
+import com.flightbooking.constants.TIMESTAMP_DAYS_UPPER_LIMIT
+import com.flightbooking.constants.TIMESTAMP_HOURS_UPPER_LIMIT
+import com.flightbooking.constants.TIMESTAMP_MINUTES_UPPER_LIMIT
+
+const val RAND_UPPER : Int = 100
+const val STATUS_THRESHOLD : Int = 90
+const val RAND_REF_LOWER : Int = 1000
+const val RAND_REF_UPPER : Int = 9999
+
 class PaymentTableAccess {
     fun getAll(): List<Payment> = transaction {
         PaymentTable.selectAll().map {
@@ -65,14 +74,14 @@ class PaymentTableAccess {
         val bookings = BookingTable.selectAll().toList()
         fun randomTimeStamp(): String = 
             java.time.LocalDateTime.now()
-                .minusDays((0..60).random().toLong())
-                .minusHours((0..23).random().toLong())
-                .minusMinutes((0..59).random().toLong())
+                .minusDays((0..TIMESTAMP_DAYS_UPPER_LIMIT).random().toLong())
+                .minusHours((0..TIMESTAMP_HOURS_UPPER_LIMIT).random().toLong())
+                .minusMinutes((0..TIMESTAMP_MINUTES_UPPER_LIMIT).random().toLong())
                 .toString()
         fun randomStatus(): String = 
-            if ((1..100).random() <= 90) "paid" else "refunded"
+            if ((1..RAND_UPPER).random() <= STATUS_THRESHOLD) "paid" else "refunded"
         fun providerRef():String = 
-            listOf("STR", "PPL", "WDP", "APY").random() + "-" + (1000..9999).random()
+            listOf("STR", "PPL", "WDP", "APY").random() + "-" + (RAND_REF_LOWER..RAND_REF_UPPER).random()
 
         bookings.forEach { bookingRow ->
             val bookingId = bookingRow[BookingTable.id]

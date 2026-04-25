@@ -19,6 +19,12 @@ import java.time.Instant
 import com.flightbooking.tables.UserTable
 import java.time.LocalDateTime
 
+const val RAND_CANCELLED_UPPER : Int = 10
+const val RAND_CANCELLED_AT_UPPER : Int = 300
+const val RAND_BOOKING_MAX : Int = 2
+const val RAND_LETTER_COUNT : Int = 3
+const val RAND_NUMBER_MIN : Int = 100
+const val RAND_NUMBER_MAX : Int = 999
 
 class BookingTableAccess {
     fun getAll(): List<Booking> = transaction {
@@ -60,15 +66,13 @@ class BookingTableAccess {
         val users = UserTable.selectAll().toList()
         users.forEach { row ->
             val userId = row[UserTable.id]
-
-            val numberOfBookings = (1..2).random()
+            val numberOfBookings = (1..RAND_BOOKING_MAX).random()
             repeat(numberOfBookings) {
                 val bookingRef = generateBookingReference()
-
-                val isCancelled = (1..10).random() == 1
+                val isCancelled = (1..RAND_CANCELLED_UPPER).random() == 1
                 val cancelledAt = if (isCancelled) {
                     java.time.LocalDateTime.now()
-                    .minusDays((1..300).random().toLong())
+                    .minusDays((1..RAND_CANCELLED_AT_UPPER).random().toLong())
                     .toString()
                 } else null
                 BookingTable.insert {
@@ -84,8 +88,8 @@ class BookingTableAccess {
         println("done generating")
     }
     fun generateBookingReference(): String {
-        val letters = ('A'..'Z').shuffled().take(3).joinToString("")
-        val numbers = (100..999).random()
+        val letters = ('A'..'Z').shuffled().take(RAND_LETTER_COUNT).joinToString("")
+        val numbers = (RAND_NUMBER_MIN..RAND_NUMBER_MAX).random()
         return "$letters$numbers"
     }
 }

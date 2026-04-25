@@ -418,8 +418,7 @@
               </div>
 
               <div class="actions">
-                <span class="a disabled" title="Rebooking not implemented yet">Change</span>
-
+                <a class="btn" href="/profile/bookings/change?bookingId={{ b.bookingId }}">Change</a >
                 <form action="/profile/bookings/cancel" method="post" style="margin:0;">
                   <input type="hidden" name="bookingId" value="{{ b.bookingId }}" />
                   <button class="a red" type="submit">Cancel</button>

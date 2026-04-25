@@ -1,10 +1,11 @@
 package com.flightbooking.api
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

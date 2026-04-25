@@ -19,7 +19,10 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import java.time.Instant
 
 import com.flightbooking.service.AuthService
-import com.flightbooking.constants.*
+import com.flightbooking.constants.MIN_AGE
+import com.flightbooking.constants.MAX_AGE
+import com.flightbooking.constants.MAX_MONTHS
+import com.flightbooking.constants.MAX_DAYS
 
 class UserTableAccess {
     fun getAll(): List<User> = transaction {

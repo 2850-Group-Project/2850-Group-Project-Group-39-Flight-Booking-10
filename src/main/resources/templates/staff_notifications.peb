@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Notifications - Change Requests</title>
+  <style>
+    :root{
+      --bg0:#0b0d12;
+      --bg1:#101420;
+      --card:#0f1320;
+      --line:rgba(255,255,255,.10);
+      --muted:rgba(255,255,255,.70);
+      --muted2:rgba(255,255,255,.55);
+      --text:#ffffff;
+      --accent:#3f5efb;
+      --danger:#ff4d4d;
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 20%, rgba(63,94,251,.18), transparent 60%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(56,189,248,.12), transparent 55%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:26px 18px 60px;}
+    .topbar{
+      display:flex;justify-content:space-between;align-items:center;gap:14px;
+      padding:16px 18px;border-radius:18px;
+      background: rgba(15,19,32,.55);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      margin-bottom:18px;
+    }
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.2px;}
+    .brand-badge{
+      width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+      font-size:16px;
+    }
+    .right{display:flex;align-items:center;gap:10px;}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.12);
+      color:rgba(255,255,255,.88);
+      font-size:12px;
+      width:fit-content;
+      white-space:nowrap;
+    }
+    .navbtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.9);
+      text-decoration:none;
+      font-weight:800;
+      transition:.18s ease;
+      cursor:pointer;
+    }
+    .navbtn:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
+    .navbtn.red{
+      border-color: rgba(255,77,77,.28);
+      background: rgba(255,77,77,.12);
+    }
+    .card{
+      border-radius:var(--radius);
+      background: rgba(15,19,32,.90);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      padding:18px;
+    }
+    h1{margin:0;font-size:22px;letter-spacing:-.3px;}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.45;}
+    .section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:12px;}
+    .input, select{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(10,12,18,.55);
+      color: white;
+      outline:none;
+      font-size:13px;
+      transition:.18s ease;
+    }
+    .input:focus, select:focus{
+      border-color: rgba(63,94,251,.65);
+      box-shadow: 0 0 0 4px rgba(63,94,251,.18);
+    }
+    .btn{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+      transition: .18s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
+    .btn.primary{ background: linear-gradient(90deg, var(--accent), #2b7bff); border:none; }
+    .btn.primary:hover{ filter:brightness(1.05); }
+    .btn.red{ border-color: rgba(255,77,77,.30); background: rgba(255,77,77,.10); }
+    .msg{
+      margin:0 0 12px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.90);
+      font-size:13px;
+      line-height:1.35;
+    }
+    .msg.err{
+      background: rgba(255,77,77,.12);
+      border-color: rgba(255,77,77,.25);
+      color: #ffd0d0;
+    }
+    .table{
+      width:100%;
+      border-collapse:collapse;
+      overflow:hidden;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .table th, .table td{
+      padding:12px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      vertical-align:top;
+      text-align:left;
+      font-size:13px;
+    }
+    .table th{
+      color:rgba(255,255,255,.80);
+      font-weight:900;
+      font-size:12px;
+      letter-spacing:.35px;
+      background: rgba(255,255,255,.04);
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .muted{ color:var(--muted2); }
+    .status-pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .status-dot{ width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.55); }
+    .row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    @media (max-width: 980px){
+      .table{ display:block; overflow:auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">✈</div>
+        <div>SkyFlow Staff</div>
+      </div>
+      <div class="right">
+        <span class="pill">{{ staffName }} • {{ staffRole }}</span>
+        <a class="navbtn" href="/staff/dashboard">Dashboard</a >
+        <a class="navbtn red" href="/staff/logout">Logout</a >
+      </div>
+    </div>
+
+    <div class="card">
+      {% if error and error != "" %}
+        <div class="msg err">{{ error }}</div>
+      {% endif %}
+      {% if ok and ok != "" %}
+        <div class="msg">{{ ok }}</div>
+      {% endif %}
+
+      <div class="section-title">
+        <div>
+          <h1>Notifications</h1>
+          <p class="sub">Review and manage user change requests (flight/seat amendments).</p >
+        </div>
+
+        <form action="/staff/notifications" method="get" style="display:flex; gap:10px; align-items:end; margin-left:auto; min-width:360px;">
+          <div style="flex:1;">
+            <label class="muted" style="display:block;margin:0 0 6px;font-weight:900;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">
+              Search Request ID
+            </label>
+            <input class="input" name="q" value="{{ q }}" placeholder="e.g. 12" />
+          </div>
+          <button class="btn" type="submit" style="width:120px;">Search</button>
+          <a class="btn" href="/staff/notifications">Clear</a >
+        </form>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Request</th>
+            <th>User</th>
+            <th>Booking</th>
+            <th>Current</th>
+            <th>Requested</th>
+            <th>Status</th>
+            <th style="width:220px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if requests is empty %}
+            <tr>
+              <td colspan="7" class="muted">No change requests found.</td>
+            </tr>
+          {% else %}
+            {% for r in requests %}
+              <tr>
+                <td>
+                  <div style="font-weight:900;">CR-{{ r.requestId }}</div>
+                  <div class="muted" style="margin-top:3px;">Created: {{ r.createdAt }}</div>
+                  <div class="muted" style="margin-top:3px;">Updated: {{ r.updatedAt }}</div>
+                </td>
+
+                <td>
+                  <div style="font-weight:800;">{% if r.userEmail %}{{ r.userEmail }}{% else %}—{% endif %}</div>
+                  <div class="muted" style="margin-top:3px;">User ID: {{ r.userId }}</div>
+                </td>
+
+                <td>
+                  <div style="font-weight:900;">Booking #{{ r.bookingId }}</div>
+                  <div class="muted" style="margin-top:3px;">Segment #{{ r.segmentId }}</div>
+                </td>
+
+                <td>
+                  <div style="font-weight:800;">
+                    {% if r.currentFlightNo %}Flight {{ r.currentFlightNo }}{% else %}—{% endif %}
+                  </div>
+                  <div class="muted" style="margin-top:3px;">
+                    {% if r.currentRoute %}{{ r.currentRoute }}{% else %}—{% endif %}
+                  </div>
+                </td>
+
+                <td>
+                  <div style="font-weight:800;">
+                    {% if r.requestedFlightNo %}Flight {{ r.requestedFlightNo }}{% else %}—{% endif %}
+                  </div>
+                  <div class="muted" style="margin-top:3px;">
+                    Seat: {% if r.requestedSeatCode %}{{ r.requestedSeatCode }}{% else %}—{% endif %}
+                  </div>
+                  <div class="muted" style="margin-top:3px;">
+                    Reason: {% if r.reason %}{{ r.reason }}{% else %}—{% endif %}
+                  </div>
+                </td>
+
+                <td>
+                  <span class="status-pill">
+                    <span class="status-dot"></span>
+                    {{ r.status }}
+                  </span>
+                </td>
+
+                <td>
+                  <div class="row-actions">
+                    <form action="/staff/notifications/status" method="post" style="display:flex; gap:8px; margin:0; align-items:center;">
+                      <input type="hidden" name="requestId" value="{{ r.requestId }}" />
+                      <select name="status" style="min-width:160px;">
+                        <option value="pending" {% if r.status == "pending" %}selected{% endif %}>pending</option>
+                        <option value="approved" {% if r.status == "approved" %}selected{% endif %}>approved</option>
+                        <option value="rejected" {% if r.status == "rejected" %}selected{% endif %}>rejected</option>
+                        <option value="cancelled" {% if r.status == "cancelled" %}selected{% endif %}>cancelled</option>
+                        <option value="complete" {% if r.status == "complete" %}selected{% endif %}>complete</option>
+                      </select>
+                      <button class="btn primary" type="submit">Update</button>
+                    </form>
+
+                    <form action="/staff/notifications/delete" method="post" style="margin:0;">
+                      <input type="hidden" name="requestId" value="{{ r.requestId }}" />
+                      <button class="btn red" type="submit">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+
+      <div class="muted" style="margin-top:12px;font-size:12px;">
+        Note: <b>complete</b> marks a request as processed, but it remains visible until deleted.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

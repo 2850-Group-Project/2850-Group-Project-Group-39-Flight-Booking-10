@@ -17,9 +17,18 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.insertAndGetId
 
-
 import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.UserTable
+
+const val DOB_LOWER : Int = 1950
+const val DOB_UPPER : Int = 2010
+const val MONTH_LIMIT : Int = 12
+const val DAY_LIMIT : Int = 28
+const val EXPIRY_LOWER : Int = 2026
+const val EXPIRY_UPPER : Int = 2035
+const val PASSPORT_CODE_LOWER : Int = 100000000
+const val PASSPORT_CODE_UPPER : Int = 999999999
+const val RAND_MAX_PASSENGERS : Int = 3
 
 class PassengerTableAccess {
     fun getAll(): List<Passenger> = transaction {
@@ -77,22 +86,22 @@ class PassengerTableAccess {
         val femaleNames = listOf("Priya", "Sarah", "Emily", "Aisha", "Sophie", "Laura")
         val lastNames = listOf("Walker", "Sharma", "Nguyen", "Smith", "Brown", "Patel")
         fun randomDOB() = "%04d-%02d-%02d".format(
-            (1950..2010).random(),
-            (1..12).random(),
-            (1..28).random()
+            (DOB_LOWER..DOB_UPPER).random(),
+            (1..MONTH_LIMIT).random(),
+            (1..DAY_LIMIT).random()
         )
         fun randomExpiry() = "%04d-%02d-%02d".format(
-            (2026..2035).random(),
-            (1..12).random(),
-            (1..28).random()
+            (EXPIRY_LOWER..EXPIRY_UPPER).random(),
+            (1..MONTH_LIMIT).random(),
+            (1..DAY_LIMIT).random()
         )
         fun randomPassport(country: String) =
-            country + (100000000..999999999).random()
+            country + (PASSPORT_CODE_LOWER..PASSPORT_CODE_UPPER).random()
         bookings.forEach { bookingRow ->
             val bookingId = bookingRow[BookingTable.id]
             passengersByBooking[bookingId] = mutableListOf()
             // 1–3 passengers per booking
-            val passengerCount = (1..3).random()
+            val passengerCount = (1..RAND_MAX_PASSENGERS).random()
             repeat(passengerCount) {
                 val isMale = (0..1).random() == 0
                 val firstName = if (isMale) maleNames.random() else femaleNames.random()

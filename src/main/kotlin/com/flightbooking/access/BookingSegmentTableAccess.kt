@@ -22,6 +22,10 @@ import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FareClassTable
 
+const val RAND_CABIN_UPPER : Int = 100
+const val RAND_CABIN_BUSINESS_UPPER : Int = 6
+const val RAND_CABIN_PREMIUM_ECONOMY_UPPER : Int = 20
+
 class BookingSegmentTableAccess {
     fun getAll(): List<BookingSegment> = transaction {
         BookingSegmentTable.selectAll().map {
@@ -70,10 +74,10 @@ class BookingSegmentTableAccess {
                 }
             }
         fun pickCabin(): String {
-            val roll = (1..100).random()
+            val roll = (1..RAND_CABIN_UPPER).random()
             return when {
-                roll <= 6 -> "Business"
-                roll <= 20 -> "Premium Economy"
+                roll <= RAND_CABIN_BUSINESS_UPPER -> "Business"
+                roll <= RAND_CABIN_PREMIUM_ECONOMY_UPPER -> "Premium Economy"
                 else -> "Economy"
             }
         }
@@ -89,7 +93,7 @@ class BookingSegmentTableAccess {
                 if (cabinFares.isNotEmpty()) cabinFares.random()
                 else cabinMap.values.flatten().random()
             segmentsByBooking[bookingId] = mutableListOf()
-            for (passengerId in passengers) {
+            for (_passenger in passengers) {
                 val segmentId = BookingSegmentTable.insert { row ->
                     row[BookingSegmentTable.bookingId] = bookingId
                     row[BookingSegmentTable.flightId] = flightId

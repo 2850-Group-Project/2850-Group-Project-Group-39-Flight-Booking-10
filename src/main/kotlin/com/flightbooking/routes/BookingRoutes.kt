@@ -76,14 +76,39 @@ fun Route.bookingRoutes() {
 
         println(passengers)
 
+        // instead of storing passengers list in cookie (which cannot be deserialised)
+        // we will store it in the database table
+        val bookingId = bookingSession.bookingId
+        println(bookingId)
+
+        transaction {
+            passengers.forEach { p ->
+                PassengerTable.insert {
+                    it[PassengerTable.bookingId] = bookingId
+                    it[PassengerTable.email] = p.email
+                    it[PassengerTable.checkedIn] = 0
+                    it[PassengerTable.title] = p.title
+                    it[PassengerTable.firstName] = p.firstName
+                    it[PassengerTable.lastName] = p.lastName
+                    it[PassengerTable.dateOfBirth] = p.dateOfBirth
+                    it[PassengerTable.gender] = p.gender
+                    it[PassengerTable.nationality] = p.nationality
+                    it[PassengerTable.documentType] = p.documentType
+                    it[PassengerTable.documentNumber] = p.documentNumber
+                    it[PassengerTable.documentCountry] = p.documentCountry
+                    it[PassengerTable.documentExpiry] = p.documentExpiry
+                }
+            }
+        }
+
         println(bookingSession)
 
-        call.sessions.set(bookingSession.copy(passengers = passengers))
+        call.sessions.set(
+            bookingSession.copy(
+                bookingId = bookingId
+            )
+        )
 
-        val newBookingSession = call.sessions.get<BookingSession>()
-
-        println(newBookingSession)
-
-        call.respondRedirect("/payment")
+        call.respondRedirect("/flights/seats")
     }
 }

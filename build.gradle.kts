@@ -8,7 +8,7 @@ plugins {
     kotlin("plugin.serialization") version "1.9.0"
 
     // Plugin for KDocs and code quality checks.
-    // id("io.gitlab.arturbosch.detekt") version "1.23.7"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
     
     application
 }

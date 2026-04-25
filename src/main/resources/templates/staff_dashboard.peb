@@ -479,7 +479,7 @@
         <a href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
         <a href="#" onclick="return false;"><span class="ico">👥</span> Crew Assignments</a >
         <a href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
-        <a href="#" onclick="return false;"><span class="ico">🧭</span> Route Network</a >
+        <a href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
         <a href="#" onclick="return false;"><span class="ico">✅</span> Compliance Reports</a >
       </nav>
 
@@ -499,6 +499,7 @@
         <div class="right">
           <a class="top" href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
           <a class="top" href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
+          <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
           <a class="top" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
           <div class="profile">
             <div class="avatar"></div>

@@ -10,7 +10,7 @@ import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FareClassTable
 
-import com.flightbooking.constants.*
+import com.flightbooking.constants.DAYS_BEFORE_AND_AFTER_TO_SHOW
 
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -28,11 +28,16 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
+import org.jetbrains.exposed.sql.StdOutSqlLogger
 
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.Duration
+
+const val HOURS_DENOMINATOR : Int = 60
 
 /**
  * Provides database access operations for the [FlightTable].
@@ -73,14 +78,21 @@ class FlightTableAccess {
         date: LocalDate,
         ): List<FlightWithFares> {
         // clamp to today so we don't show flights that have already departed (previous days)
-        val dateFrom = maxOf(date.minusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW), LocalDate.now()).toString()
-        val dateTo = date.plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW).toString()
+        val dateFrom = maxOf(date.minusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW), LocalDate.now()).toString() + "T00:00:00+00:00"
+        val dateTo = date.plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW).toString() + "T23:59:59+00:00"
+
+        // debugging
+        println("dateFrom: $dateFrom")
+        println("dateTo: $dateTo")
+        println("originCode: $originCode")
+        println("destinationCode: $destinationCode")
 
         // aliases for simplicity
         val originAirport = AirportTable.alias("origin")
         val destinationAirport = AirportTable.alias("destination")
 
         return transaction {
+            addLogger(StdOutSqlLogger)
             FlightTable
                 .join(
                     originAirport, 
@@ -117,8 +129,8 @@ class FlightTableAccess {
 
                     val duration = if (dep != null && arr != null) {
                         val mins = Duration.between(dep, arr).toMinutes()
-                        val hours = mins / 60
-                        val remaining = mins % 60
+                        val hours = mins / HOURS_DENOMINATOR
+                        val remaining = mins % HOURS_DENOMINATOR
                         if (remaining == 0L) "${hours}h" else "${hours}h ${remaining}m"
                     } else "N/A"
 

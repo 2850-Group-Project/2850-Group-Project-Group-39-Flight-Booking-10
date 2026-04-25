@@ -14,6 +14,7 @@ import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.StaffTable
 import com.flightbooking.tables.ComplaintTable
+import com.flightbooking.tables.ChangeRequestTable
 import com.flightbooking.tables.NotificationTable
 
 // data class for storing user session data (ie, if they are logged in)
@@ -80,12 +81,12 @@ data class PassengerInput(
 
 // booking session data class that is used to keep track of all data about a booking in progress
 data class BookingSession(
+    val bookingId: Int = 0,
     val outboundFlightId: Int? = null,
     val outboundFareId: Int? = null,
     val returnFlightId: Int? = null,
     val returnFareId: Int? = null,
     val search: FlightSearch? = null,
-    val passengers: List<PassengerInput> = emptyList() // list of passengers (with passenger data in booking session)
 )
 
 data class User(
@@ -139,6 +140,20 @@ data class FareClass(
     val description: String?,
     val createdAt: String,
     val updatedAt: String
+)
+
+data class ChangeRequest(
+    val id: Int,
+    val userId: Int,
+    val bookingId: Int,
+    val bookingSegmentId: Int,
+    val currentFlightId: Int?,
+    val requestedFlightId: Int?,
+    val requestedSeatId: Int?,
+    val reason: String?,
+    val status: String,
+    val createdAt: String?,
+    val updatedAt: String?
 )
 
 data class FlightFare(
@@ -411,4 +426,18 @@ fun ResultRow.toNotification(): Notification = Notification(
     message = this[NotificationTable.message],
     createdAt = this[NotificationTable.createdAt],
     readAt = this[NotificationTable.readAt]
+)
+
+fun ResultRow.toChangeRequest(): ChangeRequest = ChangeRequest(
+    id = this[ChangeRequestTable.id],
+    userId = this[ChangeRequestTable.userId],
+    bookingId = this[ChangeRequestTable.bookingId],
+    bookingSegmentId = this[ChangeRequestTable.bookingSegmentId],
+    currentFlightId = this[ChangeRequestTable.currentFlightId],
+    requestedFlightId = this[ChangeRequestTable.requestedFlightId],
+    requestedSeatId = this[ChangeRequestTable.requestedSeatId],
+    reason = this[ChangeRequestTable.reason],
+    status = this[ChangeRequestTable.status],
+    createdAt = this[ChangeRequestTable.createdAt],
+    updatedAt = this[ChangeRequestTable.updatedAt]
 )

@@ -92,4 +92,3 @@ class SeatAssignmentTableAccess {
         println("done assigning seats")
     }
 }
-    

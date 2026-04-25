@@ -287,7 +287,7 @@
 
         <div class="passengers-submit">
           <button type="submit" class="btn-primary passengers-submit-btn">
-            Continue to payment →
+            Continue to seat selection →
           </button>
         </div>
 
