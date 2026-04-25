@@ -76,7 +76,7 @@ data class PassengerInput(
     val documentType: String?,
     val documentNumber: String?,
     val documentCountry: String?,
-    val documentExpiry: String?,
+    val documentExpiry: String?
 )
 
 // booking session data class that is used to keep track of all data about a booking in progress

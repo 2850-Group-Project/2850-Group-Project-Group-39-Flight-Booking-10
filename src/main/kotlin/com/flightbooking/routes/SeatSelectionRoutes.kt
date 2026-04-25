@@ -314,7 +314,7 @@ fun Route.seatSelectionRoutes() {
         if (assignedPassengers.size + 1 < passengers.size) {
             call.respondRedirect("/flights/seats?selected=$seatCode&ok=Seat assigned. Next passenger...")
         } else {
-            call.respondRedirect("/flights/payment")
+            call.respondRedirect("/payment")
         }
     }
 }

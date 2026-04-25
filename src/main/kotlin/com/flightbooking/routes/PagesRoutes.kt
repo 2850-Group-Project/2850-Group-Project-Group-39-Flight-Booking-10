@@ -120,24 +120,29 @@ fun Route.pagesRoutes() {
 
     get("/flights/passengers") {
         // need to add check to a booking/user session exists before loading the page
-        val UserSession = call.sessions.get<UserSession>()
-        val BookingSession = call.sessions.get<BookingSession>()
+        val userSession = call.sessions.get<UserSession>()
+        val bookingSession = call.sessions.get<BookingSession>()
 
-        println(BookingSession)
+        println(bookingSession)
 
-        if (UserSession == null) {
+        if (userSession == null) {
             call.respondRedirect("/login")
             return@get
         }
 
-        if (BookingSession == null) {
+        if (bookingSession == null) {
             call.respondRedirect("/home")
             return@get
         }
 
-        val adultsCount = BookingSession.search?.adults?.toIntOrNull() ?: 0
-        val childrenCount = BookingSession.search?.children?.toIntOrNull() ?: 0
-        val infantsCount = BookingSession.search?.infants?.toIntOrNull() ?: 0
+        if (bookingSession.search == null) {
+            call.respondRedirect("/home")
+            return@get
+        }
+
+        val adultsCount = bookingSession.search?.adults?.toIntOrNull() ?: 0
+        val childrenCount = bookingSession.search?.children?.toIntOrNull() ?: 0
+        val infantsCount = bookingSession.search?.infants?.toIntOrNull() ?: 0
 
         val adultsList = (0 until adultsCount).map { mapOf("label" to it + 1, "idx" to it) }
         val childrenList = (0 until childrenCount).map { mapOf("label" to it + 1, "idx" to adultsCount + it) }
@@ -145,9 +150,9 @@ fun Route.pagesRoutes() {
 
 
         call.respond(PebbleContent("flight_passengers.peb", mapOf<String, Any>(
-            "userSession" to UserSession,
-            "bookingSession" to BookingSession,
-            "search" to (BookingSession.search ?: ""),
+            "userSession" to userSession,
+            "bookingSession" to bookingSession,
+            "search" to (bookingSession.search ?: ""),
             "adults" to adultsList,
             "children" to childrenList,
             "infants" to infantsList,
