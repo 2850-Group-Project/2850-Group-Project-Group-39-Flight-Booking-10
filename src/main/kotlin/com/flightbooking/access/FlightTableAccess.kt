@@ -26,6 +26,9 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
+import org.jetbrains.exposed.sql.StdOutSqlLogger
 
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -91,17 +94,29 @@ class FlightTableAccess {
      * @return list of [FlightWithFares], each containing flight info and available fare options
      */
     fun getFlightsAroundDate(
-        originCode: String,
-        destinationCode: String,
-        date: LocalDate
-    ): List<FlightWithFares> {
-        val dateFrom = maxOf(date.minusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW), LocalDate.now()).toString()
-        val dateTo = date.plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW).toString()
+        originCode: String, 
+        destinationCode: String, 
+        date: LocalDate,
+        ): List<FlightWithFares> {
+        // clamp to today so we don't show flights that have already departed (previous days)
+        val dateFrom = maxOf(date
+            .minusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW), 
+            LocalDate.now()).toString() + "T00:00:00+00:00"
+        val dateTo = date
+            .plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW)
+            .toString() + "T23:59:59+00:00"
+
+        // debugging
+        println("dateFrom: $dateFrom")
+        println("dateTo: $dateTo")
+        println("originCode: $originCode")
+        println("destinationCode: $destinationCode")
 
         val originAirport = AirportTable.alias("origin")
         val destinationAirport = AirportTable.alias("destination")
 
         return transaction {
+            addLogger(StdOutSqlLogger)
             FlightTable
                 .join(originAirport, JoinType.INNER, FlightTable.originAirport, originAirport[AirportTable.id])
                 .join(destinationAirport, JoinType.INNER, 

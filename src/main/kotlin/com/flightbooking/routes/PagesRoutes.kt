@@ -160,9 +160,14 @@ fun Route.pagesRoutes() {
             return@get
         }
 
-        val adultsCount = bookingSession.search?.adults?.toIntOrNull() ?: 0
-        val childrenCount = bookingSession.search?.children?.toIntOrNull() ?: 0
-        val infantsCount = bookingSession.search?.infants?.toIntOrNull() ?: 0
+        if (bookingSession.search == null) {
+            call.respondRedirect("/home")
+            return@get
+        }
+
+        val adultsCount = bookingSession.search.adults?.toIntOrNull() ?: 0
+        val childrenCount = bookingSession.search.children?.toIntOrNull() ?: 0
+        val infantsCount = bookingSession.search.infants?.toIntOrNull() ?: 0
 
         val adultsList = (0 until adultsCount).map { 
             mapOf("label" to it + 1, "idx" to it) }
@@ -175,7 +180,7 @@ fun Route.pagesRoutes() {
         call.respond(PebbleContent("flight_passengers.peb", mapOf<String, Any>(
             "userSession" to userSession,
             "bookingSession" to bookingSession,
-            "search" to (bookingSession.search ?: ""),
+            "search" to bookingSession.search,
             "adults" to adultsList,
             "children" to childrenList,
             "infants" to infantsList,

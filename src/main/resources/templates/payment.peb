@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Reuse your existing CSS files -->
+  <link rel="stylesheet" href="/static/css/Home.css">
+  <link rel="stylesheet" href="/static/css/Flight_Search.css">
+  <link rel="stylesheet" href="/static/css/Flight_Passengers.css">
+  <link rel="stylesheet" href="/static/css/Payment.css"> <!-- optional new file -->
+
+  <title>SkyBook – Payment</title>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/home" class="brand">
+      <div class="brand-badge">✈️</div>
+      <span class="brand-title">SkyFlow</span>
+    </a>
+    <div class="nav-right">
+      <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
+      <a href="/profile" class="btn-primary">My Account</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- SEARCH SUMMARY (same style as passenger page) -->
+    <section class="search-summary">
+      <div class="summary-inner">
+        <div class="summary-route">
+          <span class="summary-airport">{{ bookingSession.search.origin }}</span>
+          {% if bookingSession.search.tripType == "return" %}
+            <span class="summary-arrow">⇄</span>
+          {% else %}
+            <span class="summary-arrow">→</span>
+          {% endif %}
+          <span class="summary-airport">{{ bookingSession.search.destination }}</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-meta">
+          <div class="summary-item">
+            <span class="summary-label">Departure</span>
+            <span class="summary-value">{{ bookingSession.search.departureDate }}</span>
+          </div>
+
+          {% if bookingSession.search.tripType == "return" %}
+          <div class="summary-item">
+            <span class="summary-label">Return</span>
+            <span class="summary-value">{{ bookingSession.search.returnDate }}</span>
+          </div>
+          {% endif %}
+
+          <div class="summary-item">
+            <span class="summary-label">Passengers</span>
+            <span class="summary-value">
+              {{ bookingSession.search.adults }} adult{% if bookingSession.search.adults != "1" %}s{% endif %}
+              {% if bookingSession.search.children != "0" %}, {{ bookingSession.search.children }} child{% if bookingSession.search.children != "1" %}ren{% endif %}{% endif %}
+              {% if bookingSession.search.infants != "0" %}, {{ bookingSession.search.infants }} infant{% if bookingSession.search.infants != "1" %}s{% endif %}{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <a href="/flights/passengers" class="btn-ghost summary-edit">Back to passengers</a>
+      </div>
+    </section>
+
+    <!-- PAYMENT SECTION -->
+    <section class="passengers-section">
+      <div class="passengers-header">
+        <h2 class="passengers-title">Payment Details</h2>
+        <p class="passengers-subtitle">Enter your card details to complete your booking.</p>
+      </div>
+
+      <form method="POST" action="/payment" class="payment-form">
+
+        <div class="passenger-card">
+          <div class="passenger-card-header">
+            <span class="passenger-type-badge passenger-type-badge--adult">Payment</span>
+            <span class="passenger-card-title">Card Information</span>
+          </div>
+
+          <div class="passenger-fields">
+
+            <div class="field-group">
+              <label>Card Number</label>
+              <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" required />
+            </div>
+
+            <div class="field-group field-group--narrow">
+              <label>Expiry</label>
+              <input type="text" name="expiry" placeholder="MM/YY" required />
+            </div>
+
+            <div class="field-group field-group--narrow">
+              <label>CVV</label>
+              <input type="password" name="cvv" placeholder="123" required />
+            </div>
+
+          </div>
+        </div>
+
+        <div class="passengers-submit">
+          <button type="submit" class="btn-primary passengers-submit-btn">
+            Pay and continue →
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+  <footer>
+    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <div class="footer-links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/help">Help</a>
+      <a href="/complaints">Complaints</a>
+    </div>
+  </footer>
+
+</body>
+</html>

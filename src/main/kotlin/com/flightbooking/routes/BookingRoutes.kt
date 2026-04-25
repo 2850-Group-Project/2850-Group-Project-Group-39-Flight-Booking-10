@@ -12,15 +12,12 @@ import io.ktor.server.response.respondRedirect
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.set
 import io.ktor.server.sessions.sessions
-import io.ktor.http.HttpStatusCode
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.transaction
+import com.flightbooking.tables.PassengerTable
 
-/**
- * Page routes for user-facing pages (home, profile, profile sub-pages, bookings) and a shared 404 page.
- * Pages that are not implemented yet redirect to `/404`.
- */
 fun Route.bookingRoutes() {
     post("/flights/passengers/submit") {
-        // need to add check to make sure that booking session exists 
         val userSession = call.sessions.get<UserSession>()
         val bookingSession = call.sessions.get<BookingSession>()
 
@@ -59,14 +56,33 @@ fun Route.bookingRoutes() {
             )
         }
 
-        println(passengers)
+        val bookingId = bookingSession.bookingId
 
-        println(bookingSession)
+        transaction {
+            passengers.forEach { p ->
+                PassengerTable.insert {
+                    it[PassengerTable.bookingId] = bookingId
+                    it[PassengerTable.email] = p.email
+                    it[PassengerTable.checkedIn] = 0
+                    it[PassengerTable.title] = p.title
+                    it[PassengerTable.firstName] = p.firstName
+                    it[PassengerTable.lastName] = p.lastName
+                    it[PassengerTable.dateOfBirth] = p.dateOfBirth
+                    it[PassengerTable.gender] = p.gender
+                    it[PassengerTable.nationality] = p.nationality
+                    it[PassengerTable.documentType] = p.documentType
+                    it[PassengerTable.documentNumber] = p.documentNumber
+                    it[PassengerTable.documentCountry] = p.documentCountry
+                    it[PassengerTable.documentExpiry] = p.documentExpiry
+                }
+            }
+        }
 
-        call.sessions.set(bookingSession.copy(passengers = passengers))
-
-        val newBookingSession = call.sessions.get<BookingSession>()
-        println(newBookingSession)
+        call.sessions.set(
+            bookingSession.copy(
+                bookingId = bookingId
+            )
+        )
 
         call.respondRedirect("/flights/seats")
     }

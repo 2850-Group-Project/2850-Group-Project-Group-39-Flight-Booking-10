@@ -93,7 +93,7 @@ class BookingSegmentTableAccess {
                 if (cabinFares.isNotEmpty()) cabinFares.random()
                 else cabinMap.values.flatten().random()
             segmentsByBooking[bookingId] = mutableListOf()
-            for (_passenger in passengers) {
+            for (ignored in passengers) {
                 val segmentId = BookingSegmentTable.insert { row ->
                     row[BookingSegmentTable.bookingId] = bookingId
                     row[BookingSegmentTable.flightId] = flightId
