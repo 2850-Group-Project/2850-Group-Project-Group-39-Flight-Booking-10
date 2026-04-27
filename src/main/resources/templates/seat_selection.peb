@@ -78,16 +78,14 @@
         {% endif %}
 
         <!-- PASSENGERS INFO -->
-        <div class="seat-passengers">
-          <h3 class="seat-passengers-title">Passengers on this flight</h3>
-          <div class="passengers-list">
-            {% for passenger in passengers %}
-            <div class="passenger-item">
-              <span class="passenger-icon">👤</span>
-              <span class="passenger-name">{{ passenger.firstName }} {{ passenger.lastName }}</span>
-            </div>
-            {% endfor %}
+        <h3 class="seat-passengers-title">Passengers on this flight</h3>
+        <div class="passengers-list">
+          {% for passenger in passengers %}
+          <div class="passenger-item">
+            <span class="passenger-icon">👤</span>
+            <span class="passenger-name">{{ passenger.firstName }} {{ passenger.lastName }}</span>
           </div>
+          {% endfor %}
         </div>
 
         <!-- LEGEND -->
@@ -115,8 +113,37 @@
           </div>
         </div>
 
+        <!-- SEAT SELECTION STATUS -->
+        <div class="seat-status-bar" id="status-bar">
+          <div class="seat-status-info">
+            <span class="seat-status-label">Seats assigned:</span>
+            <span class="seat-status-count" id="seat-count">0 / {{ passengers|length }}</span>
+          </div>
+          <div class="seat-status-list" id="seat-list">
+            <!-- js fills this for me -->
+          </div>
+          <!-- RESET SEATS BUTTON -->
+          <!-- NEEDS TO BE REPLACED WITH A BETTER PLACE/METHOD IDEALLY -->
+          <button type="button" class="btn-reset" id="reset-btn">
+            Reset all seats
+          </button>
+        </div>
+        
+        <!-- Hidden passenger data for JavaScript -->
+        <script type="application/json" id="passenger-data">
+        [
+          {% for passenger in passengers %}
+          {
+            "id": {{ passenger.id }},
+            "firstName": "{{ passenger.firstName }}",
+            "lastName": "{{ passenger.lastName }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+        </script>
+
         <!-- SEAT MAP -->
-        <form action="/flights/seats" method="post" class="seat-form">
+        <form id="seat-form" action="/flights/seats" method="post" class="seat-form">
           <div class="seatmap-wrapper">
             <div class="seatmap">
               <div class="seatmap-header">Front of Aircraft</div>
@@ -136,15 +163,13 @@
                         {% else %}
                           {% set cls = cls ~ " available" %}
                         {% endif %}
-                        {% if currentSeatCode and s.code == currentSeatCode %}
-                          {% set cls = cls ~ " selected" %}
-                        {% endif %}
 
                         <button
                           class="{{ cls }}"
-                          type="submit"
-                          name="seatCode"
-                          value="{{ s.code }}"
+                          type="button"
+                          data-seat-code="{{ s.code }}"
+                          data-passenger-id=""
+                          data-passenger-name="{{ currentPassenger }}"
                           {% if s.status == "occupied" %}disabled{% endif %}
                           title="{{ s.code }} ({{ s.position }})"
                         >
@@ -157,7 +182,161 @@
               {% endfor %}
             </div>
           </div>
+
+          <!-- CONTINUE BUTTON -->
+          <div class="seat-actions">
+            <button type="button" class="btn-continue" id="continue-btn" disabled>
+              Continue to next step →
+            </button>
+            <p class="seat-actions-hint" id="hint-text">Select a seat for {{ currentPassenger }}</p>
+          </div>
+
+          
+
+          <!-- Hidden input for actual form submission -->
+          <input type="hidden" id="selected-seats-input" name="selectedSeats" value="{}">
         </form>
+
+        <script>
+          var seatSelections = {};
+          var passengerList = [];
+          var totalPassengers = {{ passengers|length }};
+
+          function initPassengers() {
+            var passengerDataEl = document.getElementById('passenger-data');
+            passengerList = JSON.parse(passengerDataEl.textContent);
+            
+            for (var i = 0; i < passengerList.length; i++) {
+              seatSelections[passengerList[i].id] = null;
+            }
+            updateUI();
+          }
+
+          document.getElementById('reset-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            for (var i = 0; i < passengerList.length; i++) {
+              seatSelections[passengerList[i].id] = null;
+            }
+            updateUI();
+          });
+
+          function handleSeatClick(btn) {
+            var seatCode = btn.getAttribute('data-seat-code');
+            if (btn.classList.contains('occupied') || btn.disabled) return;
+
+            var nextPassenger = null;
+            for (var i = 0; i < passengerList.length; i++) {
+              if (!seatSelections[passengerList[i].id]) {
+                nextPassenger = passengerList[i];
+                break;
+              }
+            }
+            if (!nextPassenger) return;
+
+            var keys = Object.keys(seatSelections);
+            for (var i = 0; i < keys.length; i++) {
+              if (seatSelections[keys[i]] === seatCode) {
+                seatSelections[keys[i]] = null;
+              }
+            }
+
+            seatSelections[nextPassenger.id] = seatCode;
+            updateUI();
+          }
+
+          function updateUI() {
+            var assigned = 0;
+            var keys = Object.keys(seatSelections);
+            for (var i = 0; i < keys.length; i++) {
+              if (seatSelections[keys[i]] !== null) assigned++;
+            }
+            document.getElementById('seat-count').textContent = assigned + ' / ' + totalPassengers;
+
+            var seatButtons = document.querySelectorAll('.seat:not(.occupied)');
+            for (var i = 0; i < seatButtons.length; i++) {
+              var btn = seatButtons[i];
+              var seatCode = btn.getAttribute('data-seat-code');
+              var isSelected = false;
+              
+              var values = Object.values(seatSelections);
+              for (var j = 0; j < values.length; j++) {
+                if (values[j] === seatCode) {
+                  isSelected = true;
+                  break;
+                }
+              }
+              
+              btn.classList.remove('selected');
+              if (isSelected) {
+                btn.classList.add('selected');
+              }
+            }
+
+            var seatListHtml = '';
+            var keys = Object.keys(seatSelections);
+            for (var i = 0; i < keys.length; i++) {
+              var pId = keys[i];
+              var seatCode = seatSelections[pId];
+              if (seatCode) {
+                var p = null;
+                for (var j = 0; j < passengerList.length; j++) {
+                  if (passengerList[j].id == pId) {
+                    p = passengerList[j];
+                    break;
+                  }
+                }
+                if (p) {
+                  seatListHtml += '<span class="seat-item"><strong>' + p.firstName + ' ' + p.lastName + '</strong> &rarr; ' + seatCode + '</span>';
+                }
+              }
+            }
+            document.getElementById('seat-list').innerHTML = seatListHtml;
+
+            var allAssigned = true;
+            var keys = Object.keys(seatSelections);
+            for (var i = 0; i < keys.length; i++) {
+              if (seatSelections[keys[i]] === null) {
+                allAssigned = false;
+                break;
+              }
+            }
+            document.getElementById('continue-btn').disabled = !allAssigned;
+
+            if (allAssigned) {
+              document.getElementById('hint-text').textContent = 'All passengers assigned! Click continue.';
+            } else {
+              var nextPassenger = null;
+              for (var i = 0; i < passengerList.length; i++) {
+                if (!seatSelections[passengerList[i].id]) {
+                  nextPassenger = passengerList[i];
+                  break;
+                }
+              }
+              if (nextPassenger) {
+                document.getElementById('hint-text').textContent = 'Select a seat for ' + nextPassenger.firstName + ' ' + nextPassenger.lastName;
+              }
+            }
+          }
+
+          document.addEventListener('DOMContentLoaded', function() {
+            initPassengers();
+
+            var seatButtons = document.querySelectorAll('.seat:not(.occupied)');
+            for (var i = 0; i < seatButtons.length; i++) {
+              seatButtons[i].addEventListener('click', function(e) {
+                e.preventDefault();
+                handleSeatClick(this);
+              });
+            }
+
+            document.getElementById('continue-btn').addEventListener('click', function(e) {
+              e.preventDefault();
+              var seatInput = document.getElementById('selected-seats-input');
+              seatInput.value = JSON.stringify(seatSelections);
+              document.getElementById('seat-form').submit();
+            });
+          });
+        </script>
       </div>
     </section>
 
