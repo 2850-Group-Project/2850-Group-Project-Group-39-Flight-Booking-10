@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/Home.css">
+  <link rel="stylesheet" href="/static/css/Confirmation.css">
+  <title>Booking Confirmed</title>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="brand">
+      <div class="brand-badge">✈️</div>
+      <span class="brand-title">SkyFlow</span>
+    </a>
+    <div class="nav-right">
+      <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
+      <a href="/profile" class="btn-primary">My Account</a>
+    </div>
+  </nav>
+
+  <!-- CONFIRMATION -->
+  <div class="confirm-page">
+    <div class="confirm-pebble">
+
+      <div class="confirm-icon">✅</div>
+      <h1 class="confirm-title">Booking Confirmed</h1>
+      <p class="confirm-sub">
+        Your journey is locked in. Details below.
+      </p>
+
+      <!-- BOOKING SUMMARY -->
+      <div class="confirm-details">
+
+        <div class="row">
+          <span>Booking ID</span>
+          <strong>#{{ bookingSession.bookingId }}</strong>
+        </div>
+
+        <div class="row">
+          <span>Trip Type</span>
+          <strong>
+            {% if bookingSession.search.tripType == "oneway" %}
+              One Way
+            {% else %}
+              Return
+            {% endif %}
+          </strong>
+        </div>
+
+        <div class="row">
+          <span>Passengers</span>
+          <strong>
+            {{ bookingSession.search.adults }} Adult{% if bookingSession.search.adults != "1" %}s{% endif %}
+            {% if bookingSession.search.children != null and bookingSession.search.children != "0" %}
+              , {{ bookingSession.search.children }} Child{% if bookingSession.search.children != "1" %}ren{% endif %}
+            {% endif %}
+            {% if bookingSession.search.infants != null and bookingSession.search.infants != "0" %}
+              , {{ bookingSession.search.infants }} Infant{% if bookingSession.search.infants != "1" %}s{% endif %}
+            {% endif %}
+          </strong>
+        </div>
+
+      </div>
+
+      <!-- OUTBOUND -->
+      <div class="confirm-section">
+        <div class="section-title">Outbound Flight</div>
+
+        <div class="row">
+          <span>Route</span>
+          <strong>
+            {{ bookingSession.search.origin }} → 
+            {{ bookingSession.search.destination }}
+          </strong>
+        </div>
+
+        <div class="row">
+          <span>Departure</span>
+          <strong>{{ bookingSession.search.departureDate }}</strong>
+        </div>
+
+        <div class="row">
+          <span>Flight ID</span>
+          <strong>{{ bookingSession.outboundFlightId }}</strong>
+        </div>
+
+        <div class="row">
+          <span>Fare</span>
+          <strong>{{ bookingSession.outboundFareId }}</strong>
+        </div>
+      </div>
+
+      <!-- RETURN (only if exists) -->
+      {% if bookingSession.returnFlightId != null %}
+      <div class="confirm-section">
+        <div class="section-title">Return Flight</div>
+
+        <div class="row">
+          <span>Route</span>
+          <strong>
+            {{ bookingSession.search.destination }} → 
+            {{ bookingSession.search.origin }}
+          </strong>
+        </div>
+
+        <div class="row">
+          <span>Return Date</span>
+          <strong>{{ bookingSession.search.returnDate }}</strong>
+        </div>
+
+        <div class="row">
+          <span>Flight ID</span>
+          <strong>{{ bookingSession.returnFlightId }}</strong>
+        </div>
+
+        <div class="row">
+          <span>Fare</span>
+          <strong>{{ bookingSession.returnFareId }}</strong>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- ACTIONS -->
+      <div class="confirm-actions">
+        <a href="/profile/bookings" class="btn-primary">View Booking</a>
+        <a href="/home" class="btn-ghost">Back to home</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <div class="footer-links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/help">Help</a>
+      <a href="/complaints">Complaints</a>
+    </div>
+  </footer>
+
+</body>
+</html>

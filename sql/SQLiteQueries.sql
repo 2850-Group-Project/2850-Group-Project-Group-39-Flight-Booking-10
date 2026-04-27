@@ -3,13 +3,15 @@
 --      RUN WITH CTRL+SHIFT+Q         --
 ----------------------------------------
 
+select * from booking;
+
 
 -- select * from passenger where passenger_id = 1234;
 -- select * from seat_assignment where passenger_id = 1234;
 -- select * from passenger where passenger_id > 1250;
 -- select * from seat_assignment where passenger_id = 1252;
 -- select * from seat where seat_id = 3114;
-select * from passenger;
+-- select * from passenger;
 -- ADDED LONDON TO NEW YORK
 -- INSERT INTO flight_fare (
 --     flight_fare_id, flight_id, fare_class_id,
