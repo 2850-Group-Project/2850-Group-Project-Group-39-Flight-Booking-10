@@ -148,7 +148,7 @@ fun Route.paymentRoutes() {
                 it[BookingTable.id] = bookingSession.bookingId
                 it[BookingTable.userId] = userId
                 it[BookingTable.bookingReference] = UUID.randomUUID().toString().take(8)
-                it[BookingTable.bookingStatus] = "pending_confirmation"
+                it[BookingTable.bookingStatus] = "confirmed" // THIS SHOULD BE PENDING, UNTIL PROPERLY PROCESSED BY BANK (confirmed FOR THE SAKE OF DEMO)
                 it[BookingTable.amendable] = 1
             }
 
