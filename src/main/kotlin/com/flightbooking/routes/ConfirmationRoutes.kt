@@ -13,6 +13,12 @@ import com.flightbooking.models.BookingSession
 fun Route.confirmationRoutes() {
     get("/confirmation") {
         val bookingSession = call.sessions.get<BookingSession>()
+        val userSession = call.sessions.get<UserSession>()
+
+        if (userSession == null) {
+            call.respondRedirect("/login")
+            return@get
+        }
 
         if (bookingSession == null) {
             call.respondRedirect("/home")
