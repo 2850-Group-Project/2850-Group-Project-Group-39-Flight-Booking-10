@@ -38,8 +38,7 @@ dependencies {
     // ktor client dependencies
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-
-
+    
     // implementation("com.h2database:h2:2.2.224")
     implementation("io.ktor:ktor-server-html-builder:$ktorVersion")
     
@@ -48,6 +47,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:0.43.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.43.0")
     
+    // google dependency for passenger seat selection
+    implementation ("com.google.code.gson:gson:2.10.1")
     
     // library we use for password hashing
     implementation("org.mindrot:jbcrypt:0.4")
