@@ -1,0 +1,137 @@
+.confirm-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: fit-content;
+    padding: 40px 20px;
+}
+
+.confirm-pebble {
+    width: 100%;
+    max-width: 560px;
+    background: rgba(15,19,32,.85);
+    border: 1px solid rgba(255,255,255,.10);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    text-align: center;
+    box-shadow: var(--shadow);
+
+    opacity: 0;
+    animation: fadeUp .5s ease forwards;
+}
+
+.confirm-icon {
+    font-size: 38px;
+    margin-bottom: 12px;
+}
+
+.confirm-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.confirm-sub {
+    color: var(--muted2);
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+
+/* -- BOOKING SUMMARY BLOCK -- */
+.confirm-details {
+    text-align: left;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: var(--radius2);
+    padding: 4px 16px;
+    margin-bottom: 16px;
+}
+
+.confirm-details .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 0;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.confirm-details .row:last-child {
+    border-bottom: none;
+}
+
+.confirm-details .row span {
+    color: var(--muted2);
+}
+
+.confirm-details .row strong {
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+    max-width: 60%;
+}
+
+/* -- FLIGHT SECTION BLOCKS -- */
+.confirm-section {
+    text-align: left;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: var(--radius2);
+    padding: 4px 16px;
+    margin-bottom: 16px;
+}
+
+.confirm-section .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 0;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.confirm-section .row:last-child {
+    border-bottom: none;
+}
+
+.confirm-section .row span {
+    color: var(--muted2);
+}
+
+.confirm-section .row strong {
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+    max-width: 60%;
+}
+
+.section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    padding: 14px 0 4px;
+}
+
+/* -- ACTIONS -- */
+.confirm-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 28px;
+}
+
+.confirm-actions .btn-primary,
+.confirm-actions .btn-ghost {
+    flex: 1;
+    text-align: center;
+    padding: 11px 20px;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
