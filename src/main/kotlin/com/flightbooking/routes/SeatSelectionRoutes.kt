@@ -308,6 +308,13 @@ fun Route.seatSelectionRoutes() {
             }
         }
 
+        // update the seat table, so that seat is now taken and can't be taken by someone else
+        transaction {
+            SeatTable.update({ SeatTable.id eq seatId }) {
+                it[SeatTable.status] = "occupied"
+            }
+        }
+
         println(assignedPassengers.size)
         println(passengers.size)
 
