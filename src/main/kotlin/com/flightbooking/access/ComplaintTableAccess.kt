@@ -1,6 +1,6 @@
 package com.flightbooking.access
 import com.flightbooking.models.Complaint
-import com.flightbooking.models.toComplaint
+import com.flightbooking.mappers.toComplaint
 import com.flightbooking.tables.ComplaintTable
 
 import org.jetbrains.exposed.sql.selectAll

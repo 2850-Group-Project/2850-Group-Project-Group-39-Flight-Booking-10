@@ -1,7 +1,7 @@
 package com.flightbooking.access
 
 import com.flightbooking.models.Notification
-import com.flightbooking.models.toNotification
+import com.flightbooking.mappers.toNotification
 import com.flightbooking.tables.NotificationTable
 
 import org.jetbrains.exposed.sql.selectAll

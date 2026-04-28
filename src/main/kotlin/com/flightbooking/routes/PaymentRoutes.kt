@@ -26,11 +26,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.PaymentTable
 import com.flightbooking.tables.BookingTable
+import com.flightbooking.tables.UserTable
+
+import java.util.UUID
 
 private const val RETURN_FARE_DISCOUNT = 0.5
 private const val PROVIDER_REFERENCE_DIGITS = 4
-
-import java.util.UUID
+private const val BOOKING_REFERENCE_LENGTH = 8
 
 fun Route.paymentRoutes() {
     get("/payment") {
@@ -136,8 +138,13 @@ fun Route.paymentRoutes() {
             BookingTable.insert {
                 it[BookingTable.id] = bookingSession.bookingId
                 it[BookingTable.userId] = userId
-                it[BookingTable.bookingReference] = UUID.randomUUID().toString().take(8)
-                it[BookingTable.bookingStatus] = "confirmed" // THIS SHOULD BE PENDING, UNTIL PROPERLY PROCESSED BY BANK (confirmed FOR THE SAKE OF DEMO)
+                it[BookingTable.bookingReference] = 
+                    UUID.randomUUID()
+                        .toString()
+                        .take(
+                            BOOKING_REFERENCE_LENGTH
+                            )
+                it[BookingTable.bookingStatus] = "confirmed" // should be pending until processed, (confirmed for demo)
                 it[BookingTable.amendable] = 1
             }
 

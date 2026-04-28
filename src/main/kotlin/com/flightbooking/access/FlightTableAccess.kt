@@ -1,7 +1,7 @@
 package com.flightbooking.access
 
 import com.flightbooking.models.Flight
-import com.flightbooking.models.toFlight
+import com.flightbooking.mappers.toFlight
 import com.flightbooking.models.FlightWithFares
 import com.flightbooking.models.FareOption
 

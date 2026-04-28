@@ -1,7 +1,7 @@
 package com.flightbooking.access
 
 import com.flightbooking.models.User
-import com.flightbooking.models.toUser
+import com.flightbooking.mappers.toUser
 import com.flightbooking.tables.UserTable
 
 import org.jetbrains.exposed.sql.ResultRow

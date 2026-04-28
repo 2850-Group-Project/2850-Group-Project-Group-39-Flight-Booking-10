@@ -1,7 +1,7 @@
 package com.flightbooking.access
 
 import com.flightbooking.models.FlightFare
-import com.flightbooking.models.toFlightFare
+import com.flightbooking.mappers.toFlightFare
 import com.flightbooking.tables.FlightFareTable
 
 import org.jetbrains.exposed.sql.selectAll

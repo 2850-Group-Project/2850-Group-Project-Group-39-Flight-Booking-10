@@ -11,6 +11,7 @@ import com.flightbooking.models.UserSession
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.SeatTable
+import io.ktor.server.application.log
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.request.receiveParameters
@@ -25,6 +26,7 @@ import kotlin.math.ceil
 
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -33,6 +35,7 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.and
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.google.gson.JsonSyntaxException
 
 import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.BookingSegmentTable
@@ -248,7 +251,8 @@ fun Route.seatSelectionRoutes() {
         val gson = Gson()
         val selectedSeats: Map<String, String> = try {
             gson.fromJson(selectedSeatsJson, object : TypeToken<Map<String, String>>() {}.type)
-        } catch (e: Exception) {
+        } catch (e: JsonSyntaxException) {
+            call.application.log.error("Failed to parse seat selection JSON: ${e.message}", e)
             call.respondRedirect("/flights/seats?error=Invalid seat selection format")
             return@post
         }
@@ -258,7 +262,7 @@ fun Route.seatSelectionRoutes() {
         val seatMap = seatRows.associateBy { it.seatCode }
 
         // Validate all seats exist and are available
-        for ((passengerId, seatCode) in selectedSeats) {
+        for ((_, seatCode) in selectedSeats) {
             val seatRow = seatMap[seatCode]
             if (seatRow == null) {
                 call.respondRedirect("/flights/seats?error=Seat $seatCode not found")

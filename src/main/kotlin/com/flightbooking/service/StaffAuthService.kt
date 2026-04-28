@@ -13,9 +13,10 @@ object StaffAuthService {
     }
 
     fun login(email: String, password: String): Boolean {
-        if (email.isBlank() || password.isBlank()) return false
-        val staff = staffAccess.findByEmail(email) ?: return false
-        val stored = staff.passwordHash ?: return false
-        return BCrypt.checkpw(password, stored)
+        val storedHash = staffAccess.findByEmail(email)
+            ?.passwordHash
+            ?.takeIf { email.isNotBlank() && password.isNotBlank() }
+            ?: return false
+        return BCrypt.checkpw(password, storedHash)
     }
 }

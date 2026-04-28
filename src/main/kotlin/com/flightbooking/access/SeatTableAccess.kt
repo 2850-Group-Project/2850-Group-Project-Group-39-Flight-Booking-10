@@ -1,7 +1,7 @@
 package com.flightbooking.access
 
 import com.flightbooking.models.Seat
-import com.flightbooking.models.toSeat
+import com.flightbooking.mappers.toSeat
 import com.flightbooking.tables.SeatTable
 
 import org.jetbrains.exposed.sql.selectAll

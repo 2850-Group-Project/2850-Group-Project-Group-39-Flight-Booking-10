@@ -1,7 +1,7 @@
 package com.flightbooking.access // we want to be able to access all access files from a single package "access"
 
 import com.flightbooking.models.Airport
-import com.flightbooking.models.toAirport
+import com.flightbooking.mappers.toAirport
 import com.flightbooking.tables.AirportTable
 
 import org.jetbrains.exposed.sql.selectAll

@@ -1,7 +1,7 @@
 package com.flightbooking.access
 
 import com.flightbooking.models.Payment
-import com.flightbooking.models.toPayment
+import com.flightbooking.mappers.toPayment
 import com.flightbooking.tables.PaymentTable
 
 import org.jetbrains.exposed.sql.selectAll
