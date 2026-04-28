@@ -299,6 +299,11 @@ nav {
   color: white;
 }
 
+.autocomplete-item--active {
+  background: rgba(63, 94, 251, .25);
+  color: white;
+}
+
 .swap-btn {
   position: relative;
   display: flex;

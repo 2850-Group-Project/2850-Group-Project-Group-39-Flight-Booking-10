@@ -115,6 +115,8 @@ function initAirportAutocomplete(inputId, dropdownId, hiddenId) {
     function closeDropdown() {
         dropdown.innerHTML = "";
         dropdown.classList.remove("open");
+
+        flightIndex = -1;
     }
 
     input.addEventListener("click", (e) => {
@@ -122,6 +124,41 @@ function initAirportAutocomplete(inputId, dropdownId, hiddenId) {
             closeDropdown();
         }
     })
+
+    let flightIndex = -1;
+
+    input.addEventListener("keydown", (e) => {
+        const items = dropdown.querySelectorAll(".autocomplete-item")
+        if (!items.length) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            flightIndex = (flightIndex + 1) % items.length; // using mod to wrap around
+            updateActive(items);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            flightIndex = (flightIndex - 1 + items.length) % items.length;
+            updateActive(items); 
+        } else if (e.key === "Enter") {
+            console.log("CLICKED ENTER");
+            console.log(flightIndex);
+            e.preventDefault();
+            if (flightIndex >= 0 && items[flightIndex]) {
+                items[flightIndex].dispatchEvent(new MouseEvent("mousedown")); // simulate click when entering
+            }
+        } else if (e.key == "Escape") {
+            closeDropdown();
+        }
+
+    })
+
+    function updateActive(items) {
+        items.forEach((item, i) => {
+            item.classList.toggle("autocomplete-item--active", i === flightIndex);
+        });
+
+        items[flightIndex]?.scrollIntoView({ block: "nearest" });
+    }
 }
 
 initAirportAutocomplete("origin-input", "origin-dropdown", "origin-value");
