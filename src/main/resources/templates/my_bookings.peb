@@ -63,7 +63,7 @@
 
             <div class="card-top">
               <div>
-                <div class="btitle">Booking #{{ b.bookingId }} • {{ b.bookingReference }}</div>
+                <div class="btitle">Booking Ref: {{ b.bookingReference }}</div>
                 <div class="meta">
                   <div class="pill {{ bs }}">
                     <span class="dot"></span>
