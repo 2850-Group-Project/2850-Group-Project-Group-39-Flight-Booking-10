@@ -77,7 +77,7 @@
                 <a class="btn" href="/profile/bookings/change?bookingId={{ b.bookingId }}">Change</a >
                 <form action="/profile/bookings/cancel" method="post" style="margin:0;">
                   <input type="hidden" name="bookingId" value="{{ b.bookingId }}" />
-                  <button class="a red" type="submit">Cancel</button>
+                  <button class="a red" type="button" onclick="openCancel({{ b.bookingId }})">Cancel</button>
                 </form>
               </div>
             </div>
@@ -132,6 +132,20 @@
 
   </div>
 
+  <div class="modal-backdrop" id="cancelModal">
+    <div class="modal">
+      <div class="modal-title">Cancel Booking?</div>
+      <p class="modal-sub">This action cannot be undone. Your booking will be permanently cancelled.</p>
+      <div class="modal-actions">
+        <button class="btn" type="button" onclick="closeCancel()">Go Back</button>
+        <form id="cancelForm" action="/profile/bookings/cancel" method="post" style="margin:0;">
+          <input type="hidden" name="bookingId" id="cancelBookingId" />
+          <button class="a red" type="submit">Yes, Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer>
     <span>© 2026 SkyBook. All rights reserved lol</span>
@@ -142,5 +156,7 @@
       <a href="/complaints">Complaints</a>
     </div>
   </footer>
+
+  <script src="/static/javascript/My_Bookings.js"></script>
 </body>
 </html>

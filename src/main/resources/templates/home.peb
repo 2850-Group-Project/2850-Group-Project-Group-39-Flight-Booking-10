@@ -129,7 +129,7 @@
                     <div class="pax-sub">Under 2 years</div>
                   </div>
                   <div class="pax-ctrl">
-                    <button type="button" onclick="changePax('infants', -1)">−</button>
+                    <button type="button" onclick="changePax('infants', -1)">-</button>
                     <span class="count" id="infantsCount">0</span>
                     <button type="button" onclick="changePax('infants', 1)">+</button>
                   </div>
