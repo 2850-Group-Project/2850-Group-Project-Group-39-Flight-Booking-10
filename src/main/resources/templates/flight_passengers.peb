@@ -60,7 +60,7 @@
             </span>
           </div>
         </div>
-        <a href="/flights/search" class="btn-ghost summary-edit">Back to flights</a>
+        <a href="/home" class="btn-ghost summary-edit">Back to flights</a>
       </div>
     </section>
 

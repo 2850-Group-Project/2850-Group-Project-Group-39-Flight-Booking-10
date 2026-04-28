@@ -30,6 +30,8 @@ import com.flightbooking.tables.BookingTable
 private const val RETURN_FARE_DISCOUNT = 0.5
 private const val PROVIDER_REFERENCE_DIGITS = 4
 
+import java.util.UUID
+
 fun Route.paymentRoutes() {
     get("/payment") {
         val userSession = call.sessions.get<UserSession>()
@@ -65,6 +67,7 @@ fun Route.paymentRoutes() {
             call.respondRedirect("/login")
             return@post
         }
+
         if (bookingSession == null) {
             call.respondRedirect("/home")
             return@post
@@ -123,8 +126,23 @@ fun Route.paymentRoutes() {
         }
 
         transaction {
+            // get user id using user email
+            val userId = UserTable
+                .select { UserTable.email eq userSession.userEmail }
+                .singleOrNull()
+                ?.get(UserTable.id)
+            
+            // create new booking insert
+            BookingTable.insert {
+                it[BookingTable.id] = bookingSession.bookingId
+                it[BookingTable.userId] = userId
+                it[BookingTable.bookingReference] = UUID.randomUUID().toString().take(8)
+                it[BookingTable.bookingStatus] = "confirmed" // THIS SHOULD BE PENDING, UNTIL PROPERLY PROCESSED BY BANK (confirmed FOR THE SAKE OF DEMO)
+                it[BookingTable.amendable] = 1
+            }
+
+            // update booking with new payment id
             BookingTable.update({ BookingTable.id eq bookingSession.bookingId }) {
-                it[BookingTable.bookingStatus] = "pending_confirmation"
                 it[BookingTable.paymentId] = paymentId
             }
         }

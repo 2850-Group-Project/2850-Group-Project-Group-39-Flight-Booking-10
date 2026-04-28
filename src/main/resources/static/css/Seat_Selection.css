@@ -1,0 +1,733 @@
+/* ─── FLIGHT SUMMARY (Reused from flight search) ─── */
+/* ─── 
+    CLAUDE USED TO GENERATE REPETATIVE YET PAGE
+                PAGE SPECIFIC STYLES 
+─── */
+/* ────────────────────────────────────────────────────────────────────────
+   SEAT SELECTION STYLES
+   Extends Home.css with seat-specific styling
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* ─── FLIGHT SUMMARY (Reused from flight search) ─── */
+.flight-summary {
+  margin-bottom: 28px;
+}
+
+.summary-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.6);
+  animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.summary-flight {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-route {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.summary-airport {
+  font-weight: 900;
+  color: #f1f5f9;
+}
+
+.summary-arrow {
+  color: rgba(148, 163, 184, 0.5);
+  font-size: 18px;
+}
+
+.summary-flight-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.summary-divider {
+  width: 1px;
+  height: 60px;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.summary-meta {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.seat-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #dcfce7;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.seat-badge-empty {
+  color: rgba(226, 232, 240, 0.6);
+  font-size: 14px;
+}
+
+.summary-edit {
+  white-space: nowrap;
+}
+
+/* ─── SEAT SECTION CONTAINER ─── */
+.seat-section-container {
+  display: flex;
+  justify-content: center;
+}
+
+.seat-card {
+  width: 100%;
+  max-width: 1100px;
+  padding: 32px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: fadeInUp 0.8s ease-out 0.1s backwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── SEAT HEADER ─── */
+.seat-header {
+  margin-bottom: 24px;
+}
+
+.seat-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: #f1f5f9;
+}
+
+.seat-subtitle {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(226, 232, 240, 0.7);
+}
+
+/* ─── MESSAGES ─── */
+.msg {
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin: 16px 0;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideInDown 0.4s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.msg-success {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #dcfce7;
+}
+
+.msg-success::before {
+  content: '✓';
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.msg-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fecaca;
+}
+
+.msg-error::before {
+  content: '✕';
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* ─── PASSENGERS LIST ─── */
+.seat-passengers {
+  margin: 24px 0;
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(51, 65, 85, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.seat-passengers-title {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.passengers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.passenger-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: #f1f5f9;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.passenger-icon {
+  font-size: 14px;
+}
+
+.passenger-name {
+  color: #e0f2fe;
+}
+
+/* ─── LEGEND ─── */
+.seat-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 24px 0;
+  padding: 16px 0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.8);
+}
+
+.legend-square {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  display: inline-block;
+}
+
+.legend-square.available {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.15));
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.legend-square.occupied {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.15));
+  border-color: rgba(239, 68, 68, 0.4);
+  opacity: 0.6;
+}
+
+.legend-square.selected {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(139, 92, 246, 0.25));
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* ─── CURRENT PASSENGER ─── */
+.current-passenger-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  margin-bottom: 24px;
+}
+
+.passenger-icon-large {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.current-passenger-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.current-passenger-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.current-passenger-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #bfdbfe;
+}
+
+/* ─── SEAT STATUS BAR ─── */
+.seat-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  margin: 16px 0 24px;
+}
+
+.seat-status-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.seat-status-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.seat-status-count {
+  font-size: 16px;
+  font-weight: 700;
+  color: #bfdbfe;
+  font-variant-numeric: tabular-nums;
+}
+
+.seat-status-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex: 1;
+}
+
+.seat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  font-size: 12px;
+  color: #dcfce7;
+}
+
+.seat-item strong {
+  font-weight: 600;
+  color: #86efac;
+}
+
+/* ─── SEATMAP ─── */
+.seat-form {
+  margin-top: 24px;
+}
+
+.seatmap-wrapper {
+  display: flex;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+.seatmap {
+  width: 100%;
+  padding: 28px 32px;
+  border-radius: 16px;
+  border: 2px solid rgba(148, 163, 184, 0.15);
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.3), rgba(15, 23, 42, 0.5));
+  overflow-x: auto;
+  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+.seatmap-header {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.7);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(148, 163, 184, 0.1);
+}
+
+.seat-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 0;
+  justify-content: center;
+}
+
+.row-num {
+  width: 32px;
+  text-align: center;
+  color: rgba(226, 232, 240, 0.5);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.row-seats {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.aisle-gap {
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.2), transparent);
+}
+
+/* ─── SEATS ─── */
+.seat {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(148, 163, 184, 0.25);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.08));
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  position: relative;
+}
+
+.seat:hover:not(.occupied) {
+  transform: translateY(-4px);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.15));
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2);
+}
+
+.seat:active:not(.occupied) {
+  transform: translateY(-2px);
+}
+
+.seat.available {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.seat.available:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.2));
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.2);
+}
+
+.seat.occupied {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08));
+  border-color: rgba(239, 68, 68, 0.25);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.seat.occupied:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.seat.selected {
+  border: 2px solid rgba(34, 197, 94, 0.8);
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.4), inset 0 0 8px rgba(34, 197, 94, 0.2);
+  transform: scale(1.05);
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.4), inset 0 0 8px rgba(34, 197, 94, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(34, 197, 94, 0.6), inset 0 0 12px rgba(34, 197, 94, 0.3);
+  }
+}
+
+/* ─── SEAT ACTIONS ─── */
+.seat-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.btn-continue {
+  padding: 14px 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+  color: #dcfce7;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 280px;
+}
+
+.btn-continue:not(:disabled):hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.2));
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-continue:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(148, 163, 184, 0.15);
+  background: rgba(148, 163, 184, 0.08);
+  color: rgba(226, 232, 240, 0.5);
+}
+
+.btn-reset {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(148, 163, 184, 0.08);
+  color: rgba(226, 232, 240, 0.8);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 12px;
+}
+
+.btn-reset:hover {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.seat-actions-hint {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.7);
+  margin: 0;
+  text-align: center;
+  min-height: 20px;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .summary-inner {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .summary-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .summary-meta {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .seat-card {
+    padding: 20px;
+  }
+
+  .seat-title {
+    font-size: 24px;
+  }
+
+  .seatmap {
+    padding: 20px 16px;
+  }
+
+  .seatmap-header {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .seat {
+    width: 36px;
+    height: 36px;
+    font-size: 11px;
+  }
+
+  .seat-row {
+    gap: 12px;
+    margin: 8px 0;
+  }
+
+  .row-seats {
+    gap: 8px;
+  }
+
+  .legend-item {
+    flex: 0 0 calc(50% - 12px);
+    gap: 8px;
+  }
+
+  .seat-legend {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-inner {
+    padding: 16px 12px;
+  }
+
+  .summary-route {
+    font-size: 16px;
+    gap: 8px;
+  }
+
+  .summary-label {
+    font-size: 11px;
+  }
+
+  .summary-value {
+    font-size: 13px;
+  }
+
+  .seat-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .seat-title {
+    font-size: 20px;
+  }
+
+  .seat-subtitle {
+    font-size: 13px;
+  }
+
+  .seatmap {
+    padding: 16px 12px;
+  }
+
+  .seat {
+    width: 32px;
+    height: 32px;
+    font-size: 10px;
+  }
+
+  .row-num {
+    font-size: 11px;
+    width: 28px;
+  }
+
+  .seat-row {
+    gap: 10px;
+  }
+
+  .row-seats {
+    gap: 6px;
+  }
+
+  .aisle-gap {
+    width: 24px;
+  }
+
+  .legend-item {
+    flex: 1 1 100%;
+  }
+
+  .seat-legend {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

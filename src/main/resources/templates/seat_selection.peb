@@ -3,190 +3,216 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/Home.css">
+  <link rel="stylesheet" href="/static/css/Seat_Selection.css">
   <title>SkyFlow - Seat Selection</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: radial-gradient(1200px 600px at 10% -10%, rgba(56,189,248,.18), transparent 60%),
-                  radial-gradient(900px 500px at 90% 0%, rgba(168,85,247,.16), transparent 55%),
-                  #050816;
-      color: rgba(255,255,255,.92);
-    }
-
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 26px 18px; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; padding:14px 16px;
-      border:1px solid rgba(255,255,255,.12); border-radius:14px; background:rgba(10,14,25,.55);
-      backdrop-filter: blur(10px);
-    }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:900; }
-    .brand-badge { width:36px; height:36px; border-radius:12px; display:grid; place-items:center;
-      background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.14);
-    }
-    .right { display:flex; align-items:center; gap:10px; }
-    .navbtn { text-decoration:none; padding:10px 12px; border-radius:12px;
-      border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:rgba(255,255,255,.92);
-      font-weight:800;
-    }
-    .navbtn.red { border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.12); }
-
-    .card { margin-top: 18px; padding:18px; border-radius:16px;
-      background: rgba(10,14,25,.6); border: 1px solid rgba(255,255,255,.12);
-    }
-    .sub { color: rgba(255,255,255,.66); font-weight:700; }
-
-    .msg { padding:12px 14px; border-radius:12px; margin:12px 0;
-      background: rgba(34,197,94,.14); border: 1px solid rgba(34,197,94,.25);
-      color: rgba(255,255,255,.92); font-weight:800;
-    }
-    .msg.err { background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.28); }
-
-    .divider { text-align:center; margin: 16px 0; color: rgba(255,255,255,.55);
-      font-weight:900; letter-spacing:.35em; font-size: 12px;
-    }
-
-    .pill { display:inline-flex; gap:8px; align-items:center; padding:10px 12px; border-radius:999px;
-      border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.88); font-weight:400;
-    }
-    .info-grid { display:flex; flex-wrap:wrap; gap:10px; }
-
-    .legend { display:flex; flex-wrap:wrap; gap:14px; }
-    .lg { display:flex; align-items:center; gap:8px; color: rgba(255,255,255,.78); font-weight:800; }
-    .sq { width:14px; height:14px; border-radius:5px; display:inline-block; border:1px solid rgba(255,255,255,.18); }
-    .sq.available { background: rgba(34,197,94,.25); }
-    .sq.occupied { background: rgba(239,68,68,.22); }
-    .sq.current { background: rgba(56,189,248,.25); }
-
-    .seatmap-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .seatmap { margin-top: 10px; padding: 16px; border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
-      overflow-x:auto;
-    }
-    .seat-row { display:flex; align-items:center; gap:12px; margin: 8px 0; }
-    .row-num { width:32px; text-align:right; color: rgba(255,255,255,.60); font-weight:900; }
-    .row-seats { display:flex; gap:8px; align-items:center; }
-    .aisle-gap { width:22px; height:1px; }
-
-    .seat { width:36px; height:36px; border-radius:12px; border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.07); color: rgba(255,255,255,.92); font-weight:900;
-      cursor:pointer;
-    }
-    .seat.available:hover { transform: translateY(-1px); }
-    .seat.occupied { background: rgba(239,68,68,.16); border-color: rgba(239,68,68,.25); opacity:.55; cursor:not-allowed; }
-    .seat.current { outline: 2px solid rgba(56,189,248,.55); outline-offset: 2px; }
-  </style>
 </head>
 
 <body>
-  <div class="wrap">
 
-    <div class="topbar">
-      <div class="brand">
-        <div class="brand-badge">✈</div>
-        <div>SkyFlow</div>
-      </div>
-
-      <div class="right">
-        <!-- booking flow: go back to passenger details (or flights list) -->
-        <a class="navbtn" href="/flights/passengers">← Back to Passenger Details</a>
-        <a class="navbtn red" href="/logout">Logout</a>
-      </div>
+  <!-- NAV -->
+  <nav>
+    {% if isLoggedIn %}
+      <a href="/home" class="brand">
+    {% else %}
+      <a href="/" class="brand">
+    {% endif %}
+      <div class="brand-badge">✈️</div>
+      <span class="brand-title">SkyFlow</span>
+    </a>
+    <div class="nav-right">
+      <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
+      <a href="/profile" class="btn-primary">My Account</a>
     </div>
+  </nav>
 
-    <div class="card" style="margin-top:18px;">
-      <h1 style="margin:0;">Seat Selection</h1>
-      <p class="sub" style="margin-top:8px;">
-        Pick a seat for your flight. Seats marked as occupied cannot be selected.
-      </p>
-
-      {% if error %}
-        <div class="msg err">{{ error }}</div>
-      {% endif %}
-      {% if ok %}
-        <div class="msg">{{ ok }}</div>
-      {% endif %}
-
-      <div class="info-grid" style="margin-top:16px;">
-        <div class="pill">Flight: <b>{{ flightNumber }}</b> (ID: {{ flightId }})</div>
-        <div class="pill">Route: <b>{{ originIata }}</b> ({{ originName }}) → <b>{{ destIata }}</b> ({{ destName }})</div>
-        <div class="pill">Aircraft Type: <b>{{ aircraftType }}</b></div>
-        <div class="pill">Selected Seat: <b>{% if currentSeatCode %}{{ currentSeatCode }}{% else %}None{% endif %}</b></div>
-      </div>
-
-      <div class="divider" style="margin-top:18px;">PASSENGERS</div>
-
-      <div style="margin:14px 0; display:flex; flex-wrap:wrap; gap:10px;">
-        {% for passenger in passengers %}
-          <div class="pill">
-            <b>{{ passenger.firstName }} {{ passenger.lastName }}</b>
+  <main>
+    <!-- FLIGHT SUMMARY -->
+    <section class="flight-summary">
+      <div class="summary-inner">
+        <div class="summary-flight">
+          <div class="summary-route">
+            <span class="summary-airport">{{ originIata }}</span>
+            <span class="summary-arrow">→</span>
+            <span class="summary-airport">{{ destIata }}</span>
           </div>
-        {% endfor %}
-      </div>
-
-      <div class="divider" style="margin-top:18px;">CHOOSE A SEAT</div>
-
-      <p class="sub" style="margin-bottom:16px;">
-        Assigning seat for: <b>{{ currentPassenger }}</b>
-      </p>
-
-      <div class="legend" style="margin:14px 0 10px;">
-
-      <div class="legend" style="margin:14px 0 10px;">
-        <span class="lg"><span class="sq available"></span> Available</span>
-        <span class="lg"><span class="sq occupied"></span> Occupied</span>
-        <span class="lg"><span class="sq current"></span> Selected</span>
-      </div>
-
-      <!-- booking flow: submit to /flights/seats, no bookingId/segmentId hidden fields -->
-      <form action="/flights/seats" method="post">
-        <div class="seatmap-container">
-          <div class="seatmap">
-            {% for row in seatRows %}
-              <div class="seat-row">
-                <div class="row-num">{{ row.rowNumber }}</div>
-
-                <div class="row-seats">
-                  {% for s in row.seats %}
-                    {% if s.isAisleGap %}
-                      <div class="aisle-gap"></div>
-                    {% else %}
-                      {% set cls = "seat" %}
-                      {% if s.status == "occupied" %}
-                        {% set cls = cls ~ " occupied" %}
-                      {% else %}
-                        {% set cls = cls ~ " available" %}
-                      {% endif %}
-                      {% if currentSeatCode and s.code == currentSeatCode %}
-                        {% set cls = cls ~ " current" %}
-                      {% endif %}
-
-                      <button
-                        class="{{ cls }}"
-                        type="submit"
-                        name="seatCode"
-                        value="{{ s.code }}"
-                        {% if s.status == "occupied" %}disabled{% endif %}
-                        title="{{ s.code }} • {{ s.position }}"
-                      >
-                        {{ s.letter }}
-                      </button>
-                    {% endif %}
-                  {% endfor %}
-                </div>
-              </div>
-            {% endfor %}
+          <span class="summary-flight-number">Flight #{{ flightNumber }}</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-meta">
+          <div class="summary-item">
+            <span class="summary-label">Aircraft</span>
+            <span class="summary-value">{{ aircraftType }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Selected Seat</span>
+            <span class="summary-value">
+              {% if currentSeatCode %}
+                <span class="seat-badge">{{ currentSeatCode }}</span>
+              {% else %}
+                <span class="seat-badge-empty">—</span>
+              {% endif %}
+            </span>
           </div>
         </div>
-        
-      </form>
-    </div>
+        <a href="/flights/passengers" class="btn-ghost summary-edit">← Back</a>
+      </div>
+    </section>
 
-  </div>
+    <!-- SEAT SELECTION SECTION -->
+    <section class="seat-section-container">
+      <div class="seat-card">
+        <div class="seat-header">
+          <div>
+            <h1 class="seat-title">Seat Selection</h1>
+            <p class="seat-subtitle">Choose a comfortable seat for your flight</p>
+          </div>
+        </div>
+
+        <!-- MESSAGES -->
+        {% if error %}
+          <div class="msg msg-error">{{ error }}</div>
+        {% endif %}
+        {% if ok %}
+          <div class="msg msg-success">{{ ok }}</div>
+        {% endif %}
+
+        <!-- PASSENGERS INFO -->
+        <h3 class="seat-passengers-title">Passengers on this flight</h3>
+        <div class="passengers-list">
+          {% for passenger in passengers %}
+          <div class="passenger-item">
+            <span class="passenger-icon">👤</span>
+            <span class="passenger-name">{{ passenger.firstName }} {{ passenger.lastName }}</span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- LEGEND -->
+        <div class="seat-legend">
+          <span class="legend-item">
+            <span class="legend-square available"></span>
+            <span>Available</span>
+          </span>
+          <span class="legend-item">
+            <span class="legend-square occupied"></span>
+            <span>Occupied</span>
+          </span>
+          <span class="legend-item">
+            <span class="legend-square selected"></span>
+            <span>Selected</span>
+          </span>
+        </div>
+
+        <!-- CURRENT PASSENGER -->
+        <div class="current-passenger-info">
+          <span class="passenger-icon-large">👤</span>
+          <div class="current-passenger-text">
+            <span class="current-passenger-label">Assigning seat for</span>
+            <span class="current-passenger-name">{{ currentPassenger }}</span>
+          </div>
+        </div>
+
+        <!-- SEAT SELECTION STATUS -->
+        <div class="seat-status-bar" id="status-bar">
+          <div class="seat-status-info">
+            <span class="seat-status-label">Seats assigned:</span>
+            <span class="seat-status-count" id="seat-count">0 / {{ passengers|length }}</span>
+          </div>
+          <div class="seat-status-list" id="seat-list">
+            <!-- js fills this for me -->
+          </div>
+          <!-- RESET SEATS BUTTON -->
+          <!-- NEEDS TO BE REPLACED WITH A BETTER PLACE/METHOD IDEALLY -->
+          <button type="button" class="btn-reset" id="reset-btn">
+            Reset all seats
+          </button>
+        </div>
+        
+        <!-- Hidden passenger data for JavaScript -->
+        <script type="application/json" id="passenger-data">
+        [
+          {% for passenger in passengers %}
+          {
+            "id": {{ passenger.id }},
+            "firstName": "{{ passenger.firstName }}",
+            "lastName": "{{ passenger.lastName }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+        </script>
+
+        <!-- SEAT MAP -->
+        <form id="seat-form" action="/flights/seats" method="post" class="seat-form">
+          <div class="seatmap-wrapper">
+            <div class="seatmap">
+              <div class="seatmap-header">Front of Aircraft</div>
+              
+              {% for row in seatRows %}
+                <div class="seat-row">
+                  <div class="row-num">{{ row.rowNumber }}</div>
+
+                  <div class="row-seats">
+                    {% for s in row.seats %}
+                      {% if s.isAisleGap %}
+                        <div class="aisle-gap"></div>
+                      {% else %}
+                        {% set cls = "seat" %}
+                        {% if s.status == "occupied" %}
+                          {% set cls = cls ~ " occupied" %}
+                        {% else %}
+                          {% set cls = cls ~ " available" %}
+                        {% endif %}
+
+                        <button
+                          class="{{ cls }}"
+                          type="button"
+                          data-seat-code="{{ s.code }}"
+                          data-passenger-id=""
+                          data-passenger-name="{{ currentPassenger }}"
+                          {% if s.status == "occupied" %}disabled{% endif %}
+                          title="{{ s.code }} ({{ s.position }})"
+                        >
+                          {{ s.letter }}
+                        </button>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- CONTINUE BUTTON -->
+          <div class="seat-actions">
+            <button type="button" class="btn-continue" id="continue-btn" disabled>
+              Continue to next step →
+            </button>
+            <p class="seat-actions-hint" id="hint-text">Select a seat for {{ currentPassenger }}</p>
+          </div>
+
+          
+
+          <!-- Hidden input for actual form submission -->
+          <input type="hidden" id="selected-seats-input" name="selectedSeats" value="{}">
+        </form>
+
+        <script src="/static/javascript/Seat_Selection.js"></script>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 SkyFlow. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/help">Help</a>
+      <a href="/complaints">Complaints</a>
+    </div>
+  </footer>
+
 </body>
 </html>

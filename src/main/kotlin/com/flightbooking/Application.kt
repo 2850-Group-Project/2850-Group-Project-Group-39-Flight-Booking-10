@@ -13,6 +13,7 @@ import com.flightbooking.routes.flightRoutes
 import com.flightbooking.routes.changeRequestRoutes
 import com.flightbooking.routes.bookingRoutes
 import com.flightbooking.routes.paymentRoutes
+import com.flightbooking.routes.confirmationRoutes
 
 import com.flightbooking.models.UserSession
 import com.flightbooking.models.StaffSession
@@ -179,5 +180,6 @@ private fun Application.registerRoutes() {
         changeRequestRoutes()
         seatSelectionRoutes()
         paymentRoutes()
+        confirmationRoutes()
     }
 }
