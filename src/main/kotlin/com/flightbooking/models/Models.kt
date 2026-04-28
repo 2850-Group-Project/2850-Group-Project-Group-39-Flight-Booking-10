@@ -17,6 +17,8 @@ import com.flightbooking.tables.ComplaintTable
 import com.flightbooking.tables.ChangeRequestTable
 import com.flightbooking.tables.NotificationTable
 
+import kotlinx.serialization.Serializable
+
 // data class for storing user session data (ie, if they are logged in)
 data class UserSession(
     val userEmail: String,
@@ -101,6 +103,7 @@ data class User(
     val accountStatus: String
 )
 
+@Serializable
 data class Airport(
     val id: Int,
     val iataCode: String,

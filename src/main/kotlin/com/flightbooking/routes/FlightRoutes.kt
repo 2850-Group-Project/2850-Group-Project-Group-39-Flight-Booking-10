@@ -12,6 +12,13 @@ import io.ktor.http.HttpStatusCode
 import com.flightbooking.models.UserSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.BookingSession
+import com.flightbooking.models.Airport
+
+import com.flightbooking.access.AirportTableAccess
+
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import com.flightbooking.tables.*
 
 import java.util.UUID
 
@@ -62,5 +69,23 @@ fun Route.flightRoutes() {
         println(updated)
 
         call.respond(HttpStatusCode.OK, "ok") // stops ktor from hanging
+    }
+
+    get("/airports/search") {
+        val query = call.request.queryParameters["q"]?.trim() ?: ""
+        println(query)
+        
+        // only start returning flights after more than 1 character entered
+        if (query.length < 2 ) {
+            call.respond(emptyList<Airport>())
+            return@get
+        }
+
+        val airportTable = AirportTableAccess()
+        val suggestedAirports = airportTable.searchAirports(query)
+        
+        println(suggestedAirports)
+
+        call.respond(suggestedAirports)
     }
 }

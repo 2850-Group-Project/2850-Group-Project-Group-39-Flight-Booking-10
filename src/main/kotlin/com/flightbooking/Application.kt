@@ -33,6 +33,8 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.sessions.*
 import io.ktor.server.response.*
 import io.ktor.server.http.content.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.plugins.contentnegotiation.*
 
 import java.sql.SQLException
 import java.io.IOException
@@ -89,7 +91,9 @@ private fun Application.configureServer() {
         }
     }
 
-    install(ContentNegotiation)
+    install(ContentNegotiation) {
+        json()
+    }
 
     install(Pebble) {
         // Sets prefix for pebble templates so we don't need to repeat it

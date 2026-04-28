@@ -20,7 +20,6 @@
   gap: 24px;
   padding: 20px 24px;
   border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 16px;
   background: rgba(15, 23, 42, 0.6);
   animation: slideDown 0.6s ease-out;
 }
@@ -543,7 +542,6 @@
   gap: 12px;
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid rgba(148, 163, 184, 0.1);
 }
 
 .btn-continue {
@@ -588,7 +586,6 @@
   font-size: 13px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-bottom: 12px;
 }
 
 .btn-reset:hover {

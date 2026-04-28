@@ -60,3 +60,106 @@ function updatePaxLabel() {
 // Set min date to today
 const today = new Date().toISOString().split('T')[0];
 document.querySelectorAll('input[type="date"]').forEach(i => i.setAttribute('min', today));
+
+// Search suggestion autocomplete
+function initAirportAutocomplete(inputId, dropdownId, hiddenId) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    const hidden = document.getElementById(hiddenId);
+
+    let intervalTimer;
+
+    input.addEventListener("input", () =>{
+        clearTimeout(intervalTimer);
+        const q = input.value.trim();
+
+        if (q.length < 2) {
+            closeDropdown();
+            return;
+        }
+
+        // wait for 200ms after the user stops typing to send the request to get suggestions
+        intervalTimer = setTimeout(async () => {
+            const res = await fetch(`/airports/search?q=${encodeURIComponent(q)}`);
+            const airports = await res.json();
+            renderDropdown(airports);
+        }, 200);
+    });
+
+    function renderDropdown(airports) {
+        dropdown.innerHTML = "";
+
+        if (airports.length == 0) {
+            closeDropdown();
+            return;
+        }
+
+        airports.forEach((airport) => {
+            const li = document.createElement("li");
+            li.className = "autocomplete-item";
+            li.textContent = `${airport.city} - ${airport.name} (${airport.iataCode})`;
+
+            li.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                input.value = airport.city;
+                hidden.value = airport.iataCode;
+                closeDropdown();
+            });
+
+            dropdown.appendChild(li);
+        });
+
+        dropdown.classList.add("open");
+    }
+
+    function closeDropdown() {
+        dropdown.innerHTML = "";
+        dropdown.classList.remove("open");
+
+        flightIndex = -1;
+    }
+
+    input.addEventListener("click", (e) => {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            closeDropdown();
+        }
+    })
+
+    let flightIndex = -1;
+
+    input.addEventListener("keydown", (e) => {
+        const items = dropdown.querySelectorAll(".autocomplete-item")
+        if (!items.length) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            flightIndex = (flightIndex + 1) % items.length; // using mod to wrap around
+            updateActive(items);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            flightIndex = (flightIndex - 1 + items.length) % items.length;
+            updateActive(items); 
+        } else if (e.key === "Enter") {
+            console.log("CLICKED ENTER");
+            console.log(flightIndex);
+            e.preventDefault();
+            if (flightIndex >= 0 && items[flightIndex]) {
+                items[flightIndex].dispatchEvent(new MouseEvent("mousedown")); // simulate click when entering
+            }
+        } else if (e.key == "Escape") {
+            closeDropdown();
+        }
+
+    })
+
+    function updateActive(items) {
+        items.forEach((item, i) => {
+            item.classList.toggle("autocomplete-item--active", i === flightIndex);
+        });
+
+        items[flightIndex]?.scrollIntoView({ block: "nearest" });
+    }
+}
+
+initAirportAutocomplete("origin-input", "origin-dropdown", "origin-value");
+initAirportAutocomplete("destination-input", "destination-dropdown", "destination-value");
