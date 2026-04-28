@@ -50,7 +50,10 @@ class ComplaintTableAccess {
         ComplaintTable.deleteWhere { ComplaintTable.id eq id } }
 
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = ComplaintTable.update({ ComplaintTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
+        val rows = ComplaintTable.update(
+            { ComplaintTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value
+        } 
         rows > 0 }
 }

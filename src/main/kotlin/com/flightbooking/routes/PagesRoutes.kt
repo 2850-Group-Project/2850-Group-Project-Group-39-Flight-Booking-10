@@ -63,7 +63,7 @@ fun Route.pagesRoutes() {
 
         call.respond(PebbleContent("home.peb", mapOf(
             "userSession" to session,
-            "airports" to airports,
+            "airports" to airports
         )))
     }
 
@@ -90,7 +90,7 @@ fun Route.pagesRoutes() {
             returnDate = call.request.queryParameters["return_date"],
             adults = call.request.queryParameters["adults"],
             children = call.request.queryParameters["children"],
-            infants = call.request.queryParameters["infants"],
+            infants = call.request.queryParameters["infants"]
         )
 
         println(search)
@@ -129,7 +129,8 @@ fun Route.pagesRoutes() {
             inboundFlights = flightTable.getFlightsAroundDate(
                 destinationAirportCode, 
                 originAirportCode, 
-                LocalDate.parse(search.returnDate))
+                LocalDate.parse(search.returnDate)
+            )
             println("INBOUND FLIGHT DATA VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV")
             println(inboundFlights)
         }
@@ -139,7 +140,7 @@ fun Route.pagesRoutes() {
             "isLoggedIn" to true,
             "search" to search,
             "outboundFlights" to outboundFlights,
-            "returnFlights" to inboundFlights,
+            "returnFlights" to inboundFlights
         )))
     }
 
@@ -183,7 +184,7 @@ fun Route.pagesRoutes() {
             "search" to bookingSession.search,
             "adults" to adultsList,
             "children" to childrenList,
-            "infants" to infantsList,
+            "infants" to infantsList
         )))
     }
 

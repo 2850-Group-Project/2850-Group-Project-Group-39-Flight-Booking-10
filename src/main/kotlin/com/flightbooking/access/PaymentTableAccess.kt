@@ -65,9 +65,12 @@ class PaymentTableAccess {
     fun deleteByID(id: Int) = transaction { 
         PaymentTable.deleteWhere { PaymentTable.id eq id } }
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = PaymentTable.update({ PaymentTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+        val rows = PaymentTable.update(
+            { PaymentTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value } 
+        rows > 0 
+    }
     fun generatePayments() = transaction {
         println("genreasting payments")
         val bookings = BookingTable.selectAll().toList()

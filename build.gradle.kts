@@ -9,7 +9,7 @@ plugins {
 
     // Plugin for KDocs and code quality checks.
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     application
 }
 
@@ -38,18 +38,14 @@ dependencies {
     // ktor client dependencies
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    
     // implementation("com.h2database:h2:2.2.224")
     implementation("io.ktor:ktor-server-html-builder:$ktorVersion")
-    
     // exposed dependencies (abstraction over sql database)
     implementation("org.jetbrains.exposed:exposed-core:0.43.0")
     implementation("org.jetbrains.exposed:exposed-dao:0.43.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.43.0")
-    
     // google dependency for passenger seat selection
-    implementation ("com.google.code.gson:gson:2.10.1")
-    
+    implementation("com.google.code.gson:gson:2.10.1")
     // library we use for password hashing
     implementation("org.mindrot:jbcrypt:0.4")
 
@@ -63,7 +59,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-client-json:2.3.7")
     implementation("io.ktor:ktor-client-serialization:2.3.7")
-    
+
     // testing
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation(kotlin("test"))

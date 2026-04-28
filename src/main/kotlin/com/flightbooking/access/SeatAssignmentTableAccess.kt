@@ -48,9 +48,12 @@ class SeatAssignmentTableAccess {
     fun deleteByID(id: Int) = transaction { 
         SeatAssignmentTable.deleteWhere { SeatAssignmentTable.id eq id } }
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = SeatAssignmentTable.update({ SeatAssignmentTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+        val rows = SeatAssignmentTable.update(
+            { SeatAssignmentTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value } 
+        rows > 0
+    }
     fun generateSeatAssignments(
         passengersByBooking: Map<Int, List<Int>>,
         segmentsByBooking: Map<Int, List<Int>>

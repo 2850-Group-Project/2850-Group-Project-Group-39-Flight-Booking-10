@@ -107,67 +107,83 @@ fun Route.staffBookingsRoutes() {
         if (passengerEmail.isBlank() || flightId == null || bookingStatus.isBlank()) 
             return@post call.respondRedirect("/staff/bookings")
 
-        var errMsg: String? = null
-        transaction {
-            val userRow = UserTable.select { UserTable.email eq passengerEmail }.limit(1).firstOrNull()
-            if (userRow == null) { errMsg = "No user found for this email"; return@transaction }
-
-            val bookingId = BookingTable.insert {
-                it[BookingTable.bookingReference] = "BK-" + UUID.randomUUID()
-                    .toString()
-                    .replace("-", "")
-                    .take(BOOKING_REF_LENGTH)
-                    .uppercase()
-                it[BookingTable.paymentId] = null
-                it[BookingTable.createdAt] = Instant.now().toString()
-                it[BookingTable.bookingStatus] = bookingStatus
-                it[BookingTable.cancelledAt] = null
-                it[BookingTable.amendable] = 1
-                it[BookingTable.userId] = userRow[UserTable.id]
-            } get BookingTable.id
-
-            val passengerId = PassengerTable.insert {
-                it[PassengerTable.bookingId] = bookingId
-                it[PassengerTable.email] = passengerEmail
-                it[PassengerTable.checkedIn] = 0
-                it[PassengerTable.firstName] = passengerFirstName
-                it[PassengerTable.lastName] = passengerLastName
-                it[PassengerTable.title] = null; it[PassengerTable.dateOfBirth] = null
-                it[PassengerTable.gender] = null; it[PassengerTable.nationality] = null
-                it[PassengerTable.documentType] = null; it[PassengerTable.documentNumber] = null
-                it[PassengerTable.documentCountry] = null; it[PassengerTable.documentExpiry] = null
-            } get PassengerTable.id
-
-            val segmentId = BookingSegmentTable.insert {
-                it[BookingSegmentTable.bookingId] = bookingId
-                it[BookingSegmentTable.flightId] = flightId
-                it[BookingSegmentTable.flightFareId] = 1
-            } get BookingSegmentTable.id
-
-            val seatAssignmentId = SeatAssignmentTable.insert {
-                it[SeatAssignmentTable.passengerId] = passengerId
-                it[SeatAssignmentTable.bookingSegmentId] = segmentId
-                it[SeatAssignmentTable.seatId] = null
-            } get SeatAssignmentTable.id
-
-            if (seatId != null) {
-                val seatRow = SeatTable
-                    .select { SeatTable.id eq seatId }
-                    .limit(1)
-                    .firstOrNull()
-                if (seatRow != null 
-                    && seatRow[SeatTable.flightId] == flightId 
-                    && seatRow[SeatTable.status] == "available") {
-                    SeatTable.update({ SeatTable.id eq seatId }) { it[SeatTable.status] = "occupied" }
-                    SeatAssignmentTable
-                        .update({ SeatAssignmentTable.id eq seatAssignmentId }) { 
-                            it[SeatAssignmentTable.seatId] = seatId }
-                }
-            }
-        }
+        val errMsg = createFullBooking(FullBookingInput(
+            passengerEmail = passengerEmail,
+            passengerFirstName = passengerFirstName,
+            passengerLastName = passengerLastName,
+            flightId = flightId,
+            bookingStatus = bookingStatus,
+            seatId = seatId
+        ))
         if (errMsg != null) return@post call.respondRedirect("/staff/bookings?error=$errMsg")
         call.respondRedirect("/staff/bookings")
     }
+}
+data class FullBookingInput(
+    val passengerEmail: String,
+    val passengerFirstName: String?,
+    val passengerLastName: String?,
+    val flightId: Int,
+    val bookingStatus: String,
+    val seatId: Int?
+)
+private fun createFullBooking(
+    input: FullBookingInput
+): String? {
+    var errMsg: String? = null
+    transaction {
+        val userRow = UserTable.select { UserTable.email eq input.passengerEmail }.limit(1).firstOrNull()
+        if (userRow == null) { errMsg = "No user found for this email"; return@transaction }
+        val bookingId = BookingTable.insert {
+            it[BookingTable.bookingReference] = "BK-" + UUID.randomUUID()
+                .toString().replace("-", "").take(BOOKING_REF_LENGTH).uppercase()
+            it[BookingTable.paymentId] = null
+            it[BookingTable.createdAt] = Instant.now().toString()
+            it[BookingTable.bookingStatus] = input.bookingStatus
+            it[BookingTable.cancelledAt] = null
+            it[BookingTable.amendable] = 1
+            it[BookingTable.userId] = userRow[UserTable.id]
+        } get BookingTable.id
+        val passengerId = PassengerTable.insert {
+            it[PassengerTable.bookingId] = bookingId
+            it[PassengerTable.email] = input.passengerEmail
+            it[PassengerTable.checkedIn] = 0
+            it[PassengerTable.firstName] = input.passengerFirstName
+            it[PassengerTable.lastName] = input.passengerLastName
+            it[PassengerTable.title] = null; it[PassengerTable.dateOfBirth] = null
+            it[PassengerTable.gender] = null; it[PassengerTable.nationality] = null
+            it[PassengerTable.documentType] = null; it[PassengerTable.documentNumber] = null
+            it[PassengerTable.documentCountry] = null; it[PassengerTable.documentExpiry] = null
+        } get PassengerTable.id
+
+        val segmentId = BookingSegmentTable.insert {
+            it[BookingSegmentTable.bookingId] = bookingId
+            it[BookingSegmentTable.flightId] = input.flightId
+            it[BookingSegmentTable.flightFareId] = 1
+        } get BookingSegmentTable.id
+
+        val seatAssignmentId = SeatAssignmentTable.insert {
+            it[SeatAssignmentTable.passengerId] = passengerId
+            it[SeatAssignmentTable.bookingSegmentId] = segmentId
+            it[SeatAssignmentTable.seatId] = null
+        } get SeatAssignmentTable.id
+
+        if (input.seatId != null) {
+            val seatRow = SeatTable
+                .select { SeatTable.id eq input.seatId }
+                .limit(1)
+                .firstOrNull()
+            if (seatRow != null 
+                && seatRow[SeatTable.flightId] == input.flightId 
+                && seatRow[SeatTable.status] == "available") {
+                SeatTable.update({ SeatTable.id eq input.seatId }) { it[SeatTable.status] = "occupied" }
+                SeatAssignmentTable
+                    .update({ SeatAssignmentTable.id eq seatAssignmentId }) { 
+                        it[SeatAssignmentTable.seatId] = input.seatId }
+            }
+        }
+    }
+    return errMsg
 }
 
 private fun fetchStaffModel(session: StaffSession, q: String): Map<String, Any> = transaction {
@@ -191,7 +207,6 @@ private fun fetchStaffModel(session: StaffSession, q: String): Map<String, Any> 
         "bookings" to bookingsList
     )
 }
-
 private fun fetchFlights(): List<Map<String, Any>> {
     val origin = AirportTable.alias("origin")
     val dest = AirportTable.alias("dest")
@@ -217,7 +232,6 @@ private fun fetchFlights(): List<Map<String, Any>> {
             )
         }
 }
-
 private fun fetchBookings(q: String): List<Map<String, Any?>> = BookingTable
     .join(PassengerTable, 
         JoinType.LEFT, 
@@ -268,7 +282,6 @@ private fun fetchBookings(q: String): List<Map<String, Any?>> = BookingTable
             "seatCode" to r.getOrNull(SeatTable.seatCode)
         )
     }
-
 private fun fetchSeatsByFlight(bookingsList: List<Map<String, Any?>>): Map<Int, List<Map<String, Any>>> {
     val flightIds = bookingsList.mapNotNull { it["flightId"] as? Int }.distinct()
     if (flightIds.isEmpty()) return emptyMap()
@@ -279,7 +292,6 @@ private fun fetchSeatsByFlight(bookingsList: List<Map<String, Any?>>): Map<Int, 
             "status" to r[SeatTable.status]) }
         .groupBy({ it.first }, { it.second })
 }
-
 private fun updateBookingSegment(
     segId: Int, segRow: org.jetbrains.exposed.sql.ResultRow, newFlightId: Int, newSeatId: Int?) {
     val currentFlightId = segRow[BookingSegmentTable.flightId]
@@ -290,7 +302,6 @@ private fun updateBookingSegment(
         updateSeatAssignment(segId, currentFlightId, newSeatId)
     }
 }
-
 private fun clearSeatAssignment(segId: Int) {
     val saRow = SeatAssignmentTable
         .select { SeatAssignmentTable.bookingSegmentId eq segId }
@@ -304,7 +315,6 @@ private fun clearSeatAssignment(segId: Int) {
         SeatAssignmentTable.id eq saRow[SeatAssignmentTable.id] }) { 
             it[seatId] = null }
 }
-
 private fun updateSeatAssignment(segId: Int, currentFlightId: Int, newSeatId: Int?) {
     val saRow = SeatAssignmentTable.select { 
         SeatAssignmentTable.bookingSegmentId eq segId }

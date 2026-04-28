@@ -58,9 +58,12 @@ class UserTableAccess {
     fun deleteByID(id: Int) = transaction { 
         UserTable.deleteWhere { UserTable.id eq id } }
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = UserTable.update({ UserTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+        val rows = UserTable.update(
+            { UserTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value } 
+        rows > 0 
+    }
     fun findByEmail(email: String): User? = transaction {
         UserTable.select { UserTable.email eq email }
             .limit(1)
@@ -118,8 +121,10 @@ class UserTableAccess {
             val id = row[UserTable.id]
             val phone = "07700" + "%06d".format(id)
 
-            UserTable.update({ UserTable.id eq id }) {
-                it[phoneNumber] = phone
+            UserTable.update(
+                { UserTable.id eq id }
+            ) {
+                it[UserTable.phoneNumber] = phone
             }
         }
     }

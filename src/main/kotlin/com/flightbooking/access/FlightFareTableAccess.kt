@@ -72,9 +72,12 @@ class FlightFareTableAccess {
     fun deleteByID(id: Int) = transaction { 
         FlightFareTable.deleteWhere { FlightFareTable.id eq id } }
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = FlightFareTable.update({ FlightFareTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+        val rows = FlightFareTable.update(
+            { FlightFareTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value } 
+        rows > 0 
+    }
     
     fun generateUKDomesticFares(
         airportAccess: AirportTableAccess = AirportTableAccess(),

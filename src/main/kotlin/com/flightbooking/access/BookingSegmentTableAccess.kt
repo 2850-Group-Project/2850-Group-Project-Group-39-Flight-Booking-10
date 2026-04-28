@@ -48,10 +48,18 @@ class BookingSegmentTableAccess {
     }
     fun deleteByID(id: Int) = transaction { 
         BookingSegmentTable.deleteWhere { BookingSegmentTable.id eq id } }
-    fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = BookingSegmentTable.update({ BookingSegmentTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+    fun <T> updateRecordByAttribute(
+        id: Int, 
+        column: Column<T>, 
+        value: T
+    ): Boolean = transaction { 
+        val rows = BookingSegmentTable.update(
+            { BookingSegmentTable.id eq id }
+        ) { stmt ->
+            stmt[column] = value
+        }
+        rows > 0
+    }
     fun generateBookingSegments(
         activeFlights: List<Int>,
         passengersByBooking: Map<Int, List<Int>>

@@ -83,9 +83,13 @@ class BookingTableAccess {
     fun deleteByID(id: Int) = transaction { 
         BookingTable.deleteWhere { BookingTable.id eq id } }
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = BookingTable.update({ BookingTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+        val rows = BookingTable.update(
+            { BookingTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value
+        }
+        rows > 0
+    }
     fun generateBookings() = transaction {
         println("generating bookings")
         val users = UserTable.selectAll().toList()

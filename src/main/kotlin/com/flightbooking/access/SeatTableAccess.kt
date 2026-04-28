@@ -34,12 +34,10 @@ class SeatTableAccess {
             it.toSeat()
         }
     }
-
     fun <T> getByAttribute(attribute: Column<T>, value: T): List<Seat> = transaction {
         SeatTable.select { attribute eq value } 
             .map { it.toSeat() } 
     }
-
     @Suppress("LongParameterList")
     fun createSeat(
         flightId: Int,
@@ -63,16 +61,15 @@ class SeatTableAccess {
         }
         true
     }
-
     fun deleteByID(id: Int) = transaction { 
         SeatTable.deleteWhere { SeatTable.id eq id } }
-    
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = SeatTable.update({ SeatTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
+        val rows = SeatTable.update(
+            { SeatTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value } 
         rows > 0 
     }
-    
     fun generateUKDomesticSeats(activeFlights: List<Int>) = transaction {
         val ukDomesticFlights = FlightTable
             .select { FlightTable.id inList activeFlights }
@@ -86,13 +83,11 @@ class SeatTableAccess {
             generateEconomySeats(flightId, capacity)
         }
     }
-
     private val businessSeatLetters = listOf("A", "C", "D", "F")
     private val premiumSeatLetters  = listOf("A", "B", "C", "D", "E", "F")
     private val economySeatLetters  = listOf("A", "B", "C", "D", "E", "F")
     private val businessRows = 1..BUSINESS_ROWS_UPPER_LIMIT
     private val premiumRows  = PREMIUM_ROWS_LOWER_LIMIT..PREMIUM_ROWS_UPPER_LIMIT
-
     private fun generateBusinessSeats(flightId: Int) {
         for (row in businessRows) {
             for (letter in businessSeatLetters) {
@@ -113,7 +108,6 @@ class SeatTableAccess {
             }
         }
     }
-
     private fun generatePremiumSeats(flightId: Int) {
         for (row in premiumRows) {
             for (letter in premiumSeatLetters) {
@@ -134,7 +128,6 @@ class SeatTableAccess {
             }
         }
     }
-
     private fun generateEconomySeats(flightId: Int, capacity: Int) {
         val businessSeats = businessRows.count() * businessSeatLetters.count()
         val premiumSeats  = premiumRows.count() * premiumSeatLetters.count()
@@ -142,7 +135,6 @@ class SeatTableAccess {
         val economyRowsNeeded = kotlin.math.ceil(remainingSeats / ECONOMY_ROWS_DENOMINATOR).toInt()
         val economyStart = premiumRows.last + 1
         val economyRows = economyStart until (economyStart + economyRowsNeeded)
-
         for (row in economyRows) {
             val isExitRow = (row == economyRows.first + EXIT_ROW_OFFSET_1) || 
             (row == economyRows.first + EXIT_ROW_OFFSET_2)

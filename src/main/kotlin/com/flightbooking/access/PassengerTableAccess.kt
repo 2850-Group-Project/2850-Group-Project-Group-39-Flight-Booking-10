@@ -76,9 +76,12 @@ class PassengerTableAccess {
     fun deleteByID(id: Int) = transaction { 
         PassengerTable.deleteWhere { PassengerTable.id eq id } }
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = PassengerTable.update({ PassengerTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+        val rows = PassengerTable.update(
+            { PassengerTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value } 
+        rows > 0 
+    }
     fun generatePassengers(): Map<Int, List<Int>> = transaction {
         println("generating passengers")
         val passengersByBooking = mutableMapOf<Int, MutableList<Int>>()

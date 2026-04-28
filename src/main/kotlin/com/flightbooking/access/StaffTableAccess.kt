@@ -51,9 +51,12 @@ class StaffTableAccess {
     fun deleteByID(id: Int) = transaction { 
         StaffTable.deleteWhere { StaffTable.id eq id } }
     fun <T> updateRecordByAttribute(id: Int, column: Column<T>, value: T): Boolean = transaction { 
-        val rows = StaffTable.update({ StaffTable.id eq id }) { 
-            stmt -> stmt[column] = value } 
-        rows > 0 }
+        val rows = StaffTable.update(
+            { StaffTable.id eq id }
+            ) { stmt ->
+            stmt[column] = value } 
+        rows > 0 
+    }
     fun findByEmail(email: String): Staff? = transaction {
         StaffTable.select { StaffTable.email eq email }
             .limit(1)
