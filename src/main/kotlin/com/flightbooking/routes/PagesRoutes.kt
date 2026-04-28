@@ -301,7 +301,7 @@ fun Route.pagesRoutes() {
                     SeatTable.seatCode
                 )
                 .select { cond }
-                .orderBy(BookingTable.id, SortOrder.DESC)
+                .orderBy(BookingTable.createdAt, SortOrder.DESC)
                 .map { r ->
                     mapOf(
                         "bookingId" to r[BookingTable.id],
