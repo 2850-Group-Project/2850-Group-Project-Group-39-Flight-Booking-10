@@ -427,4 +427,57 @@ fun Route.pagesRoutes() {
 
         call.respondRedirect("/profile/bookings")
     }
+
+    post("/profile/bookings/delete") {
+        val session = call.sessions.get<UserSession>()
+        if (session == null) {
+            call.respondRedirect("/login")
+            return@post
+        }
+
+        val params = call.receiveParameters()
+        val bookingId = params["bookingId"]?.toIntOrNull()
+        if (bookingId == null) {
+            call.respondRedirect("/404")
+            return@post
+        }
+
+        val ok = transaction {
+            val userRow = UserTable
+                .select { UserTable.email eq session.userEmail }
+                .limit(1)
+                .firstOrNull() ?: return@transaction false
+        
+            val userId = userRow[UserTable.id]
+
+            val owned = BookingTable
+                .select { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
+                .limit(1)
+                .any()
+            
+            if (!owned) {
+                return@transaction false
+            }
+
+            val segmentIds = BookingSegmentTable
+                .select { BookingSegmentTable.bookingId eq bookingId }
+                .map { it[BookingSegmentTable.id] }
+            
+            segmentIds.forEach { segId -> 
+                SeatAssignmentTable.deleteWhere { SeatAssignmentTable.bookingSegmentId eq segId }
+            }
+
+            BookingSegmentTable.deleteWhere { BookingSegmentTable.bookingId eq bookingId }
+            BookingTable.deleteWhere { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
+        
+            true
+        }
+
+        if (!ok) {
+            call.respondRedirect("/404")
+            return@post
+        }
+
+        call.respondRedirect("/profile/bookings")
+    }
 }
