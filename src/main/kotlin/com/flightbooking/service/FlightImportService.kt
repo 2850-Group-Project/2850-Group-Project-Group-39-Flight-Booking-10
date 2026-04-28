@@ -1,10 +1,10 @@
 package com.flightbooking.service
 
-import com.flightbooking.api.AviationStackClient
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
-import com.flightbooking.tables.FlightTable
 import com.flightbooking.api.ApiFlight
+import com.flightbooking.api.AviationStackClient
+import com.flightbooking.tables.FlightTable
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -13,9 +13,8 @@ const val FLIGHT_IMPORT_LIMIT: Int = 100
 class FlightImportService(
     private val client: AviationStackClient,
     private val airportAccess: AirportTableAccess,
-    private val flightAccess: FlightTableAccess
+    private val flightAccess: FlightTableAccess,
 ) {
-
     suspend fun importAllFlights() {
         println("importAllFlights running")
         val airports = airportAccess.getAll()
@@ -56,12 +55,10 @@ class FlightImportService(
         return results
     }
 
-
     private fun validateFlight(
         apiFlight: ApiFlight,
-        iataToID: Map<String, Int>
+        iataToID: Map<String, Int>,
     ): ValidatedFlight? {
-
         val originIata = apiFlight.departure.iata
         val destIata = apiFlight.arrival.iata
 
@@ -77,7 +74,7 @@ class FlightImportService(
             ValidatedFlight(
                 apiFlight = apiFlight,
                 originID = originID!!,
-                destID = destID!!
+                destID = destID!!,
             )
         }
     }
@@ -91,7 +88,7 @@ class FlightImportService(
             scheduledDepartureTime = api.departure.scheduled,
             scheduledArrivalTime = api.arrival.scheduled,
             status = api.flightStatus ?: "scheduled",
-            capacity = null
+            capacity = null,
         )
     }
 }
@@ -99,5 +96,5 @@ class FlightImportService(
 data class ValidatedFlight(
     val apiFlight: ApiFlight,
     val originID: Int,
-    val destID: Int
+    val destID: Int,
 )

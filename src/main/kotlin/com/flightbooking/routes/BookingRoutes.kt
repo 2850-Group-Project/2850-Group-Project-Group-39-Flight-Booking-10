@@ -1,20 +1,19 @@
 package com.flightbooking.routes
 
-import com.flightbooking.models.UserSession
-import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.PassengerInput
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.post
+import com.flightbooking.models.UserSession
+import com.flightbooking.tables.PassengerTable
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
-import io.ktor.server.sessions.set
 import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import com.flightbooking.tables.PassengerTable
 
 fun Route.bookingRoutes() {
     post("/flights/passengers/submit") {
@@ -33,22 +32,23 @@ fun Route.bookingRoutes() {
         val params = call.receiveParameters()
         val numberOfPassengers = calculatePassengerCount(bookingSession)
 
-        val passengers = (0 until numberOfPassengers).map { i ->
-            PassengerInput(
-                type = params["passengers[$i][type]"] ?: "adult",
-                title = params["passengers[$i][title]"],
-                firstName = params["passengers[$i][firstName]"] ?: "",
-                lastName = params["passengers[$i][lastName]"] ?: "",
-                dateOfBirth = params["passengers[$i][dateOfBirth]"],
-                gender = params["passengers[$i][gender]"],
-                email = params["passengers[$i][email]"],
-                nationality = params["passengers[$i][nationality]"],
-                documentType = params["passengers[$i][documentType]"],
-                documentNumber = params["passengers[$i][documentNumber]"],
-                documentCountry = params["passengers[$i][documentCountry]"],
-                documentExpiry = params["passengers[$i][documentExpiry]"],
-            )
-        }
+        val passengers =
+            (0 until numberOfPassengers).map { i ->
+                PassengerInput(
+                    type = params["passengers[$i][type]"] ?: "adult",
+                    title = params["passengers[$i][title]"],
+                    firstName = params["passengers[$i][firstName]"] ?: "",
+                    lastName = params["passengers[$i][lastName]"] ?: "",
+                    dateOfBirth = params["passengers[$i][dateOfBirth]"],
+                    gender = params["passengers[$i][gender]"],
+                    email = params["passengers[$i][email]"],
+                    nationality = params["passengers[$i][nationality]"],
+                    documentType = params["passengers[$i][documentType]"],
+                    documentNumber = params["passengers[$i][documentNumber]"],
+                    documentCountry = params["passengers[$i][documentCountry]"],
+                    documentExpiry = params["passengers[$i][documentExpiry]"],
+                )
+            }
 
         val bookingId = bookingSession.bookingId
         transaction {
@@ -73,13 +73,14 @@ fun Route.bookingRoutes() {
 
         call.sessions.set(
             bookingSession.copy(
-                bookingId = bookingId
-            )
+                bookingId = bookingId,
+            ),
         )
 
         call.respondRedirect("/flights/seats")
     }
 }
+
 private suspend fun calculatePassengerCount(bookingSession: BookingSession): Int {
     val adults = bookingSession.search?.adults?.toIntOrNull() ?: 0
     val children = bookingSession.search?.children?.toIntOrNull() ?: 0

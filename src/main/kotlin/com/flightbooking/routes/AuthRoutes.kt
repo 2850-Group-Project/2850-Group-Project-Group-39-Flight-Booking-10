@@ -1,22 +1,20 @@
 package com.flightbooking.routes
 
-import com.flightbooking.service.AuthService
-import com.flightbooking.routes.pagesRoutes
-import com.flightbooking.models.UserSession
-import com.flightbooking.models.User
 import com.flightbooking.access.UserTableAccess
+import com.flightbooking.models.UserSession
+import com.flightbooking.service.AuthService
+import io.ktor.server.application.call
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import io.ktor.server.application.call
-import io.ktor.server.request.receiveParameters
-import io.ktor.server.response.respondRedirect
-import io.ktor.server.response.respond
-import io.ktor.server.pebble.PebbleContent
-import io.ktor.server.sessions.get
-import io.ktor.server.sessions.set
 import io.ktor.server.sessions.clear
+import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
 
 /**
  * Authentication routes for user registration, login, and logout.
@@ -33,29 +31,29 @@ fun Route.authRoutes() {
         call.respond(PebbleContent("register.peb", mapOf()))
     }
     post("/register") {
-    val params = call.receiveParameters()
-    val email = params["email"]?.trim().orEmpty()
-    val password = params["password"].orEmpty()
-    val confirmPassword = params["confirmPassword"].orEmpty()
-    val firstName = params["firstName"]?.trim()
-    val lastName = params["lastName"]?.trim()
+        val params = call.receiveParameters()
+        val email = params["email"]?.trim().orEmpty()
+        val password = params["password"].orEmpty()
+        val confirmPassword = params["confirmPassword"].orEmpty()
+        val firstName = params["firstName"]?.trim()
+        val lastName = params["lastName"]?.trim()
 
-    if (password != confirmPassword) {
-        call.respond(
-            PebbleContent(
-                "register.peb",
-                mapOf("error" to "Passwords do not match")
+        if (password != confirmPassword) {
+            call.respond(
+                PebbleContent(
+                    "register.peb",
+                    mapOf("error" to "Passwords do not match"),
+                ),
             )
-        )
-        return@post
-    }
+            return@post
+        }
 
-    if (AuthService.register(email, password, firstName, lastName)) {
-        call.respondRedirect("/login")
-    } else {
-        call.respond(PebbleContent("register.peb", mapOf("error" to "User already exists")))
+        if (AuthService.register(email, password, firstName, lastName)) {
+            call.respondRedirect("/login")
+        } else {
+            call.respond(PebbleContent("register.peb", mapOf("error" to "User already exists")))
+        }
     }
-}
     get("/login") {
         call.respond(PebbleContent("login.peb", mapOf()))
     }
@@ -73,10 +71,12 @@ fun Route.authRoutes() {
                 call.respondRedirect("/login")
             }
 
-            call.sessions.set(UserSession(
-                userEmail = email,
-                firstName = userData?.firstName ?: "UNKNOWN"
-            ))
+            call.sessions.set(
+                UserSession(
+                    userEmail = email,
+                    firstName = userData?.firstName ?: "UNKNOWN",
+                ),
+            )
             call.respondRedirect("/home")
         } else {
             call.respond(PebbleContent("login.peb", mapOf("error" to "Invalid credentials")))

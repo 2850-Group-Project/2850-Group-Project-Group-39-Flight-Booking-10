@@ -3,7 +3,7 @@ package com.flightbooking.models
 // data class for storing user session data (ie, if they are logged in)
 data class UserSession(
     val userEmail: String,
-    val firstName: String?
+    val firstName: String?,
 )
 
 // data class for flight searches, contains data about the flight search (from home page)
@@ -15,7 +15,7 @@ data class FlightSearch(
     val returnDate: String?,
     val adults: String?,
     val children: String?,
-    val infants: String?
+    val infants: String?,
 )
 
 // fare option for a specific flight
@@ -26,7 +26,7 @@ data class FareOption(
     val cabinClass: String?,
     val price: Double,
     val currency: String,
-    val seatsAvailable: Int
+    val seatsAvailable: Int,
 )
 
 // flight connection to fare options
@@ -41,14 +41,15 @@ data class FlightWithFares(
     val capacity: Int?,
     val originCode: String,
     val destinationCode: String,
-    val fares: List<FareOption>
+    val fares: List<FareOption>,
 ) {
     val cheapestFare: FareOption? get() = fares.minByOrNull { it.price }
 }
 
 // raw passenger data from the form, before it's saved to the DB
+// type can be adult child or infant
 data class PassengerInput(
-    val type: String,           // adult, child, infant
+    val type: String,
     val title: String?,
     val firstName: String,
     val lastName: String,
@@ -59,7 +60,7 @@ data class PassengerInput(
     val documentType: String?,
     val documentNumber: String?,
     val documentCountry: String?,
-    val documentExpiry: String?
+    val documentExpiry: String?,
 )
 
 // booking session data class that is used to keep track of all data about a booking in progress
@@ -81,7 +82,7 @@ data class User(
     val phoneNumber: String?,
     val dateOfBirth: String?,
     val createdAt: String,
-    val accountStatus: String
+    val accountStatus: String,
 )
 
 data class Airport(
@@ -89,7 +90,7 @@ data class Airport(
     val iataCode: String,
     val name: String?,
     val city: String?,
-    val country: String?
+    val country: String?,
 )
 
 data class Flight(
@@ -100,7 +101,7 @@ data class Flight(
     val scheduledDepartureTime: String?,
     val scheduledArrivalTime: String?,
     val status: String,
-    val capacity: Int?
+    val capacity: Int?,
 )
 
 data class FareClass(
@@ -122,7 +123,7 @@ data class FareClass(
     val minimumMilesForBooking: Int?,
     val description: String?,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
 )
 
 data class ChangeRequest(
@@ -136,7 +137,7 @@ data class ChangeRequest(
     val reason: String?,
     val status: String,
     val createdAt: String?,
-    val updatedAt: String?
+    val updatedAt: String?,
 )
 
 data class FlightFare(
@@ -147,7 +148,7 @@ data class FlightFare(
     val currency: String,
     val seatsAvailable: Int,
     val saleStart: String?,
-    val saleEnd: String?
+    val saleEnd: String?,
 )
 
 data class Booking(
@@ -158,7 +159,7 @@ data class Booking(
     val createdAt: String,
     val bookingStatus: String,
     val cancelledAt: String?,
-    val amendable: Int
+    val amendable: Int,
 )
 
 data class Payment(
@@ -169,7 +170,7 @@ data class Payment(
     val paymentStatus: String,
     val paidAt: String?,
     val providerReference: String?,
-    val currency: String
+    val currency: String,
 )
 
 data class Passenger(
@@ -186,14 +187,14 @@ data class Passenger(
     val documentType: String?,
     val documentNumber: String?,
     val documentCountry: String?,
-    val documentExpiry: String?
+    val documentExpiry: String?,
 )
 
 data class BookingSegment(
     val id: Int,
     val bookingId: Int,
     val flightId: Int,
-    val flightFareId: Int
+    val flightFareId: Int,
 )
 
 data class Seat(
@@ -205,14 +206,14 @@ data class Seat(
     val extraLegroom: Int,
     val exitRow: Int,
     val reducedMobility: Int,
-    val status: String
+    val status: String,
 )
 
 data class SeatAssignment(
     val id: Int,
     val passengerId: Int,
     val bookingSegmentId: Int,
-    val seatId: Int?
+    val seatId: Int?,
 )
 
 data class Staff(
@@ -223,7 +224,7 @@ data class Staff(
     val lastName: String?,
     val phoneNumber: String?,
     val role: String?,
-    val createdAt: String
+    val createdAt: String,
 )
 
 data class Complaint(
@@ -233,7 +234,7 @@ data class Complaint(
     val message: String?,
     val createdAt: String,
     val status: String,
-    val handledByStaffId: Int?
+    val handledByStaffId: Int?,
 )
 
 data class Notification(
@@ -242,9 +243,9 @@ data class Notification(
     val type: String?,
     val message: String?,
     val createdAt: String,
-    val readAt: String?
+    val readAt: String?,
 )
 
 data class StaffSession(
-    val staffEmail: String
+    val staffEmail: String,
 )

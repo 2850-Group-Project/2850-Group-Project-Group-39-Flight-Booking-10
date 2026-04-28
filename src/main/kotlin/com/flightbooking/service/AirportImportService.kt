@@ -1,14 +1,14 @@
 package com.flightbooking.service
 
-import com.flightbooking.api.AviationStackClient
 import com.flightbooking.access.AirportTableAccess
+import com.flightbooking.api.AviationStackClient
 import com.flightbooking.models.Airport
 
 const val IMPORT_LIMIT: Int = 100
 
 class AirportImportService(
     private val client: AviationStackClient,
-    private val access: AirportTableAccess
+    private val access: AirportTableAccess,
 ) {
     suspend fun importAllAirports() {
         println("importAllAirports running")
@@ -27,13 +27,14 @@ class AirportImportService(
                 response.data
                     .filter { !it.iataCode.isNullOrBlank() }
                     .forEach { apiAirport ->
-                        val airport = Airport(
-                            id = 0,
-                            iataCode = apiAirport.iataCode!!,
-                            name = apiAirport.airportName ?: "Unknown Airport",
-                            city = apiAirport.city ?: "Unknown City",
-                            country = apiAirport.countryName ?: "Unknown Country"
-                        )
+                        val airport =
+                            Airport(
+                                id = 0,
+                                iataCode = apiAirport.iataCode!!,
+                                name = apiAirport.airportName ?: "Unknown Airport",
+                                city = apiAirport.city ?: "Unknown City",
+                                country = apiAirport.countryName ?: "Unknown Country",
+                            )
                         access.upsertByIata(airport)
                     }
                 offset += limit

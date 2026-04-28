@@ -1,37 +1,34 @@
 package com.flightbooking.routes
 
+import com.flightbooking.access.ChangeRequestTableAccess
 import com.flightbooking.access.StaffTableAccess
 import com.flightbooking.models.StaffSession
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.ChangeRequestTable
-import com.flightbooking.access.ChangeRequestTableAccess
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.UserTable
-import io.ktor.server.application.call
+import io.ktor.http.Parameters
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import java.time.Instant
-import io.ktor.http.Parameters
 
 /**
  * Staff notifications routes (Change Requests inbox).
@@ -96,98 +93,107 @@ fun Route.staffNotificationsRoutes() {
         call.respondRedirect(redirectUrl)
     }
 }
+
 private fun loadNotificationsModel(
     session: StaffSession,
     q: String,
-    call: ApplicationCall
-): Map<String, Any> = transaction {
+    call: ApplicationCall,
+): Map<String, Any> =
+    transaction {
+        val staff =
+            StaffTableAccess().findByEmail(session.staffEmail)
+                ?: return@transaction mapOf("error" to "Staff not found, please login again.")
 
-    val staff = StaffTableAccess().findByEmail(session.staffEmail)
-        ?: return@transaction mapOf("error" to "Staff not found, please login again.")
+        val requests = fetchChangeRequests(q)
 
-    val requests = fetchChangeRequests(q)
-
-    mapOf(
-        "staffName" to listOfNotNull(staff.firstName, staff.lastName).joinToString(" ").ifBlank { "Staff" },
-        "staffRole" to (staff.role ?: "Staff"),
-        "q" to q,
-        "requests" to requests,
-        "error" to (call.request.queryParameters["error"] ?: ""),
-        "ok" to (call.request.queryParameters["ok"] ?: "")
-    )
-}
-private fun fetchChangeRequests(q: String): List<Map<String, Any?>> = transaction {
-    val qId = q.toIntOrNull()
-    val cond = when {
-        q.isBlank() -> Op.TRUE
-        qId == null -> Op.FALSE
-        else -> ChangeRequestTable.id eq qId
-    }
-    val origin = AirportTable.alias("origin")
-    val dest = AirportTable.alias("dest")
-    val currentFlight = FlightTable.alias("currentFlight")
-    val requestedFlight = FlightTable.alias("requestedFlight")
-    val requestedSeat = SeatTable.alias("requestedSeat")
-    ChangeRequestTable
-        .join(UserTable, JoinType.LEFT) { ChangeRequestTable.userId eq UserTable.id }
-        .join(currentFlight, JoinType.LEFT) { ChangeRequestTable.currentFlightId eq currentFlight[FlightTable.id] }
-        .join(origin, JoinType.LEFT) { currentFlight[FlightTable.originAirport] eq origin[AirportTable.id] }
-        .join(dest, JoinType.LEFT) { currentFlight[FlightTable.destinationAirport] eq dest[AirportTable.id] }
-        .join(requestedFlight, JoinType.LEFT) { 
-            ChangeRequestTable.requestedFlightId eq requestedFlight[FlightTable.id] }
-        .join(requestedSeat, JoinType.LEFT) { ChangeRequestTable.requestedSeatId eq requestedSeat[SeatTable.id] }
-        .slice(
-            ChangeRequestTable.id,
-            ChangeRequestTable.userId,
-            ChangeRequestTable.bookingId,
-            ChangeRequestTable.bookingSegmentId,
-            ChangeRequestTable.reason,
-            ChangeRequestTable.status,
-            ChangeRequestTable.createdAt,
-            ChangeRequestTable.updatedAt,
-            UserTable.email,
-            currentFlight[FlightTable.flightNumber],
-            requestedFlight[FlightTable.flightNumber],
-            origin[AirportTable.iataCode],
-            dest[AirportTable.iataCode],
-            requestedSeat[SeatTable.seatCode]
+        mapOf(
+            "staffName" to listOfNotNull(staff.firstName, staff.lastName).joinToString(" ").ifBlank { "Staff" },
+            "staffRole" to (staff.role ?: "Staff"),
+            "q" to q,
+            "requests" to requests,
+            "error" to (call.request.queryParameters["error"] ?: ""),
+            "ok" to (call.request.queryParameters["ok"] ?: ""),
         )
-        .select { cond }
-        .orderBy(ChangeRequestTable.id, SortOrder.DESC)
-        .map { r ->
-            val route = r.getOrNull(origin[AirportTable.iataCode])?.let { o ->
-                r.getOrNull(dest[AirportTable.iataCode])?.let { d -> "$o → $d" }
+    }
+
+private fun fetchChangeRequests(q: String): List<Map<String, Any?>> =
+    transaction {
+        val qId = q.toIntOrNull()
+        val cond =
+            when {
+                q.isBlank() -> Op.TRUE
+                qId == null -> Op.FALSE
+                else -> ChangeRequestTable.id eq qId
             }
-            mapOf(
-                "requestId" to r[ChangeRequestTable.id],
-                "userId" to r[ChangeRequestTable.userId],
-                "userEmail" to r.getOrNull(UserTable.email),
-                "bookingId" to r[ChangeRequestTable.bookingId],
-                "segmentId" to r[ChangeRequestTable.bookingSegmentId],
-                "reason" to r.getOrNull(ChangeRequestTable.reason),
-                "status" to (r.getOrNull(ChangeRequestTable.status) ?: "pending"),
-                "createdAt" to (r.getOrNull(ChangeRequestTable.createdAt) ?: ""),
-                "updatedAt" to (r.getOrNull(ChangeRequestTable.updatedAt) ?: ""),
-                "currentFlightNo" to (r.getOrNull(currentFlight[FlightTable.flightNumber])?.toString() ?: ""),
-                "requestedFlightNo" to (r.getOrNull(requestedFlight[FlightTable.flightNumber])?.toString() ?: ""),
-                "currentRoute" to route,
-                "requestedSeatCode" to r.getOrNull(requestedSeat[SeatTable.seatCode])
+        val origin = AirportTable.alias("origin")
+        val dest = AirportTable.alias("dest")
+        val currentFlight = FlightTable.alias("currentFlight")
+        val requestedFlight = FlightTable.alias("requestedFlight")
+        val requestedSeat = SeatTable.alias("requestedSeat")
+        ChangeRequestTable
+            .join(UserTable, JoinType.LEFT) { ChangeRequestTable.userId eq UserTable.id }
+            .join(currentFlight, JoinType.LEFT) { ChangeRequestTable.currentFlightId eq currentFlight[FlightTable.id] }
+            .join(origin, JoinType.LEFT) { currentFlight[FlightTable.originAirport] eq origin[AirportTable.id] }
+            .join(dest, JoinType.LEFT) { currentFlight[FlightTable.destinationAirport] eq dest[AirportTable.id] }
+            .join(requestedFlight, JoinType.LEFT) {
+                ChangeRequestTable.requestedFlightId eq requestedFlight[FlightTable.id]
+            }
+            .join(requestedSeat, JoinType.LEFT) { ChangeRequestTable.requestedSeatId eq requestedSeat[SeatTable.id] }
+            .slice(
+                ChangeRequestTable.id,
+                ChangeRequestTable.userId,
+                ChangeRequestTable.bookingId,
+                ChangeRequestTable.bookingSegmentId,
+                ChangeRequestTable.reason,
+                ChangeRequestTable.status,
+                ChangeRequestTable.createdAt,
+                ChangeRequestTable.updatedAt,
+                UserTable.email,
+                currentFlight[FlightTable.flightNumber],
+                requestedFlight[FlightTable.flightNumber],
+                origin[AirportTable.iataCode],
+                dest[AirportTable.iataCode],
+                requestedSeat[SeatTable.seatCode],
             )
-        }
-}
+            .select { cond }
+            .orderBy(ChangeRequestTable.id, SortOrder.DESC)
+            .map { r ->
+                val route =
+                    r.getOrNull(origin[AirportTable.iataCode])?.let { o ->
+                        r.getOrNull(dest[AirportTable.iataCode])?.let { d -> "$o → $d" }
+                    }
+                mapOf(
+                    "requestId" to r[ChangeRequestTable.id],
+                    "userId" to r[ChangeRequestTable.userId],
+                    "userEmail" to r.getOrNull(UserTable.email),
+                    "bookingId" to r[ChangeRequestTable.bookingId],
+                    "segmentId" to r[ChangeRequestTable.bookingSegmentId],
+                    "reason" to r.getOrNull(ChangeRequestTable.reason),
+                    "status" to (r.getOrNull(ChangeRequestTable.status) ?: "pending"),
+                    "createdAt" to (r.getOrNull(ChangeRequestTable.createdAt) ?: ""),
+                    "updatedAt" to (r.getOrNull(ChangeRequestTable.updatedAt) ?: ""),
+                    "currentFlightNo" to (r.getOrNull(currentFlight[FlightTable.flightNumber])?.toString() ?: ""),
+                    "requestedFlightNo" to (r.getOrNull(requestedFlight[FlightTable.flightNumber])?.toString() ?: ""),
+                    "currentRoute" to route,
+                    "requestedSeatCode" to r.getOrNull(requestedSeat[SeatTable.seatCode]),
+                )
+            }
+    }
+
 private fun handleStatusUpdate(
     params: Parameters,
-    access: ChangeRequestTableAccess
+    access: ChangeRequestTableAccess,
 ): String {
     val requestId = params["requestId"]?.toIntOrNull()
     val newStatus = params["status"]?.trim()?.lowercase()
-    val error = when {
-        requestId == null || newStatus.isNullOrBlank() ->
-            "Missing requestId/status"
-        newStatus !in setOf("pending", "approved", "rejected", "cancelled", "complete") ->
-            "Invalid status"
-        else -> null
-    }
+    val error =
+        when {
+            requestId == null || newStatus.isNullOrBlank() ->
+                "Missing requestId/status"
+            newStatus !in setOf("pending", "approved", "rejected", "cancelled", "complete") ->
+                "Invalid status"
+            else -> null
+        }
     if (error != null) {
         return "/staff/notifications?error=$error"
     }
@@ -198,9 +204,10 @@ private fun handleStatusUpdate(
         "/staff/notifications?error=Update failed"
     }
 }
+
 private fun handleDelete(
     params: Parameters,
-    access: ChangeRequestTableAccess
+    access: ChangeRequestTableAccess,
 ): String {
     val requestId = params["requestId"]?.toIntOrNull()
     if (requestId == null) {

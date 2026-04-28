@@ -1,20 +1,18 @@
 package com.flightbooking.routes
 
-import com.flightbooking.models.UserSession
-import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.BookingSession
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.post
+import com.flightbooking.models.FlightSearch
+import com.flightbooking.models.UserSession
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveParameters
-import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
-import io.ktor.server.sessions.set
 import io.ktor.server.sessions.sessions
-import io.ktor.server.pebble.PebbleContent
-import io.ktor.http.HttpStatusCode
-
+import io.ktor.server.sessions.set
 import java.util.UUID
 
 fun Route.flightRoutes() {
@@ -27,23 +25,30 @@ fun Route.flightRoutes() {
         }
 
         val params = call.receiveParameters()
-        val flightId = params["flightId"]?.toIntOrNull() ?: return@post call.respond(
-            HttpStatusCode.BadRequest, "Missing flightId")
-        val fareId = params["fareId"]?.toIntOrNull() ?: return@post call.respond(
-            HttpStatusCode.BadRequest, "Missing fareId")
-        val leg = params["leg"]?.toString() ?: return@post call.respond(
-            HttpStatusCode.BadRequest, "Missing leg")
-        
-        val search = FlightSearch(
-            tripType = params["tripType"],
-            origin = params["origin"],
-            destination = params["destination"],
-            departureDate = params["departureDate"],
-            returnDate = params["returnDate"],
-            adults = params["adults"],
-            children = params["children"],
-            infants = params["infants"]
-        )
+        val flightId =
+            params["flightId"]?.toIntOrNull() ?: return@post call.respond(
+                HttpStatusCode.BadRequest, "Missing flightId",
+            )
+        val fareId =
+            params["fareId"]?.toIntOrNull() ?: return@post call.respond(
+                HttpStatusCode.BadRequest, "Missing fareId",
+            )
+        val leg =
+            params["leg"]?.toString() ?: return@post call.respond(
+                HttpStatusCode.BadRequest, "Missing leg",
+            )
+
+        val search =
+            FlightSearch(
+                tripType = params["tripType"],
+                origin = params["origin"],
+                destination = params["destination"],
+                departureDate = params["departureDate"],
+                returnDate = params["returnDate"],
+                adults = params["adults"],
+                children = params["children"],
+                infants = params["infants"],
+            )
 
         val booking = call.sessions.get<BookingSession>() ?: BookingSession()
         val bookingId = (UUID.randomUUID().mostSignificantBits % Int.MAX_VALUE).toInt()
@@ -53,22 +58,27 @@ fun Route.flightRoutes() {
         println("====================================")
         println(flightId)
 
-        val updated = when (leg) {
-            "outbound" -> booking.copy(
-                bookingId=bookingId, 
-                outboundFlightId = flightId, 
-                outboundFareId = fareId, 
-                search = search)
-            "return"   -> booking.copy(
-                bookingId=bookingId, 
-                returnFlightId = flightId, 
-                returnFareId = fareId, 
-                search = search)
-            else -> {
-                call.respond(HttpStatusCode.BadRequest, "Invalid leg")
-                return@post
+        val updated =
+            when (leg) {
+                "outbound" ->
+                    booking.copy(
+                        bookingId = bookingId,
+                        outboundFlightId = flightId,
+                        outboundFareId = fareId,
+                        search = search,
+                    )
+                "return" ->
+                    booking.copy(
+                        bookingId = bookingId,
+                        returnFlightId = flightId,
+                        returnFareId = fareId,
+                        search = search,
+                    )
+                else -> {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid leg")
+                    return@post
+                }
             }
-        }
 
         call.sessions.set(updated)
 

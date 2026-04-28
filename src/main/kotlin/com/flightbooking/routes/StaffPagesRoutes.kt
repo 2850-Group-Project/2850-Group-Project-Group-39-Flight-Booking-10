@@ -8,34 +8,33 @@ import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.StaffTable
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import io.ktor.server.sessions.get
-import io.ktor.server.sessions.set
 import io.ktor.server.sessions.clear
+import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
-import io.ktor.server.request.receiveParameters
+import io.ktor.server.sessions.set
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.VarCharColumnType
 import org.jetbrains.exposed.sql.alias
+import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.castTo
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import java.time.LocalDate
-import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.castTo
 
 /**
  * Registers the staff page routes (dashboard + flight management UI).
@@ -63,7 +62,6 @@ private const val ISO_TIME_END_INDEX = 16
 private const val DEFAULT_CAPACITY = 180
 
 fun Route.staffPagesRoutes() {
-
     get("/staff/dashboard") {
         val session = call.sessions.get<StaffSession>()
         if (session == null) {
@@ -73,86 +71,99 @@ fun Route.staffPagesRoutes() {
 
         val staffEmail = session.staffEmail
 
-        val model = transaction {
-            val staffRow = StaffTable
-                .select { StaffTable.email eq staffEmail }
-                .limit(1)
-                .firstOrNull()
+        val model =
+            transaction {
+                val staffRow =
+                    StaffTable
+                        .select { StaffTable.email eq staffEmail }
+                        .limit(1)
+                        .firstOrNull()
 
-            if (staffRow == null) {
-                return@transaction mapOf<String, Any>("error" to "Staff not found, please login again.")
-            }
+                if (staffRow == null) {
+                    return@transaction mapOf<String, Any>("error" to "Staff not found, please login again.")
+                }
 
-            val staffName = listOfNotNull(
-                staffRow[StaffTable.firstName],
-                staffRow[StaffTable.lastName]
-            ).joinToString(" ").ifBlank { "Staff" }
+                val staffName =
+                    listOfNotNull(
+                        staffRow[StaffTable.firstName],
+                        staffRow[StaffTable.lastName],
+                    ).joinToString(" ").ifBlank { "Staff" }
 
-            val staffRole = staffRow[StaffTable.role] ?: "Staff"
+                val staffRole = staffRow[StaffTable.role] ?: "Staff"
 
-            val todayPrefix = LocalDate.now().toString()
+                val todayPrefix = LocalDate.now().toString()
 
-            val activeFlightsCount = FlightTable
-                .select { FlightTable.status neq "cancelled" }
-                .count()
+                val activeFlightsCount =
+                    FlightTable
+                        .select { FlightTable.status neq "cancelled" }
+                        .count()
 
-            val departuresTodayCount = FlightTable
-                .select { FlightTable.scheduledDepartureTime like "$todayPrefix%" }
-                .count()
+                val departuresTodayCount =
+                    FlightTable
+                        .select { FlightTable.scheduledDepartureTime like "$todayPrefix%" }
+                        .count()
 
-            val systemAlertsCount = ComplaintTable
-                .select { ComplaintTable.status eq "open" }
-                .count()
+                val systemAlertsCount =
+                    ComplaintTable
+                        .select { ComplaintTable.status eq "open" }
+                        .count()
 
-            val origin = AirportTable.alias("origin")
-            val dest = AirportTable.alias("dest")
+                val origin = AirportTable.alias("origin")
+                val dest = AirportTable.alias("dest")
 
-            val flightList = (FlightTable
-                .join(origin, JoinType.INNER, additionalConstraint = { 
-                    FlightTable.originAirport eq origin[AirportTable.id] })
-                .join(dest, JoinType.INNER, additionalConstraint = { 
-                    FlightTable.destinationAirport eq dest[AirportTable.id] })
-                .slice(
-                    FlightTable.id,
-                    FlightTable.flightNumber,
-                    FlightTable.scheduledDepartureTime,
-                    FlightTable.status,
-                    FlightTable.capacity,
-                    origin[AirportTable.iataCode],
-                    dest[AirportTable.iataCode]
+                val flightList = (
+                    FlightTable
+                        .join(origin, JoinType.INNER, additionalConstraint = {
+                            FlightTable.originAirport eq origin[AirportTable.id]
+                        })
+                        .join(dest, JoinType.INNER, additionalConstraint = {
+                            FlightTable.destinationAirport eq dest[AirportTable.id]
+                        })
+                        .slice(
+                            FlightTable.id,
+                            FlightTable.flightNumber,
+                            FlightTable.scheduledDepartureTime,
+                            FlightTable.status,
+                            FlightTable.capacity,
+                            origin[AirportTable.iataCode],
+                            dest[AirportTable.iataCode],
+                        )
+                        .select { FlightTable.status neq "cancelled" }
+                        .orderBy(FlightTable.id, SortOrder.DESC)
+                        .limit(FLIGHT_LIST_LIMIT)
+                        .map { row ->
+                            val no = row[FlightTable.flightNumber]?.toString() ?: row[FlightTable.id].toString()
+                            val destination = row[dest[AirportTable.iataCode]]
+                            val departureTimeRaw = row[FlightTable.scheduledDepartureTime] ?: ""
+                            val depTime =
+                                if (departureTimeRaw.length >= MIN_TIMESTAMP_LENGTH) {
+                                    departureTimeRaw.substring(ISO_TIME_START_INDEX, ISO_TIME_END_INDEX)
+                                } else {
+                                    departureTimeRaw
+                                }
+                            val status = row[FlightTable.status]
+                            val cap = row[FlightTable.capacity]?.toString() ?: ""
+
+                            mapOf(
+                                "no" to no,
+                                "dest" to destination,
+                                "dep" to depTime,
+                                "status" to status,
+                                "capacity" to cap,
+                            )
+                        }
                 )
-                .select { FlightTable.status neq "cancelled" }
-                .orderBy(FlightTable.id, SortOrder.DESC)
-                .limit(FLIGHT_LIST_LIMIT)
-                .map { row ->
-                    val no = row[FlightTable.flightNumber]?.toString() ?: row[FlightTable.id].toString()
-                    val destination = row[dest[AirportTable.iataCode]]
-                    val departureTimeRaw = row[FlightTable.scheduledDepartureTime] ?: ""
-                    val depTime = if  (departureTimeRaw.length >= MIN_TIMESTAMP_LENGTH) {
-                        departureTimeRaw.substring(ISO_TIME_START_INDEX, ISO_TIME_END_INDEX) 
-                    } else { departureTimeRaw }
-                    val status = row[FlightTable.status]
-                    val cap = row[FlightTable.capacity]?.toString() ?: ""
 
-                    mapOf(
-                        "no" to no,
-                        "dest" to destination,
-                        "dep" to depTime,
-                        "status" to status,
-                        "capacity" to cap
-                    )
-                })
-
-            mapOf(
-                "staffEmail" to staffEmail,
-                "staffName" to staffName,
-                "staffRole" to staffRole,
-                "activeFlights" to activeFlightsCount,
-                "departuresToday" to departuresTodayCount,
-                "systemAlerts" to systemAlertsCount,
-                "flights" to flightList
-            )
-        }
+                mapOf(
+                    "staffEmail" to staffEmail,
+                    "staffName" to staffName,
+                    "staffRole" to staffRole,
+                    "activeFlights" to activeFlightsCount,
+                    "departuresToday" to departuresTodayCount,
+                    "systemAlerts" to systemAlertsCount,
+                    "flights" to flightList,
+                )
+            }
 
         if (model.containsKey("error")) {
             call.respondText(model["error"].toString())
@@ -172,70 +183,78 @@ fun Route.staffPagesRoutes() {
         val editId = call.request.queryParameters["edit"]?.toIntOrNull()
         val q = call.request.queryParameters["q"]?.trim().orEmpty()
 
-        val model = transaction {
-            val airports = AirportTable
-                .selectAll()
-                .orderBy(AirportTable.iataCode, SortOrder.ASC)
-                .map {
-                    mapOf(
-                        "id" to it[AirportTable.id],
-                        "iata" to it[AirportTable.iataCode],
-                        "name" to (it[AirportTable.name] ?: "")
-                    )
-                }
+        val model =
+            transaction {
+                val airports =
+                    AirportTable
+                        .selectAll()
+                        .orderBy(AirportTable.iataCode, SortOrder.ASC)
+                        .map {
+                            mapOf(
+                                "id" to it[AirportTable.id],
+                                "iata" to it[AirportTable.iataCode],
+                                "name" to (it[AirportTable.name] ?: ""),
+                            )
+                        }
 
-            val origin = AirportTable.alias("origin")
-            val dest = AirportTable.alias("dest")
+                val origin = AirportTable.alias("origin")
+                val dest = AirportTable.alias("dest")
 
-            val flights = (FlightTable
-                .join(origin, JoinType.INNER, additionalConstraint = { 
-                    FlightTable.originAirport eq origin[AirportTable.id] })
-                .join(dest, JoinType.INNER, additionalConstraint = { 
-                    FlightTable.destinationAirport eq dest[AirportTable.id] })
-                .slice(
-                    FlightTable.id,
-                    FlightTable.flightNumber,
-                    FlightTable.originAirport,
-                    FlightTable.destinationAirport,
-                    FlightTable.scheduledDepartureTime,
-                    FlightTable.scheduledArrivalTime,
-                    FlightTable.status,
-                    FlightTable.capacity,
-                    origin[AirportTable.iataCode],
-                    dest[AirportTable.iataCode]
+                val flights = (
+                    FlightTable
+                        .join(origin, JoinType.INNER, additionalConstraint = {
+                            FlightTable.originAirport eq origin[AirportTable.id]
+                        })
+                        .join(dest, JoinType.INNER, additionalConstraint = {
+                            FlightTable.destinationAirport eq dest[AirportTable.id]
+                        })
+                        .slice(
+                            FlightTable.id,
+                            FlightTable.flightNumber,
+                            FlightTable.originAirport,
+                            FlightTable.destinationAirport,
+                            FlightTable.scheduledDepartureTime,
+                            FlightTable.scheduledArrivalTime,
+                            FlightTable.status,
+                            FlightTable.capacity,
+                            origin[AirportTable.iataCode],
+                            dest[AirportTable.iataCode],
+                        )
+                        .select {
+                            if (q.isBlank()) {
+                                Op.TRUE
+                            } else {
+                                FlightTable.flightNumber.castTo<String>(VarCharColumnType()).like("%$q%")
+                            }
+                        }
+                        .orderBy(FlightTable.id, SortOrder.DESC)
+                        .map { row ->
+                            mapOf(
+                                "id" to row[FlightTable.id],
+                                "flightNumber" to (row[FlightTable.flightNumber]?.toString() ?: ""),
+                                "originId" to row[FlightTable.originAirport],
+                                "destId" to row[FlightTable.destinationAirport],
+                                "originIata" to row[origin[AirportTable.iataCode]],
+                                "destIata" to row[dest[AirportTable.iataCode]],
+                                "dep" to (row[FlightTable.scheduledDepartureTime] ?: ""),
+                                "arr" to (row[FlightTable.scheduledArrivalTime] ?: ""),
+                                "status" to row[FlightTable.status],
+                                "capacity" to (row[FlightTable.capacity]?.toString() ?: ""),
+                            )
+                        }
                 )
-                .select {
-                    if (q.isBlank()) Op.TRUE
-                    else FlightTable.flightNumber.castTo<String>(VarCharColumnType()).like("%$q%")
-                }
-                .orderBy(FlightTable.id, SortOrder.DESC)
-                .map { row ->
-                    mapOf(
-                        "id" to row[FlightTable.id],
-                        "flightNumber" to (row[FlightTable.flightNumber]?.toString() ?: ""),
-                        "originId" to row[FlightTable.originAirport],
-                        "destId" to row[FlightTable.destinationAirport],
-                        "originIata" to row[origin[AirportTable.iataCode]],
-                        "destIata" to row[dest[AirportTable.iataCode]],
-                        "dep" to (row[FlightTable.scheduledDepartureTime] ?: ""),
-                        "arr" to (row[FlightTable.scheduledArrivalTime] ?: ""),
-                        "status" to row[FlightTable.status],
-                        "capacity" to (row[FlightTable.capacity]?.toString() ?: "")
-                    )
-                }
-            )
-            val editFlight = if (editId != null) flights.firstOrNull { (it["id"] as Int) == editId } else null
+                val editFlight = if (editId != null) flights.firstOrNull { (it["id"] as Int) == editId } else null
 
-            mapOf(
-                "airports" to airports,
-                "flights" to flights,
-                "q" to q,
-                "editId" to (editId ?: 0),
-                "editFlight" to (editFlight ?: mapOf<String, Any>()),
-                "error" to (call.request.queryParameters["error"] ?: ""),
-                "ok" to (call.request.queryParameters["ok"] ?: "")
-            )
-        }
+                mapOf(
+                    "airports" to airports,
+                    "flights" to flights,
+                    "q" to q,
+                    "editId" to (editId ?: 0),
+                    "editFlight" to (editFlight ?: mapOf<String, Any>()),
+                    "error" to (call.request.queryParameters["error"] ?: ""),
+                    "ok" to (call.request.queryParameters["ok"] ?: ""),
+                )
+            }
 
         call.respond(PebbleContent("staff_flights.peb", model))
     }
@@ -268,18 +287,20 @@ fun Route.staffPagesRoutes() {
         }
 
         transaction {
-            val stmt = FlightTable.insert {
-                it[FlightTable.flightNumber] = flightNumberIntOrNull
-                it[FlightTable.originAirport] = originId
-                it[FlightTable.destinationAirport] = destId
-                it[FlightTable.scheduledDepartureTime] = if (dep.isBlank()) null else dep
-                it[FlightTable.scheduledArrivalTime] = if (arr.isBlank()) null else arr
-                it[FlightTable.status] = status
-                it[FlightTable.capacity] = capacityIntOrNull
-            }
+            val stmt =
+                FlightTable.insert {
+                    it[FlightTable.flightNumber] = flightNumberIntOrNull
+                    it[FlightTable.originAirport] = originId
+                    it[FlightTable.destinationAirport] = destId
+                    it[FlightTable.scheduledDepartureTime] = if (dep.isBlank()) null else dep
+                    it[FlightTable.scheduledArrivalTime] = if (arr.isBlank()) null else arr
+                    it[FlightTable.status] = status
+                    it[FlightTable.capacity] = capacityIntOrNull
+                }
 
-            val newFlightId = stmt.resultedValues?.firstOrNull()?.get(FlightTable.id)
-                ?: FlightTable.selectAll().orderBy(FlightTable.id, SortOrder.DESC).limit(1).first()[FlightTable.id]
+            val newFlightId =
+                stmt.resultedValues?.firstOrNull()?.get(FlightTable.id)
+                    ?: FlightTable.selectAll().orderBy(FlightTable.id, SortOrder.DESC).limit(1).first()[FlightTable.id]
 
             createSeatsForFlight(newFlightId, capacityIntOrNull)
         }
@@ -363,7 +384,10 @@ fun Route.staffPagesRoutes() {
     }
 }
 
-private fun createSeatsForFlight(flightId: Int, capacity: Int?) {
+private fun createSeatsForFlight(
+    flightId: Int,
+    capacity: Int?,
+) {
     val existing = SeatTable.select { SeatTable.flightId eq flightId }.count()
     if (existing > 0L) return
 

@@ -13,12 +13,11 @@ import com.flightbooking.tables.ChangeRequestTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
-import com.flightbooking.tables.UserTable
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.request.receiveParameters
-import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -26,16 +25,12 @@ import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.VarCharColumnType
-import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.castTo
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
+import org.jetbrains.exposed.sql.VarCharColumnType
+import org.jetbrains.exposed.sql.castTo
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 
@@ -57,7 +52,6 @@ private const val MAX_SEAT_RESULTS = 200
 private const val MAX_FLIGHT_SEARCH_RESULTS = 30
 
 fun Route.changeRequestRoutes() {
-
     /**
      * Renders the change-request page for a booking.
      *
@@ -96,119 +90,127 @@ fun Route.changeRequestRoutes() {
         val seatAccess = SeatTableAccess()
         val airportAccess = AirportTableAccess()
 
-        val model = transaction {
-            // Resolve user by session email (access)
-            val user = userAccess.findByEmail(session.userEmail)
-                ?: return@transaction mapOf<String, Any>("__notFound" to true)
+        val model =
+            transaction {
+                // Resolve user by session email (access)
+                val user =
+                    userAccess.findByEmail(session.userEmail)
+                        ?: return@transaction mapOf<String, Any>("__notFound" to true)
 
-            // Load booking (access) and verify ownership
-            val booking = bookingAccess
-                .getByAttribute(BookingTable.id, bookingId)
-                .firstOrNull()
-                ?: return@transaction mapOf<String, Any>("__notFound" to true)
+                // Load booking (access) and verify ownership
+                val booking =
+                    bookingAccess
+                        .getByAttribute(BookingTable.id, bookingId)
+                        .firstOrNull()
+                        ?: return@transaction mapOf<String, Any>("__notFound" to true)
 
-            if (booking.userId != user.id) {
-                return@transaction mapOf<String, Any>("__notFound" to true)
-            }
+                if (booking.userId != user.id) {
+                    return@transaction mapOf<String, Any>("__notFound" to true)
+                }
 
-            // Load booking segments (access) - most projects have at least one segment
-            val segments = segmentAccess.getByAttribute(BookingSegmentTable.bookingId, bookingId)
-            val segment = segments.firstOrNull()
-                ?: return@transaction mapOf<String, Any>("__notFound" to true)
+                // Load booking segments (access) - most projects have at least one segment
+                val segments = segmentAccess.getByAttribute(BookingSegmentTable.bookingId, bookingId)
+                val segment =
+                    segments.firstOrNull()
+                        ?: return@transaction mapOf<String, Any>("__notFound" to true)
 
-            // Current flight (direct Exposed, because access only supports simple getByAttribute but that's fine)
-            val currentFlightRow = FlightTable.select { FlightTable.id eq segment.flightId }.limit(1).firstOrNull()
+                // Current flight (direct Exposed, because access only supports simple getByAttribute but that's fine)
+                val currentFlightRow = FlightTable.select { FlightTable.id eq segment.flightId }.limit(1).firstOrNull()
 
-            val currentFlightId = currentFlightRow?.get(FlightTable.id)
-            val currentFlightNumber = currentFlightRow?.get(FlightTable.flightNumber)?.toString().orEmpty()
-            val currentDep = currentFlightRow?.get(FlightTable.scheduledDepartureTime).orEmpty()
-            val currentArr = currentFlightRow?.get(FlightTable.scheduledArrivalTime).orEmpty()
-            val currentFlightStatus = currentFlightRow?.get(FlightTable.status).orEmpty()
+                val currentFlightId = currentFlightRow?.get(FlightTable.id)
+                val currentFlightNumber = currentFlightRow?.get(FlightTable.flightNumber)?.toString().orEmpty()
+                val currentDep = currentFlightRow?.get(FlightTable.scheduledDepartureTime).orEmpty()
+                val currentArr = currentFlightRow?.get(FlightTable.scheduledArrivalTime).orEmpty()
+                val currentFlightStatus = currentFlightRow?.get(FlightTable.status).orEmpty()
 
-            // Current origin/destination airport details (access)
-            val originAirport = currentFlightRow?.get(FlightTable.originAirport)?.let { oid ->
-                airportAccess.getByAttribute(AirportTable.id, oid).firstOrNull()
-            }
-            val destAirport = currentFlightRow?.get(FlightTable.destinationAirport)?.let { did ->
-                airportAccess.getByAttribute(AirportTable.id, did).firstOrNull()
-            }
-
-            // Current seat code (direct Exposed join-ish)
-            val seatCode = (SeatAssignmentTable
-                .join(SeatTable, JoinType.LEFT, additionalConstraint = { SeatTable.id eq SeatAssignmentTable.seatId })
-                .slice(SeatTable.seatCode)
-                .select { SeatAssignmentTable.bookingSegmentId eq segment.id }
-                .limit(1)
-                .firstOrNull()
-                ?.getOrNull(SeatTable.seatCode)) ?: "No seat"
-
-            // Flight search results by flight number (direct Exposed, because access does not have a search method)
-            val flightResults: List<Map<String, Any>> = if (flightQ.isBlank()) {
-                emptyList()
-            } else {
-                FlightTable
-                    .select {
-                        // flight_number is an Integer column; cast to text for LIKE
-                        FlightTable.flightNumber.castTo<String>(VarCharColumnType()).like("%$flightQ%")
+                // Current origin/destination airport details (access)
+                val originAirport =
+                    currentFlightRow?.get(FlightTable.originAirport)?.let { oid ->
+                        airportAccess.getByAttribute(AirportTable.id, oid).firstOrNull()
                     }
-                    .orderBy(FlightTable.id, SortOrder.DESC)
-                    .limit(MAX_FLIGHT_SEARCH_RESULTS)
-                    .map { r ->
-                        mapOf(
-                            "id" to r[FlightTable.id],
-                            "flightNumber" to (r[FlightTable.flightNumber]?.toString() ?: ""),
-                            "dep" to (r[FlightTable.scheduledDepartureTime] ?: ""),
-                            "arr" to (r[FlightTable.scheduledArrivalTime] ?: ""),
-                            "status" to r[FlightTable.status]
-                        )
+                val destAirport =
+                    currentFlightRow?.get(FlightTable.destinationAirport)?.let { did ->
+                        airportAccess.getByAttribute(AirportTable.id, did).firstOrNull()
                     }
+
+                // Current seat code (direct Exposed join-ish)
+                val seatCode =
+                    (
+                        SeatAssignmentTable
+                            .join(SeatTable, JoinType.LEFT, additionalConstraint = { SeatTable.id eq SeatAssignmentTable.seatId })
+                            .slice(SeatTable.seatCode)
+                            .select { SeatAssignmentTable.bookingSegmentId eq segment.id }
+                            .limit(1)
+                            .firstOrNull()
+                            ?.getOrNull(SeatTable.seatCode)
+                    ) ?: "No seat"
+
+                // Flight search results by flight number (direct Exposed, because access does not have a search method)
+                val flightResults: List<Map<String, Any>> =
+                    if (flightQ.isBlank()) {
+                        emptyList()
+                    } else {
+                        FlightTable
+                            .select {
+                                // flight_number is an Integer column; cast to text for LIKE
+                                FlightTable.flightNumber.castTo<String>(VarCharColumnType()).like("%$flightQ%")
+                            }
+                            .orderBy(FlightTable.id, SortOrder.DESC)
+                            .limit(MAX_FLIGHT_SEARCH_RESULTS)
+                            .map { r ->
+                                mapOf(
+                                    "id" to r[FlightTable.id],
+                                    "flightNumber" to (r[FlightTable.flightNumber]?.toString() ?: ""),
+                                    "dep" to (r[FlightTable.scheduledDepartureTime] ?: ""),
+                                    "arr" to (r[FlightTable.scheduledArrivalTime] ?: ""),
+                                    "status" to r[FlightTable.status],
+                                )
+                            }
+                    }
+
+                // Decide which flight's seats to show (selected flight or current flight)
+                val targetFlightId = selectedFlightId ?: currentFlightId
+
+                // Seats for selected flight (access getByAttribute + filter in Kotlin)
+                val availableSeats: List<Map<String, Any>> =
+                    if (targetFlightId != null) {
+                        seatAccess
+                            .getByAttribute(SeatTable.flightId, targetFlightId)
+                            .filter { it.status == "available" }
+                            .take(MAX_SEAT_RESULTS)
+                            .map { s ->
+                                mapOf(
+                                    "id" to s.id,
+                                    "seatCode" to s.seatCode,
+                                    "cabinClass" to (s.cabinClass ?: ""),
+                                )
+                            }
+                    } else {
+                        emptyList()
+                    }
+
+                mapOf(
+                    "userSession" to session,
+                    "bookingId" to bookingId,
+                    "segmentId" to segment.id,
+                    "currentFlightId" to (currentFlightId ?: 0),
+                    "currentFlightNumber" to currentFlightNumber,
+                    "currentFlightStatus" to currentFlightStatus,
+                    "currentDep" to currentDep,
+                    "currentArr" to currentArr,
+                    "currentOrigin" to (originAirport?.iataCode ?: ""),
+                    "currentOriginName" to (originAirport?.name ?: ""),
+                    "currentDest" to (destAirport?.iataCode ?: ""),
+                    "currentDestName" to (destAirport?.name ?: ""),
+                    "currentSeatCode" to seatCode,
+                    "flightQ" to flightQ,
+                    "selectedFlightId" to (targetFlightId ?: 0),
+                    "flightResults" to flightResults,
+                    "availableSeats" to availableSeats,
+                    "error" to (call.request.queryParameters["error"] ?: ""),
+                    "ok" to (call.request.queryParameters["ok"] ?: ""),
+                )
             }
-
-            // Decide which flight's seats to show (selected flight or current flight)
-            val targetFlightId = selectedFlightId ?: currentFlightId
-
-            // Seats for selected flight (access getByAttribute + filter in Kotlin)
-            val availableSeats: List<Map<String, Any>> = if (targetFlightId != null) {
-                seatAccess
-                    .getByAttribute(SeatTable.flightId, targetFlightId)
-                    .filter { it.status == "available" }
-                    .take(MAX_SEAT_RESULTS)
-                    .map { s ->
-                        mapOf(
-                            "id" to s.id,
-                            "seatCode" to s.seatCode,
-                            "cabinClass" to (s.cabinClass ?: "")
-                        )
-                    }
-            } else emptyList()
-
-            mapOf(
-                "userSession" to session,
-                "bookingId" to bookingId,
-                "segmentId" to segment.id,
-
-                "currentFlightId" to (currentFlightId ?: 0),
-                "currentFlightNumber" to currentFlightNumber,
-                "currentFlightStatus" to currentFlightStatus,
-                "currentDep" to currentDep,
-                "currentArr" to currentArr,
-
-                "currentOrigin" to (originAirport?.iataCode ?: ""),
-                "currentOriginName" to (originAirport?.name ?: ""),
-                "currentDest" to (destAirport?.iataCode ?: ""),
-                "currentDestName" to (destAirport?.name ?: ""),
-
-                "currentSeatCode" to seatCode,
-
-                "flightQ" to flightQ,
-                "selectedFlightId" to (targetFlightId ?: 0),
-                "flightResults" to flightResults,
-                "availableSeats" to availableSeats,
-
-                "error" to (call.request.queryParameters["error"] ?: ""),
-                "ok" to (call.request.queryParameters["ok"] ?: "")
-            )
-        }
 
         if (model.containsKey("__notFound")) {
             call.respondRedirect("/404")

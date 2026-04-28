@@ -3,43 +3,38 @@ package com.flightbooking.routes
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
-import com.flightbooking.access.SeatAssignmentTableAccess
-import com.flightbooking.access.BookingSegmentTableAccess
-import com.flightbooking.access.PassengerTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
 import com.flightbooking.tables.AirportTable
+import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.FlightTable
+import com.flightbooking.tables.PassengerTable
+import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
-import io.ktor.server.application.log
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+import com.google.gson.reflect.TypeToken
 import io.ktor.server.application.call
+import io.ktor.server.application.log
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.request.receiveParameters
-import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
-import kotlin.math.ceil
-
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.and
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.google.gson.JsonSyntaxException
+import org.jetbrains.exposed.sql.update
+import kotlin.math.ceil
 
-import com.flightbooking.tables.PassengerTable
-import com.flightbooking.tables.BookingSegmentTable
-import com.flightbooking.tables.SeatAssignmentTable
 /**
  * Seat selection routes (booking flow).
  *
@@ -66,7 +61,6 @@ private const val SMALL_AIRCRAFT_CAP_THRESHOLD = 180
 private const val MEDIUM_AIRCRAFT_CAP_THRESHOLD = 350
 
 fun Route.seatSelectionRoutes() {
-
     /**
      * Renders the seat selection page for the current booking session.
      *
@@ -104,104 +98,114 @@ fun Route.seatSelectionRoutes() {
         val origin = airportAccess.getByAttribute(AirportTable.id, flight.originAirport).firstOrNull()
         val dest = airportAccess.getByAttribute(AirportTable.id, flight.destinationAirport).firstOrNull()
 
-        val passengers = transaction {
-            PassengerTable.select(PassengerTable.bookingId eq bookingSession.bookingId).map {
-                mapOf(
-                    "id" to it[PassengerTable.id],
-                    "firstName" to it[PassengerTable.firstName],
-                    "lastName" to it[PassengerTable.lastName],
-                )
+        val passengers =
+            transaction {
+                PassengerTable.select(PassengerTable.bookingId eq bookingSession.bookingId).map {
+                    mapOf(
+                        "id" to it[PassengerTable.id],
+                        "firstName" to it[PassengerTable.firstName],
+                        "lastName" to it[PassengerTable.lastName],
+                    )
+                }
             }
-        }
 
         val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
-        val aircraftType = when {
-            capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD -> "Narrow-body"
-            capacity <= MEDIUM_AIRCRAFT_CAP_THRESHOLD -> "Wide-body"
-            else -> "Jumbo-jet"
-        }
+        val aircraftType =
+            when {
+                capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD -> "Narrow-body"
+                capacity <= MEDIUM_AIRCRAFT_CAP_THRESHOLD -> "Wide-body"
+                else -> "Jumbo-jet"
+            }
 
         val seatRowsFromDb = seatAccess.getByAttribute(SeatTable.flightId, flight.id)
         val seatStatusByCode = seatRowsFromDb.associate { it.seatCode to it.status }
 
-        val layout = when {
-            capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD -> SeatLayout(
-                seatsPerRow = SMALL_SEATS_PER_ROW,
-                letters = listOf("A", "B", "C", "D", "E", "F"),
-                aisleGapsAfterIndex = setOf(SMALL_AISLE_GAP_INDEX) // ABC | DEF
-            )
+        val layout =
+            when {
+                capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD ->
+                    SeatLayout(
+                        seatsPerRow = SMALL_SEATS_PER_ROW,
+                        letters = listOf("A", "B", "C", "D", "E", "F"),
+                        aisleGapsAfterIndex = setOf(SMALL_AISLE_GAP_INDEX),
+                    )
 
-            capacity <= MEDIUM_AIRCRAFT_CAP_THRESHOLD -> SeatLayout(
-                seatsPerRow = MEDIUM_SEATS_PER_ROW,
-                letters = listOf("A", "B", "C", "D", "E", "F", "G", "H"),
-                aisleGapsAfterIndex = setOf(
-                    MEDIUM_FIRST_AISLE_GAP_INDEX, 
-                    MEDIUM_SECOND_AISLE_GAP_INDEX
-                ) // AB | CDEF | GH
-            )
+                capacity <= MEDIUM_AIRCRAFT_CAP_THRESHOLD ->
+                    SeatLayout(
+                        seatsPerRow = MEDIUM_SEATS_PER_ROW,
+                        letters = listOf("A", "B", "C", "D", "E", "F", "G", "H"),
+                        aisleGapsAfterIndex =
+                            setOf(
+                                MEDIUM_FIRST_AISLE_GAP_INDEX,
+                                MEDIUM_SECOND_AISLE_GAP_INDEX,
+                            ),
+                    )
 
-            else -> SeatLayout(
-                seatsPerRow = 10,
-                letters = listOf("A", "B", "C", "D", "E", "F", "G", "H", "J", "K"),
-                aisleGapsAfterIndex = setOf(
-                    LARGE_FIRST_AISLE_GAP_INDEX, 
-                    LARGE_SECOND_AISLE_GAP_INDEX
-                ) // ABC | DEFG | HJK
-            )
-
-        }
+                else ->
+                    SeatLayout(
+                        seatsPerRow = 10,
+                        letters = listOf("A", "B", "C", "D", "E", "F", "G", "H", "J", "K"),
+                        aisleGapsAfterIndex =
+                            setOf(
+                                LARGE_FIRST_AISLE_GAP_INDEX,
+                                LARGE_SECOND_AISLE_GAP_INDEX,
+                            ),
+                    )
+            }
 
         val totalRows = ceil(capacity / layout.seatsPerRow.toDouble()).toInt().coerceAtLeast(1)
 
-        val seatRows: List<Map<String, Any>> = (1..totalRows).map { rowNum ->
-            val seatsInRow = mutableListOf<Map<String, Any>>()
+        val seatRows: List<Map<String, Any>> =
+            (1..totalRows).map { rowNum ->
+                val seatsInRow = mutableListOf<Map<String, Any>>()
 
-            layout.letters.forEachIndexed { idx, letter ->
-                val code = "$rowNum$letter"
-                val pos = layout.positionFor(idx)
-                val status = seatStatusByCode[code] ?: "available"
+                layout.letters.forEachIndexed { idx, letter ->
+                    val code = "$rowNum$letter"
+                    val pos = layout.positionFor(idx)
+                    val status = seatStatusByCode[code] ?: "available"
 
-                seatsInRow.add(
-                    mapOf(
-                        "code" to code,
-                        "letter" to letter,
-                        "position" to pos,
-                        "status" to status,
-                        "isAisleGap" to false
+                    seatsInRow.add(
+                        mapOf(
+                            "code" to code,
+                            "letter" to letter,
+                            "position" to pos,
+                            "status" to status,
+                            "isAisleGap" to false,
+                        ),
                     )
-                )
 
-                val after = idx + 1
-                if (layout.aisleGapsAfterIndex.contains(after)) {
-                    seatsInRow.add(mapOf("isAisleGap" to true))
+                    val after = idx + 1
+                    if (layout.aisleGapsAfterIndex.contains(after)) {
+                        seatsInRow.add(mapOf("isAisleGap" to true))
+                    }
                 }
+
+                mapOf(
+                    "rowNumber" to rowNum,
+                    "seats" to seatsInRow,
+                )
             }
 
+        val currentPassengerName =
+            passengers.firstOrNull()?.let {
+                "${it["firstName"]} ${it["lastName"]}"
+            } ?: "Select passenger"
+
+        val model: Map<String, Any> =
             mapOf(
-                "rowNumber" to rowNum,
-                "seats" to seatsInRow
+                "flightId" to flight.id,
+                "flightNumber" to (flight.flightNumber?.toString() ?: flight.id.toString()),
+                "originIata" to (origin?.iataCode ?: "—"),
+                "originName" to (origin?.name ?: "—"),
+                "destIata" to (dest?.iataCode ?: "—"),
+                "destName" to (dest?.name ?: "—"),
+                "aircraftType" to aircraftType,
+                "currentSeatCode" to "",
+                "currentPassenger" to currentPassengerName,
+                "seatRows" to seatRows,
+                "passengers" to passengers,
+                "error" to (call.request.queryParameters["error"] ?: ""),
+                "ok" to (call.request.queryParameters["ok"] ?: ""),
             )
-        }
-
-        val currentPassengerName = passengers.firstOrNull()?.let {
-            "${it["firstName"]} ${it["lastName"]}"
-        } ?: "Select passenger"
-
-        val model: Map<String, Any> = mapOf(
-            "flightId" to flight.id,
-            "flightNumber" to (flight.flightNumber?.toString() ?: flight.id.toString()),
-            "originIata" to (origin?.iataCode ?: "—"),
-            "originName" to (origin?.name ?: "—"),
-            "destIata" to (dest?.iataCode ?: "—"),
-            "destName" to (dest?.name ?: "—"),
-            "aircraftType" to aircraftType,
-            "currentSeatCode" to "",
-            "currentPassenger" to currentPassengerName,
-            "seatRows" to seatRows,
-            "passengers" to passengers,
-            "error" to (call.request.queryParameters["error"] ?: ""),
-            "ok" to (call.request.queryParameters["ok"] ?: "")
-        )
 
         call.respond(PebbleContent("seat_selection.peb", model))
     }
@@ -241,7 +245,7 @@ fun Route.seatSelectionRoutes() {
 
         val params = call.receiveParameters()
         val selectedSeatsJson = params["selectedSeats"]?.trim().orEmpty()
-        
+
         if (selectedSeatsJson.isBlank()) {
             call.respondRedirect("/flights/seats?error=No seats selected")
             return@post
@@ -249,13 +253,14 @@ fun Route.seatSelectionRoutes() {
 
         // parsing the JSON: { "1": "3A", "2": "3B", ... }
         val gson = Gson()
-        val selectedSeats: Map<String, String> = try {
-            gson.fromJson(selectedSeatsJson, object : TypeToken<Map<String, String>>() {}.type)
-        } catch (e: JsonSyntaxException) {
-            call.application.log.error("Failed to parse seat selection JSON: ${e.message}", e)
-            call.respondRedirect("/flights/seats?error=Invalid seat selection format")
-            return@post
-        }
+        val selectedSeats: Map<String, String> =
+            try {
+                gson.fromJson(selectedSeatsJson, object : TypeToken<Map<String, String>>() {}.type)
+            } catch (e: JsonSyntaxException) {
+                call.application.log.error("Failed to parse seat selection JSON: ${e.message}", e)
+                call.respondRedirect("/flights/seats?error=Invalid seat selection format")
+                return@post
+            }
 
         val seatAccess = SeatTableAccess()
         val seatRows = seatAccess.getByAttribute(SeatTable.flightId, flightId)
@@ -275,34 +280,35 @@ fun Route.seatSelectionRoutes() {
         }
 
         // Create booking segment (if not exists)
-        val bookingSegmentId = transaction {
-            val condition =
-                (BookingSegmentTable.bookingId eq bookingSession.bookingId) and
-                (BookingSegmentTable.flightId eq flightId)
+        val bookingSegmentId =
+            transaction {
+                val condition =
+                    (BookingSegmentTable.bookingId eq bookingSession.bookingId) and
+                        (BookingSegmentTable.flightId eq flightId)
 
-            val existing = BookingSegmentTable
-                .select { condition }
-                .firstOrNull()
+                val existing =
+                    BookingSegmentTable
+                        .select { condition }
+                        .firstOrNull()
 
-            if (existing != null) {
-                existing[BookingSegmentTable.id]
-            } else {
-                BookingSegmentTable.insert {
-                    it[BookingSegmentTable.bookingId] = bookingSession.bookingId
-                    it[BookingSegmentTable.flightId] = flightId
-                    it[BookingSegmentTable.flightFareId] =
-                        bookingSession.outboundFareId?.toInt() ?: 0
+                if (existing != null) {
+                    existing[BookingSegmentTable.id]
+                } else {
+                    BookingSegmentTable.insert {
+                        it[BookingSegmentTable.bookingId] = bookingSession.bookingId
+                        it[BookingSegmentTable.flightId] = flightId
+                        it[BookingSegmentTable.flightFareId] =
+                            bookingSession.outboundFareId?.toInt() ?: 0
+                    }
+
+                    BookingSegmentTable
+                        .selectAll()
+                        .orderBy(BookingSegmentTable.id, SortOrder.DESC)
+                        .limit(1)
+                        .firstOrNull()
+                        ?.get(BookingSegmentTable.id) ?: 0
                 }
-
-                BookingSegmentTable
-                    .selectAll()
-                    .orderBy(BookingSegmentTable.id, SortOrder.DESC)
-                    .limit(1)
-                    .firstOrNull()
-                    ?.get(BookingSegmentTable.id) ?: 0
             }
-        }
-
 
         // puts seat assignment in
         // seat assigment and seat table
@@ -331,7 +337,7 @@ fun Route.seatSelectionRoutes() {
 private data class SeatLayout(
     val seatsPerRow: Int,
     val letters: List<String>,
-    val aisleGapsAfterIndex: Set<Int>
+    val aisleGapsAfterIndex: Set<Int>,
 ) {
     fun positionFor(index: Int): String {
         return when {
@@ -341,9 +347,13 @@ private data class SeatLayout(
                 val leftEdge = index
                 val rightEdge = index + 1
                 if (
-                    aisleGapsAfterIndex.contains(leftEdge) || 
+                    aisleGapsAfterIndex.contains(leftEdge) ||
                     aisleGapsAfterIndex.contains(rightEdge)
-                    ) "aisle" else "middle"
+                ) {
+                    "aisle"
+                } else {
+                    "middle"
+                }
             }
         }
     }
