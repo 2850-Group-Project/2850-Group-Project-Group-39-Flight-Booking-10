@@ -20,6 +20,8 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.Case
+import org.jetbrains.exposed.sql.intLiteral
 
 // class instance/reference of the airport table
 class AirportTableAccess {
@@ -33,7 +35,7 @@ class AirportTableAccess {
     fun <T> getByAttribute(attribute: Column<T>, value: T): List<Airport> = transaction {
         //accepts attribute you're searching by and the value you want it to be
         AirportTable.select { attribute eq value } 
-            .map { it.toAirport() } 
+            .map { it.toAirport() }
     }
 
     fun getAirportCodeByOrigin(origin: String): String? = transaction {
@@ -50,6 +52,26 @@ class AirportTableAccess {
             (AirportTable.city like "%$origin%") or
             (AirportTable.name like "%$origin%")
         }.firstOrNull()?.get(AirportTable.city)
+    }
+
+    fun searchAirports(query: String): List<Airport> = transaction {
+        val pattern = "%$query%"
+        val startPattern = "$query%"
+
+        AirportTable.select {
+            (AirportTable.iataCode like pattern) or
+            (AirportTable.city like pattern) or
+            (AirportTable.name like pattern)
+        }
+        .limit(8)
+        .map { it.toAirport() }
+        .sortedBy { airport ->
+            when {
+                airport.iataCode.startsWith(query, ignoreCase = true) -> 0
+                airport.city?.startsWith(query, ignoreCase = true) == true -> 1
+                else -> 2
+            }
+        }
     }
 
     fun createAirport(

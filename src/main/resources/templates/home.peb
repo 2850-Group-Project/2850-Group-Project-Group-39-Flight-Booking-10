@@ -43,14 +43,16 @@
             <!-- Origin -->
             <div class="field">
               <label>From</label>
-              <div class="field-inner">
+              <div class="field-inner autocomplete-wrapper">
                 <input
                   type="text"
-                  name="origin"
+                  id="origin-input"
                   placeholder="City or airport"
                   autocomplete="off"
                   required
                 />
+                <input type="hidden" name="origin" id="origin-value" />
+                <ul class="autocomplete-dropdown" id="origin-dropdown"></ul>
               </div>
             </div>
 
@@ -62,14 +64,16 @@
             <!-- Destination -->
             <div class="field">
               <label>To</label>
-              <div class="field-inner">
+              <div class="field-inner autocomplete-wrapper">
                 <input
                   type="text"
-                  name="destination"
+                  id="destination-input"
                   placeholder="City or airport"
                   autocomplete="off"
                   required
                 />
+                <input type="hidden" name="destination" id="destination-value" />
+                <ul class="autocomplete-dropdown" id="destination-dropdown"></ul>
               </div>
             </div>
 
