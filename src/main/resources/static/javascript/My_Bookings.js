@@ -10,3 +10,16 @@ function closeCancel() {
 document.getElementById("cancelModal").addEventListener("click", function(e) {
     if (e.target === this) closeCancel();
 });
+
+function openDelete(bookingId) {
+    document.getElementById("deleteBookingId").value = bookingId;
+    document.getElementById("deleteModal").classList.add("open");
+}
+
+function closeDelete() {
+    document.getElementById("deleteModal").classList.remove("open");
+}
+
+document.getElementById("cancelDelete").addEventListener("click", function(e) {
+    if (e.target === this) closeDelete();
+});

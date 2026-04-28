@@ -427,4 +427,14 @@ fun Route.pagesRoutes() {
 
         call.respondRedirect("/profile/bookings")
     }
+
+    post("/profile/bookings/delete") {
+        val session = call.sessions.get<UserSession>()
+        if (session == null) {
+            call.respondRedirect("/login")
+            return@post
+        }
+
+        
+    }
 }
