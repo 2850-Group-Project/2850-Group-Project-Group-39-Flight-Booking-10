@@ -51,7 +51,7 @@ class PaymentTableAccess {
         paidAt: String?,
         providerReference: String?,
         currency: String
-        ): Boolean = transaction { 
+        ): Int = transaction { 
         PaymentTable.insert { 
             it[PaymentTable.bookingId] = bookingId
             it[PaymentTable.amount] = amount
@@ -60,8 +60,7 @@ class PaymentTableAccess {
             it[PaymentTable.paidAt] = paidAt
             it[PaymentTable.providerReference] = providerReference
             it[PaymentTable.currency] = currency
-        }
-        true
+        }[PaymentTable.id]
     }
     fun deleteByID(id: Int) = transaction { 
         PaymentTable.deleteWhere { PaymentTable.id eq id } }

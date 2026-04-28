@@ -30,14 +30,8 @@ fun Route.bookingRoutes() {
             call.respondRedirect("/home")
             return@post
         }
-
         val params = call.receiveParameters()
-
-        val adultsCount = bookingSession.search?.adults?.toIntOrNull() ?: 0
-        val childrenCount = bookingSession.search?.children?.toIntOrNull() ?: 0
-        val infantsCount = bookingSession.search?.infants?.toIntOrNull() ?: 0
-
-        val numberOfPassengers = adultsCount + childrenCount + infantsCount
+        val numberOfPassengers = calculatePassengerCount(bookingSession)
 
         val passengers = (0 until numberOfPassengers).map { i ->
             PassengerInput(
@@ -57,7 +51,6 @@ fun Route.bookingRoutes() {
         }
 
         val bookingId = bookingSession.bookingId
-
         transaction {
             passengers.forEach { p ->
                 PassengerTable.insert {
@@ -86,4 +79,10 @@ fun Route.bookingRoutes() {
 
         call.respondRedirect("/flights/seats")
     }
+}
+private suspend fun calculatePassengerCount(bookingSession: BookingSession): Int {
+    val adults = bookingSession.search?.adults?.toIntOrNull() ?: 0
+    val children = bookingSession.search?.children?.toIntOrNull() ?: 0
+    val infants = bookingSession.search?.infants?.toIntOrNull() ?: 0
+    return adults + children + infants
 }

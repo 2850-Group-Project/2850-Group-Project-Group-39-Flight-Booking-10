@@ -4,6 +4,7 @@ import com.flightbooking.models.Booking
 import com.flightbooking.mappers.toBooking
 import com.flightbooking.tables.BookingTable
 
+
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,13 +19,16 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import java.time.Instant
 import com.flightbooking.tables.UserTable
 import java.time.LocalDateTime
+import com.flightbooking.models.BookingSession
+import java.util.UUID
 
-const val RAND_CANCELLED_UPPER : Int = 10
-const val RAND_CANCELLED_AT_UPPER : Int = 300
-const val RAND_BOOKING_MAX : Int = 2
-const val RAND_LETTER_COUNT : Int = 3
-const val RAND_NUMBER_MIN : Int = 100
-const val RAND_NUMBER_MAX : Int = 999
+private const val RAND_CANCELLED_UPPER : Int = 10
+private const val RAND_CANCELLED_AT_UPPER : Int = 300
+private const val RAND_BOOKING_MAX : Int = 2
+private const val RAND_LETTER_COUNT : Int = 3
+private const val RAND_NUMBER_MIN : Int = 100
+private const val RAND_NUMBER_MAX : Int = 999
+private const val BOOKING_REFERENCE_LENGTH = 8
 
 class BookingTableAccess {
     fun getAll(): List<Booking> = transaction {
@@ -55,6 +59,26 @@ class BookingTableAccess {
             it[BookingTable.amendable] = amendable
         }
         true
+    }
+    fun createBookingWithPaymentUpdate(bookingSession: BookingSession, paymentId: Int, userEmail: String) {
+        transaction {
+            val userId = UserTable
+                .select { UserTable.email eq userEmail }
+                .singleOrNull()
+                ?.get(UserTable.id)
+
+            BookingTable.insert {
+                it[BookingTable.id] = bookingSession.bookingId
+                it[BookingTable.userId] = userId
+                it[BookingTable.bookingReference] = UUID.randomUUID().toString().take(BOOKING_REFERENCE_LENGTH)
+                it[BookingTable.bookingStatus] = "confirmed"
+                it[BookingTable.amendable] = 1
+            }
+
+            BookingTable.update({ BookingTable.id eq bookingSession.bookingId }) {
+                it[BookingTable.paymentId] = paymentId
+            }
+        }
     }
     fun deleteByID(id: Int) = transaction { 
         BookingTable.deleteWhere { BookingTable.id eq id } }
