@@ -69,7 +69,7 @@
                     <span class="dot"></span>
                     Status: {{ b.bookingStatus }}
                   </div>
-                  <div>Created: {{ b.createdAt }}</div>
+                  <div class="created-at">Created: {{ b.createdAt }}</div>
                 </div>
               </div>
 
