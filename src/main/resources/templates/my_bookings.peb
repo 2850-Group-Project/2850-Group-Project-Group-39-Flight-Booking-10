@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>My Bookings - SkyFlow</title>
   <link rel="stylesheet" href="/static/css/My_Bookings.css">
+  <link rel="stylesheet" href="/static/css/Home.css">
 </head>
 
 <body>
@@ -130,5 +131,16 @@
     {% endif %}
 
   </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <div class="footer-links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/help">Help</a>
+      <a href="/complaints">Complaints</a>
+    </div>
+  </footer>
 </body>
 </html>
