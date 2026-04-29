@@ -3,672 +3,228 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Staff Dashboard - SkyFlow</title>
-  <style>
-    :root{
-      --bg0:#0b0d12;
-      --bg1:#101420;
-      --panel:#0f1320;
-      --panel2:#0c1020;
-      --line:rgba(255,255,255,.10);
-      --muted:rgba(255,255,255,.70);
-      --muted2:rgba(255,255,255,.55);
-      --text:#ffffff;
-      --accent:#3f5efb;
-      --accent2:#38bdf8;
-      --good:#22c55e;
-      --warn:#f59e0b;
-      --bad:#ef4444;
-      --shadow:0 18px 50px rgba(0,0,0,.45);
-      --radius:18px;
-      --radius2:14px;
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 800px at 20% 20%, rgba(63,94,251,.16), transparent 60%),
-        radial-gradient(900px 650px at 85% 10%, rgba(56,189,248,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-    }
-
-    .app{
-      min-height:100vh;
-      display:grid;
-      grid-template-columns: 270px 1fr;
-    }
-
-    .sidebar{
-      border-right:1px solid rgba(255,255,255,.06);
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
-      padding:18px 14px;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 10px;
-      border-radius:14px;
-    }
-    .brand-badge{
-      width:34px;height:34px;
-      border-radius:12px;
-      display:grid;place-items:center;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: 0 12px 28px rgba(0,0,0,.25);
-      font-size:16px;
-    }
-    .brand-title{
-      font-weight:800;
-      letter-spacing:.2px;
-      opacity:.95;
-    }
-
-    .nav-title{
-      font-size:11px;
-      letter-spacing:.9px;
-      color:rgba(255,255,255,.50);
-      padding:6px 10px 0;
-    }
-
-    .nav{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      padding:0 6px;
-    }
-
-    .nav a{
-      text-decoration:none;
-      color:rgba(255,255,255,.80);
-      border:1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
-      padding:10px 10px;
-      border-radius:14px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      transition:.18s ease;
-    }
-    .nav a:hover{ background: rgba(255,255,255,.06); transform: translateY(-1px); }
-    .nav a.active{
-      background: rgba(63,94,251,.18);
-      border-color: rgba(63,94,251,.40);
-    }
-    .nav .ico{
-      width:30px;height:30px;border-radius:12px;
-      display:grid;place-items:center;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
-      font-size:14px;
-    }
-
-    .sidebar-footer{
-      margin-top:auto;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      padding:8px 6px 0;
-    }
-
-    .logout{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      text-decoration:none;
-      color:rgba(255,255,255,.75);
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      transition:.18s ease;
-    }
-    .logout:hover{ background: rgba(255,255,255,.06); transform: translateY(-1px); }
-
-    .main{
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-    }
-
-    .topbar{
-      padding:14px 18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      background: rgba(10,12,18,.35);
-      backdrop-filter: blur(10px);
-    }
-
-    .search{
-      flex:1;
-      max-width:720px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(15,19,32,.55);
-    }
-    .search input{
-      width:100%;
-      border:none;
-      outline:none;
-      background:transparent;
-      color:white;
-      font-size:13px;
-    }
-    .search .mag{
-      width:28px;height:28px;border-radius:12px;
-      display:grid;place-items:center;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      font-size:13px;
-      color:rgba(255,255,255,.80);
-    }
-
-    .right{
-      margin-left:auto;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-warp:warp;
-    }
-
-    .pill{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      color:rgba(255,255,255,.80);
-      font-size:12px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-
-    .profile{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:8px 10px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-    }
-    .avatar{
-      width:34px;height:34px;border-radius:14px;
-      background: radial-gradient(circle at 30% 20%, rgba(125,211,252,.8), rgba(63,94,251,.65));
-      border:1px solid rgba(255,255,255,.18);
-      box-shadow: 0 12px 28px rgba(0,0,0,.35);
-    }
-    .profile .name{
-      display:flex;
-      flex-direction:column;
-      line-height:1.1;
-    }
-    .profile .name b{font-size:12px}
-    .profile .name span{font-size:11px;color:rgba(255,255,255,.55)}
-
-    .content{
-      padding:18px 18px 26px;
-      min-width:0;
-    }
-
-    .crumbs{
-      color:rgba(255,255,255,.55);
-      font-size:12px;
-      margin-bottom:4px;
-    }
-    .crumbs b{color:rgba(125,211,252,.9); font-weight:700}
-
-    h1{
-      margin:0 0 14px;
-      font-size:30px;
-      letter-spacing:-.4px;
-    }
-
-    .cards{
-      display:grid;
-      grid-template-columns: repeat(4, minmax(180px, 1fr));
-      gap:12px;
-      margin-bottom:14px;
-    }
-
-    .card{
-      border-radius:18px;
-      background: rgba(15,19,32,.75);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow);
-      padding:14px 14px 12px;
-      min-width:0;
-    }
-    .card .top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .badge{
-      width:34px;height:34px;border-radius:14px;
-      display:grid;place-items:center;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
-      font-size:14px;
-    }
-    .kpi{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .kpi span{
-      color:rgba(255,255,255,.60);
-      font-size:12px;
-    }
-    .kpi b{
-      font-size:22px;
-      letter-spacing:-.4px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1.55fr .85fr;
-      gap:12px;
-      align-items:start;
-      margin-top:12px;
-      margin-bottom:14px;
-    }
-
-    .panel{
-      border-radius:18px;
-      background: rgba(15,19,32,.75);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow);
-      padding:14px;
-      min-width:0;
-    }
-
-    .panel h2{
-      margin:0 0 8px;
-      font-size:14px;
-      letter-spacing:.2px;
-      color:rgba(255,255,255,.85);
-    }
-
-    .sub{
-      margin:0 0 12px;
-      color:rgba(255,255,255,.55);
-      font-size:12px;
-      line-height:1.45;
-    }
-
-    .mini{
-      height:190px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(700px 240px at 30% 0%, rgba(63,94,251,.22), transparent 60%),
-        radial-gradient(600px 220px at 80% 20%, rgba(56,189,248,.16), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      padding:12px;
-      gap:10px;
-      overflow:hidden;
-    }
-    .spark{
-      flex:1;
-      height:120px;
-      display:flex;
-      align-items:flex-end;
-      gap:8px;
-      opacity:.9;
-    }
-    .bar{
-      width:16px;
-      border-radius:10px;
-      background: linear-gradient(180deg, rgba(125,211,252,.85), rgba(63,94,251,.75));
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: 0 10px 22px rgba(0,0,0,.25);
-    }
-    .mini .legend{
-      min-width:150px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .tag{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      color:rgba(255,255,255,.70);
-      font-size:12px;
-    }
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background: rgba(63,94,251,.9);
-      box-shadow: 0 0 0 4px rgba(63,94,251,.18);
-    }
-
-    table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      overflow:hidden;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(10,12,18,.35);
-    }
-    thead th{
-      text-align:left;
-      font-size:12px;
-      font-weight:700;
-      padding:12px 12px;
-      color:rgba(255,255,255,.80);
-      border-bottom:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      white-space:nowrap;
-    }
-    tbody td{
-      padding:12px 12px;
-      font-size:12px;
-      color:rgba(255,255,255,.78);
-      border-bottom:1px solid rgba(255,255,255,.07);
-      white-space:nowrap;
-    }
-    tbody tr:hover td{
-      background: rgba(255,255,255,.03);
-    }
-    tbody tr:last-child td{border-bottom:none}
-
-    .status{
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      font-weight:700;
-      color:rgba(255,255,255,.80);
-    }
-    .status .s{
-      width:8px;height:8px;border-radius:50%;
-      background: rgba(255,255,255,.55);
-    }
-    .status.scheduled .s{ background: rgba(56,189,248,.9); }
-    .status.boarding .s{ background: rgba(245,158,11,.95); }
-    .status.ontime .s{ background: rgba(34,197,94,.95); }
-    .status.delayed .s{ background: rgba(239,68,68,.95); }
-    .status.cancelled .s{ background: rgba(239,68,68,.95); }
-
-    .muted{ color: rgba(255,255,255,.55); }
-
-    .bottom{
-      margin-top:14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      color:rgba(255,255,255,.45);
-      font-size:11px;
-      flex-wrap:wrap;
-    }
-
-    .links{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .links a{
-      color:rgba(255,255,255,.55);
-      text-decoration:none;
-    }
-    .links a:hover{ text-decoration:underline; }
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content: flex-end;
-      gap:10px;
-      text-decoration:none;
-      color:rgba(255,255,255,.75);
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      transition:.18s ease;
-    }
-    .top:hover{ background: rgba(255,255,255,.06); transform: translateY(-1px); }
-
-    @media (max-width: 1080px){
-      .cards{ grid-template-columns: repeat(2, minmax(180px, 1fr)); }
-      .grid{ grid-template-columns: 1fr; }
-    }
-    @media (max-width: 860px){
-      .app{ grid-template-columns: 1fr; }
-      .sidebar{ display:none; }
-    }
-  </style>
+  <title>Staff Dashboard</title>
+  <link rel="stylesheet" href="/static/css/Staff_Dashboard.css">
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-badge">✈</div>
-        <div class="brand-title">SkyFlow Staff</div>
+<!-- SIDEBAR -->
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">✈</div>
+      <div class="brand-title">SkyFlow Staff</div>
+    </div>
+
+    <!-- OPTIONS: SIDEBAR -->
+    <div class="nav-title">MAIN MENU</div>
+    <nav class="nav">
+      <a class="active" href=" "><span class="ico">📊</span> Operations Control</a >
+      <a href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
+      <a href="#" onclick="return false;"><span class="ico">👥</span> Crew Assignments</a >
+      <a href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
+      <a href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
+      <a href="#" onclick="return false;"><span class="ico">✅</span> Compliance Reports</a >
+    </nav>
+
+    <div class="nav-title">SYSTEM</div>
+    <nav class="nav">
+      <a href="#" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a >
+      <a href="#" onclick="return false;"><span class="ico">🔔</span> Alert Configuration</a >
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="logout" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
+    </div>
+  </aside>
+
+  <!-- OPTIONS: ACCOUNT -->
+  <div class="main">
+    <header class="topbar">
+      <div class="right">
+        <a class="top" href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
+        <a class="top" href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
+        <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
+        <a class="top" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
+        <div class="profile">
+          <div class="avatar"></div>
+          <div class="name">
+            <b>{{ staffName }}</b>
+            <span>{{ staffRole }}</span>
+          </div>
+        </div>
       </div>
+    </header>
 
-      <div class="nav-title">MAIN MENU</div>
-      <nav class="nav">
-        <a class="active" href=" "><span class="ico">📊</span> Operations Control</a >
-        <a href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
-        <a href="#" onclick="return false;"><span class="ico">👥</span> Crew Assignments</a >
-        <a href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
-        <a href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
-        <a href="#" onclick="return false;"><span class="ico">✅</span> Compliance Reports</a >
-      </nav>
+    <!-- INFORMATION SUMMARY -->
+    <div class="content">
+      <div class="crumbs">Operations Control <span class="muted">›</span> <b>Dashboard</b></div>
+      <h1>Operational Overview</h1>
 
-      <div class="nav-title">SYSTEM</div>
-      <nav class="nav">
-        <a href="#" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a >
-        <a href="#" onclick="return false;"><span class="ico">🔔</span> Alert Configuration</a >
-      </nav>
+      <section class="cards">
+        <div class="card">
+          <div class="top">
+            <div class="badge">✈️</div>
+            <div class="pill">Live</div>
+          </div>
+          <div class="kpi">
+            <span>Active Flights</span>
+            <b>{{ activeFlights }}</b>
+          </div>
+        </div>
 
-      <div class="sidebar-footer">
-        <a class="logout" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
-      </div>
-    </aside>
+        <div class="card">
+          <div class="top">
+            <div class="badge">📈</div>
+            <div class="pill">Seat Utilization</div>
+          </div>
+          <div class="kpi">
+            <span>Load Factor</span>
+            <b>{{ loadFactor }}</b>
+          </div>
+        </div>
 
-    <div class="main">
-      <header class="topbar">
-        <div class="right">
-          <a class="top" href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
-          <a class="top" href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
-          <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
-          <a class="top" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
-          <div class="profile">
-            <div class="avatar"></div>
-            <div class="name">
-              <b>{{ staffName }}</b>
-              <span>{{ staffRole }}</span>
+        <div class="card">
+          <div class="top">
+            <div class="badge">🗓️</div>
+            <div class="pill">Today</div>
+          </div>
+          <div class="kpi">
+            <span>Departures Today</span>
+            <b>{{ departuresToday }}</b>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="top">
+            <div class="badge">⚠️</div>
+            <div class="pill">Open</div>
+          </div>
+          <div class="kpi">
+            <span>System Alerts</span>
+            <b>{{ systemAlerts }}</b>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>Global Booking Velocity</h2>
+          <p class="sub">Summary view powered by current database state (live counts).</p >
+          <div class="mini">
+            <div class="spark">
+              <div class="bar" style="height:38%"></div>
+              <div class="bar" style="height:52%"></div>
+              <div class="bar" style="height:45%"></div>
+              <div class="bar" style="height:62%"></div>
+              <div class="bar" style="height:58%"></div>
+              <div class="bar" style="height:72%"></div>
+              <div class="bar" style="height:66%"></div>
+              <div class="bar" style="height:78%"></div>
+            </div>
+            <div class="legend">
+              <div class="tag"><span class="dot"></span> Active Flights: <b style="color:white">{{ activeFlights }}</b></div>
+              <div class="tag"><span class="dot" style="background:rgba(56,189,248,.9); box-shadow:0 0 0 4px rgba(56,189,248,.18)"></span> Departures Today: <b style="color:white">{{ departuresToday }}</b></div>
+              <div class="tag"><span class="dot" style="background:rgba(239,68,68,.95); box-shadow:0 0 0 4px rgba(239,68,68,.14)"></span> Open Alerts: <b style="color:white">{{ systemAlerts }}</b></div>
             </div>
           </div>
         </div>
-      </header>
-
-      <div class="content">
-        <div class="crumbs">Operations Control <span class="muted">›</span> <b>Dashboard</b></div>
-        <h1>Operational Overview</h1>
-
-        <section class="cards">
-          <div class="card">
-            <div class="top">
-              <div class="badge">✈️</div>
-              <div class="pill">Live</div>
-            </div>
-            <div class="kpi">
-              <span>Active Flights</span>
-              <b>{{ activeFlights }}</b>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="top">
-              <div class="badge">📈</div>
-              <div class="pill">Seat Utilization</div>
-            </div>
-            <div class="kpi">
-              <span>Load Factor</span>
-              <b>{{ loadFactor }}</b>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="top">
-              <div class="badge">🗓️</div>
-              <div class="pill">Today</div>
-            </div>
-            <div class="kpi">
-              <span>Departures Today</span>
-              <b>{{ departuresToday }}</b>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="top">
-              <div class="badge">⚠️</div>
-              <div class="pill">Open</div>
-            </div>
-            <div class="kpi">
-              <span>System Alerts</span>
-              <b>{{ systemAlerts }}</b>
-            </div>
-          </div>
-        </section>
-
-        <section class="grid">
-          <div class="panel">
-            <h2>Global Booking Velocity</h2>
-            <p class="sub">Summary view powered by current database state (live counts).</p >
-            <div class="mini">
-              <div class="spark">
-                <div class="bar" style="height:38%"></div>
-                <div class="bar" style="height:52%"></div>
-                <div class="bar" style="height:45%"></div>
-                <div class="bar" style="height:62%"></div>
-                <div class="bar" style="height:58%"></div>
-                <div class="bar" style="height:72%"></div>
-                <div class="bar" style="height:66%"></div>
-                <div class="bar" style="height:78%"></div>
-              </div>
-              <div class="legend">
-                <div class="tag"><span class="dot"></span> Active Flights: <b style="color:white">{{ activeFlights }}</b></div>
-                <div class="tag"><span class="dot" style="background:rgba(56,189,248,.9); box-shadow:0 0 0 4px rgba(56,189,248,.18)"></span> Departures Today: <b style="color:white">{{ departuresToday }}</b></div>
-                <div class="tag"><span class="dot" style="background:rgba(239,68,68,.95); box-shadow:0 0 0 4px rgba(239,68,68,.14)"></span> Open Alerts: <b style="color:white">{{ systemAlerts }}</b></div>
-              </div>
-            </div>
-          </div>
-          <div class="panel">
-            <h2>Quick Status</h2>
-            <p class="sub">Operational signals derived from flight/seat/complaint tables.</p >
-            <table>
-              <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="muted">Load Factor</td>
-                  <td><b>{{ loadFactor }}</b></td>
-                </tr>
-                <tr>
-                  <td class="muted">Active Flights</td>
-                  <td><b>{{ activeFlights }}</b></td>
-                </tr>
-                <tr>
-                  <td class="muted">Departures Today</td>
-                  <td><b>{{ departuresToday }}</b></td>
-                </tr>
-                <tr>
-                  <td class="muted">Open Alerts</td>
-                  <td><b>{{ systemAlerts }}</b></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="panel">
-          <h2>Active Flight Operations</h2>
-          <p class="sub">Live flight list (no gate/crew fields because they do not exist in current schema).</p >
-
+        <div class="panel">
+          <h2>Quick Status</h2>
+          <p class="sub">Operational signals derived from flight/seat/complaint tables.</p >
           <table>
             <thead>
               <tr>
-                <th>Flight No.</th>
-                <th>Destination</th>
-                <th>Departure</th>
-                <th>Status</th>
-                <th>Capacity</th>
-                <th>Assigned Seats</th>
-                <th>Util</th>
+                <th>Metric</th>
+                <th>Value</th>
               </tr>
             </thead>
             <tbody>
-              {% if flights is not empty %}
-                {% for f in flights %}
-                  <tr>
-                    <td><b>{{ f.no }}</b></td>
-                    <td>{{ f.dest }}</td>
-                    <td>{{ f.dep }}</td>
-                    <td>
-                      <span class="status {{ f.status | lower }}">
-                        <span class="s"></span>
-                        {{ f.status }}
-                      </span>
-                    </td>
-                    <td>{{ f.capacity }}</td>
-                    <td>{{ f.assigned }}</td>
-                    <td><b>{{ f.util }}</b></td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td colspan="7" class="muted">No flights available.</td>
-                </tr>
-              {% endif %}
+              <tr>
+                <td class="muted">Load Factor</td>
+                <td><b>{{ loadFactor }}</b></td>
+              </tr>
+              <tr>
+                <td class="muted">Active Flights</td>
+                <td><b>{{ activeFlights }}</b></td>
+              </tr>
+              <tr>
+                <td class="muted">Departures Today</td>
+                <td><b>{{ departuresToday }}</b></td>
+              </tr>
+              <tr>
+                <td class="muted">Open Alerts</td>
+                <td><b>{{ systemAlerts }}</b></td>
+              </tr>
             </tbody>
           </table>
+        </div>
+      </section>
 
-          <div class="bottom">
-            <div>Signed in as <b>{{ staffEmail }}</b></div>
-            <div class="links">
-              <a href=" " onclick="return false;">Operational Policy</a >
-              <a href="#" onclick="return false;">Privacy</a >
-              <a href="#" onclick="return false;">Help Desk</a >
-            </div>
+      <section class="panel">
+        <h2>Active Flight Operations</h2>
+        <p class="sub">Live flight list (no gate/crew fields because they do not exist in current schema).</p >
+
+        <table>
+          <thead>
+            <tr>
+              <th>Flight No.</th>
+              <th>Destination</th>
+              <th>Departure</th>
+              <th>Status</th>
+              <th>Capacity</th>
+              <th>Assigned Seats</th>
+              <th>Util</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if flights is not empty %}
+              {% for f in flights %}
+                <tr>
+                  <td><b>{{ f.no }}</b></td>
+                  <td>{{ f.dest }}</td>
+                  <td>{{ f.dep }}</td>
+                  <td>
+                    <span class="status {{ f.status | lower }}">
+                      <span class="s"></span>
+                      {{ f.status }}
+                    </span>
+                  </td>
+                  <td>{{ f.capacity }}</td>
+                  <td>{{ f.assigned }}</td>
+                  <td><b>{{ f.util }}</b></td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="7" class="muted">No flights available.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+
+        <div class="bottom">
+          <div>Signed in as <b>{{ staffEmail }}</b></div>
+          <div class="links">
+            <a href=" " onclick="return false;">Operational Policy</a >
+            <a href="#" onclick="return false;">Privacy</a >
+            <a href="#" onclick="return false;">Help Desk</a >
           </div>
-        </section>
+        </div>
+      </section>
 
-      </div>
     </div>
   </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 SkyFlow. All rights reserved</span>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/help">Help</a>
+    <a href="/complaints">Complaints</a>
+  </div>
+</footer>
 </body>
 </html>

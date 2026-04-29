@@ -14,6 +14,8 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
+private const val AIRPORT_SEARCH_LIMIT: Int = 8
+
 // class instance/reference of the airport table
 class AirportTableAccess {
     // specific search functions for each table (pretty much copy and pasted for most)
@@ -50,6 +52,26 @@ class AirportTableAccess {
                     (AirportTable.city like "%$origin%") or
                     (AirportTable.name like "%$origin%")
             }.firstOrNull()?.get(AirportTable.city)
+        }
+
+    fun searchAirports(query: String): List<Airport> =
+        transaction {
+            val pattern = "%$query%"
+
+            AirportTable.select {
+                (AirportTable.iataCode like pattern) or
+                    (AirportTable.city like pattern) or
+                    (AirportTable.name like pattern)
+            }
+                .limit(AIRPORT_SEARCH_LIMIT)
+                .map { it.toAirport() }
+                .sortedBy { airport ->
+                    when {
+                        airport.iataCode.startsWith(query, ignoreCase = true) -> 0
+                        airport.city?.startsWith(query, ignoreCase = true) == true -> 1
+                        else -> 2
+                    }
+                }
         }
 
     fun createAirport(

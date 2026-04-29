@@ -30,6 +30,7 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -228,16 +229,6 @@ fun Route.pagesRoutes() {
     }
 
     /**
-     * Placeholder for complaints page (not implemented yet).
-     *
-     * GET /profile/complaints
-     * - Always redirects to /404 (until implemented).
-     */
-    get("/profile/complaints") {
-        call.respondRedirect("/404")
-    }
-
-    /**
      * Placeholder for notifications page (not implemented yet).
      *
      * GET /profile/notifications
@@ -319,7 +310,7 @@ fun Route.pagesRoutes() {
                     cond = cond and (BookingTable.id eq qId)
                 }
 
-                val rows = (
+                val rows =
                     BookingTable
                         .join(BookingSegmentTable, JoinType.INNER, additionalConstraint = {
                             BookingSegmentTable.bookingId eq BookingTable.id
@@ -357,7 +348,7 @@ fun Route.pagesRoutes() {
                             SeatTable.seatCode,
                         )
                         .select { cond }
-                        .orderBy(BookingTable.id, SortOrder.DESC)
+                        .orderBy(BookingTable.createdAt, SortOrder.DESC)
                         .map { r ->
                             mapOf(
                                 "bookingId" to r[BookingTable.id],
@@ -376,7 +367,6 @@ fun Route.pagesRoutes() {
                                 "seatCode" to r.getOrNull(SeatTable.seatCode),
                             )
                         }
-                )
 
                 val grouped = rows.groupBy { it["bookingId"] as Int }
 
@@ -473,6 +463,63 @@ fun Route.pagesRoutes() {
                     it[bookingStatus] = "cancelled"
                     it[cancelledAt] = java.time.Instant.now().toString()
                 }
+
+                true
+            }
+
+        if (!ok) {
+            call.respondRedirect("/404")
+            return@post
+        }
+
+        call.respondRedirect("/profile/bookings")
+    }
+
+    post("/profile/bookings/delete") {
+        val session = call.sessions.get<UserSession>()
+        if (session == null) {
+            call.respondRedirect("/login")
+            return@post
+        }
+
+        val params = call.receiveParameters()
+        val bookingId = params["bookingId"]?.toIntOrNull()
+        if (bookingId == null) {
+            call.respondRedirect("/404")
+            return@post
+        }
+
+        val ok =
+            transaction {
+                val userRow =
+                    UserTable
+                        .select { UserTable.email eq session.userEmail }
+                        .limit(1)
+                        .firstOrNull() ?: return@transaction false
+
+                val userId = userRow[UserTable.id]
+
+                val owned =
+                    BookingTable
+                        .select { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
+                        .limit(1)
+                        .any()
+
+                if (!owned) {
+                    return@transaction false
+                }
+
+                val segmentIds =
+                    BookingSegmentTable
+                        .select { BookingSegmentTable.bookingId eq bookingId }
+                        .map { it[BookingSegmentTable.id] }
+
+                segmentIds.forEach { segId ->
+                    SeatAssignmentTable.deleteWhere { SeatAssignmentTable.bookingSegmentId eq segId }
+                }
+
+                BookingSegmentTable.deleteWhere { BookingSegmentTable.bookingId eq bookingId }
+                BookingTable.deleteWhere { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
 
                 true
             }

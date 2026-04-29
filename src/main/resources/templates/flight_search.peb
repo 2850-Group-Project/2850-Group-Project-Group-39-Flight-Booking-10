@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/static/css/Home.css">
   <link rel="stylesheet" href="/static/css/Flight_Search.css">
-  <title>SkyBook - Choose Your Flight</title>
+  <title>Choose Your Flight</title>
 </head>
 <body>
-
   <!-- NAV -->
   <nav>
     {% if isLoggedIn %}
@@ -148,7 +147,7 @@
         </div>
       </section>
 
-      <!-- ROW 3: RETURN FLIGHTS (only shown for return trips) -->
+      <!-- ROW 3: RETURN FLIGHTS ONLY SHOWN FOR RETURN TRIPS -->
       {% if search.tripType == "return" %}
       <section class="flights-section">
         <div class="flights-header">
@@ -240,7 +239,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <span>© 2026 SkyBook. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

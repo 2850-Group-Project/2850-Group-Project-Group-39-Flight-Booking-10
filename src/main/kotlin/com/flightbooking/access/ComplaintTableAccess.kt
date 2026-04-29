@@ -3,6 +3,7 @@ import com.flightbooking.mappers.toComplaint
 import com.flightbooking.models.Complaint
 import com.flightbooking.tables.ComplaintTable
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -28,6 +29,15 @@ class ComplaintTableAccess {
             ComplaintTable.select { attribute eq value }
                 .map { it.toComplaint() }
         }
+
+    fun findByUserId(userId: Int): List<Complaint> {
+        return transaction {
+            ComplaintTable
+                .select { ComplaintTable.userId eq userId }
+                .orderBy(ComplaintTable.createdAt, SortOrder.DESC)
+                .map { it.toComplaint() }
+        }
+    }
 
     fun createComplaint(
         userId: Int?,

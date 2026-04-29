@@ -1,32 +1,9 @@
-PS C:\Users\Ephraim Chen\2850-Group-Project> ./gradlew clean detekt
-
 > Task :detekt FAILED
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\models\Models.kt:1:1: File 'C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\models\Models.kt' with '15' functions detected. Defined threshold inside files is set to '11' [TooManyFunctions]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\ChangeRequestRoutes.kt:59:11: The function changeRequestRoutes is too long (191). The maximum length is 60. [LongMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\ChangeRequestRoutes.kt:59:11: The function changeRequestRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 41). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\PagesRoutes.kt:51:11: The function pagesRoutes is too long (278). The maximum length is 60. [LongMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\PagesRoutes.kt:51:11: The function pagesRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 40). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\SeatSelectionRoutes.kt:53:11: The function seatSelectionRoutes is too long (139). The maximum length is 60. [LongMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\SeatSelectionRoutes.kt:53:11: The function seatSelectionRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 28). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\StaffBookingsRoutes.kt:67:11: The function staffBookingsRoutes is too long (301). The maximum length is 60. [LongMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\StaffBookingsRoutes.kt:67:11: The function staffBookingsRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 34). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\StaffNotificationsRoutes.kt:57:11: The function staffNotificationsRoutes is too long (139). The maximum length is 60. [LongMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\StaffNotificationsRoutes.kt:57:11: The function staffNotificationsRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 23). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\StaffPagesRoutes.kt:65:11: The function staffPagesRoutes is too long (257). The maximum length is 60. [LongMethod]  
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\routes\StaffPagesRoutes.kt:65:11: The function staffPagesRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 37). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:25:1: io.ktor.server.application.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:26:1: io.ktor.server.routing.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:27:1: io.ktor.server.pebble.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:28:1: io.ktor.server.plugins.callloging.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:29:1: io.ktor.server.plugins.statuspages.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:30:1: io.ktor.server.plugins.contentnegotiation.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:31:1: io.ktor.server.sessions.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:32:1: io.ktor.server.response.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\Application.kt:33:1: io.ktor.server.http.content.* is a wildcard import. Replace it with fully qualified imports. [WildcardImport]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\service\AuthService.kt:15:9: Function login has 4 return statements which exceeds the limit of 2. [ReturnCount]
-C:\Users\Ephraim Chen\2850-Group-Project\src\main\kotlin\com\flightbooking\service\StaffAuthService.kt:15:9: Function login has 4 return statements which exceeds the limit of 2. [ReturnCount]       
-
-
-[Incubating] Problems report is available at: file:///C:/Users/Ephraim%20Chen/2850-Group-Project/build/reports/problems/problems-report.html
-
-FAILURE: Build failed with an exception.
+/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/ChangeRequestRoutes.kt:54:11: The function changeRequestRoutes is too long (208). The maximum length is 60. [LongMethod]
+/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/ChangeRequestRoutes.kt:54:11: The function changeRequestRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 41). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
+/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/StaffPagesRoutes.kt:64:11: The function staffPagesRoutes is too long (280). The maximum length is 60. [LongMethod]
+/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/StaffPagesRoutes.kt:64:11: The function staffPagesRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 37). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
+/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/PagesRoutes.kt:45:11: The function pagesRoutes is too long (362). The maximum length is 60. [LongMethod]
+/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/PagesRoutes.kt:45:11: The function pagesRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 46). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
+/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/SeatSelectionRoutes.kt:65:11: The function seatSelectionRoutes is too long (106). The maximum length is 60. [LongMethod]
+/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/SeatSelectionRoutes.kt:65:11: The function seatSelectionRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 21). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]

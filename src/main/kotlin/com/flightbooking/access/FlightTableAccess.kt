@@ -9,6 +9,7 @@ import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FlightTable
+import org.jetbrains.exposed.sql.Alias
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
@@ -144,32 +145,37 @@ class FlightTableAccess {
                 .toList()
                 .filter { row -> row.getOrNull(FlightFareTable.id) != null }
                 .groupBy { it[FlightTable.id] }
-                .map { (_, rows) ->
-                    val first = rows.first()
-                    val dep =
-                        first[FlightTable.scheduledDepartureTime]?.let {
-                            LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                        }
-                    val arr =
-                        first[FlightTable.scheduledArrivalTime]?.let {
-                            LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                        }
-
-                    FlightWithFares(
-                        flightId = first[FlightTable.id],
-                        flightNumber = first[FlightTable.flightNumber],
-                        departureDay = dep?.format(DateTimeFormatter.ofPattern("d MMMM")),
-                        departureTime = dep?.format(DateTimeFormatter.ofPattern("HH:mm")),
-                        arrivalTime = arr?.format(DateTimeFormatter.ofPattern("HH:mm")),
-                        duration = calculateDuration(dep, arr),
-                        status = first[FlightTable.status],
-                        capacity = first[FlightTable.capacity],
-                        originCode = first[originAirport[AirportTable.iataCode]],
-                        destinationCode = first[destinationAirport[AirportTable.iataCode]],
-                        fares = mapFares(rows),
-                    )
-                }
+                .map { (_, rows) -> mapFlightWithFares(rows, originAirport, destinationAirport) }
         }
+    }
+
+    private fun mapFlightWithFares(
+        rows: List<ResultRow>,
+        originAirport: Alias<AirportTable>,
+        destinationAirport: Alias<AirportTable>,
+    ): FlightWithFares {
+        val first = rows.first()
+        val dep =
+            first[FlightTable.scheduledDepartureTime]?.let {
+                LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            }
+        val arr =
+            first[FlightTable.scheduledArrivalTime]?.let {
+                LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            }
+        return FlightWithFares(
+            flightId = first[FlightTable.id],
+            flightNumber = first[FlightTable.flightNumber],
+            departureDay = dep?.format(DateTimeFormatter.ofPattern("d MMMM")),
+            departureTime = dep?.format(DateTimeFormatter.ofPattern("HH:mm")),
+            arrivalTime = arr?.format(DateTimeFormatter.ofPattern("HH:mm")),
+            duration = calculateDuration(dep, arr),
+            status = first[FlightTable.status],
+            capacity = first[FlightTable.capacity],
+            originCode = first[originAirport[AirportTable.iataCode]],
+            destinationCode = first[destinationAirport[AirportTable.iataCode]],
+            fares = mapFares(rows),
+        )
     }
 
     /**

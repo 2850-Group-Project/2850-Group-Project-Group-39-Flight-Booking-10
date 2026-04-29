@@ -1,21 +1,25 @@
 package com.flightbooking.routes
 
+import com.flightbooking.access.AirportTableAccess
+import com.flightbooking.models.Airport
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.UserSession
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.Parameters
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import java.util.UUID
 
-fun Route.flightRoutes() {
+fun Route.flightSelectRoutes() {
     post("/flights/select") {
         val session = call.sessions.get<UserSession>()
 
@@ -38,17 +42,7 @@ fun Route.flightRoutes() {
                 HttpStatusCode.BadRequest, "Missing leg",
             )
 
-        val search =
-            FlightSearch(
-                tripType = params["tripType"],
-                origin = params["origin"],
-                destination = params["destination"],
-                departureDate = params["departureDate"],
-                returnDate = params["returnDate"],
-                adults = params["adults"],
-                children = params["children"],
-                infants = params["infants"],
-            )
+        val search = buildFlightSearch(params)
 
         val booking = call.sessions.get<BookingSession>() ?: BookingSession()
         val bookingId = (UUID.randomUUID().mostSignificantBits % Int.MAX_VALUE).toInt()
@@ -81,9 +75,39 @@ fun Route.flightRoutes() {
             }
 
         call.sessions.set(updated)
-
         println(updated)
-
         call.respond(HttpStatusCode.OK, "ok") // stops ktor from hanging
     }
 }
+
+fun Route.airportSearchRoutes() {
+    get("/airports/search") {
+        val query = call.request.queryParameters["q"]?.trim() ?: ""
+        println(query)
+
+        // only start returning flights after more than 1 character entered
+        if (query.length < 2) {
+            call.respond(emptyList<Airport>())
+            return@get
+        }
+
+        val airportTable = AirportTableAccess()
+        val suggestedAirports = airportTable.searchAirports(query)
+
+        println(suggestedAirports)
+
+        call.respond(suggestedAirports)
+    }
+}
+
+private fun buildFlightSearch(params: Parameters): FlightSearch =
+    FlightSearch(
+        tripType = params["tripType"],
+        origin = params["origin"],
+        destination = params["destination"],
+        departureDate = params["departureDate"],
+        returnDate = params["returnDate"],
+        adults = params["adults"],
+        children = params["children"],
+        infants = params["infants"],
+    )

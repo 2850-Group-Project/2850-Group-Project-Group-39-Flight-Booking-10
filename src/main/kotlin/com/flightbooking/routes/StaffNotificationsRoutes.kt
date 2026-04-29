@@ -22,8 +22,10 @@ import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
+import org.jetbrains.exposed.sql.Alias
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.alias
@@ -116,6 +118,14 @@ private fun loadNotificationsModel(
         )
     }
 
+private data class ChangeRequestAliases(
+    val origin: Alias<AirportTable>,
+    val dest: Alias<AirportTable>,
+    val currentFlight: Alias<FlightTable>,
+    val requestedFlight: Alias<FlightTable>,
+    val requestedSeat: Alias<SeatTable>,
+)
+
 private fun fetchChangeRequests(q: String): List<Map<String, Any?>> =
     transaction {
         val qId = q.toIntOrNull()
@@ -130,6 +140,7 @@ private fun fetchChangeRequests(q: String): List<Map<String, Any?>> =
         val currentFlight = FlightTable.alias("currentFlight")
         val requestedFlight = FlightTable.alias("requestedFlight")
         val requestedSeat = SeatTable.alias("requestedSeat")
+        val aliases = ChangeRequestAliases(origin, dest, currentFlight, requestedFlight, requestedSeat)
         ChangeRequestTable
             .join(UserTable, JoinType.LEFT) { ChangeRequestTable.userId eq UserTable.id }
             .join(currentFlight, JoinType.LEFT) { ChangeRequestTable.currentFlightId eq currentFlight[FlightTable.id] }
@@ -157,28 +168,33 @@ private fun fetchChangeRequests(q: String): List<Map<String, Any?>> =
             )
             .select { cond }
             .orderBy(ChangeRequestTable.id, SortOrder.DESC)
-            .map { r ->
-                val route =
-                    r.getOrNull(origin[AirportTable.iataCode])?.let { o ->
-                        r.getOrNull(dest[AirportTable.iataCode])?.let { d -> "$o → $d" }
-                    }
-                mapOf(
-                    "requestId" to r[ChangeRequestTable.id],
-                    "userId" to r[ChangeRequestTable.userId],
-                    "userEmail" to r.getOrNull(UserTable.email),
-                    "bookingId" to r[ChangeRequestTable.bookingId],
-                    "segmentId" to r[ChangeRequestTable.bookingSegmentId],
-                    "reason" to r.getOrNull(ChangeRequestTable.reason),
-                    "status" to (r.getOrNull(ChangeRequestTable.status) ?: "pending"),
-                    "createdAt" to (r.getOrNull(ChangeRequestTable.createdAt) ?: ""),
-                    "updatedAt" to (r.getOrNull(ChangeRequestTable.updatedAt) ?: ""),
-                    "currentFlightNo" to (r.getOrNull(currentFlight[FlightTable.flightNumber])?.toString() ?: ""),
-                    "requestedFlightNo" to (r.getOrNull(requestedFlight[FlightTable.flightNumber])?.toString() ?: ""),
-                    "currentRoute" to route,
-                    "requestedSeatCode" to r.getOrNull(requestedSeat[SeatTable.seatCode]),
-                )
-            }
+            .map { r -> mapChangeRequestRow(r, aliases) }
     }
+
+private fun mapChangeRequestRow(
+    r: ResultRow,
+    aliases: ChangeRequestAliases,
+): Map<String, Any?> {
+    val route =
+        r.getOrNull(aliases.origin[AirportTable.iataCode])?.let { o ->
+            r.getOrNull(aliases.dest[AirportTable.iataCode])?.let { d -> "$o → $d" }
+        }
+    return mapOf(
+        "requestId" to r[ChangeRequestTable.id],
+        "userId" to r[ChangeRequestTable.userId],
+        "userEmail" to r.getOrNull(UserTable.email),
+        "bookingId" to r[ChangeRequestTable.bookingId],
+        "segmentId" to r[ChangeRequestTable.bookingSegmentId],
+        "reason" to r.getOrNull(ChangeRequestTable.reason),
+        "status" to (r.getOrNull(ChangeRequestTable.status) ?: "pending"),
+        "createdAt" to (r.getOrNull(ChangeRequestTable.createdAt) ?: ""),
+        "updatedAt" to (r.getOrNull(ChangeRequestTable.updatedAt) ?: ""),
+        "currentFlightNo" to (r.getOrNull(aliases.currentFlight[FlightTable.flightNumber])?.toString() ?: ""),
+        "requestedFlightNo" to (r.getOrNull(aliases.requestedFlight[FlightTable.flightNumber])?.toString() ?: ""),
+        "currentRoute" to route,
+        "requestedSeatCode" to r.getOrNull(aliases.requestedSeat[SeatTable.seatCode]),
+    )
+}
 
 private fun handleStatusUpdate(
     params: Parameters,

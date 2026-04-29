@@ -96,7 +96,11 @@ class PaymentTableAccess {
 
             fun randomStatus(): String = if ((1..RAND_UPPER).random() <= STATUS_THRESHOLD) "paid" else "refunded"
 
-            fun providerRef(): String = listOf("STR", "PPL", "WDP", "APY").random() + "-" + (RAND_REF_LOWER..RAND_REF_UPPER).random()
+            fun providerRef(): String =
+                listOf("STR", "PPL", "WDP", "APY")
+                    .random() + "-" +
+                    (RAND_REF_LOWER..RAND_REF_UPPER)
+                        .random()
 
             bookings.forEach { bookingRow ->
                 val bookingId = bookingRow[BookingTable.id]

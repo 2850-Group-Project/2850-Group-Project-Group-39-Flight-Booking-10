@@ -137,7 +137,11 @@ fun Route.changeRequestRoutes() {
                 val seatCode =
                     (
                         SeatAssignmentTable
-                            .join(SeatTable, JoinType.LEFT, additionalConstraint = { SeatTable.id eq SeatAssignmentTable.seatId })
+                            .join(
+                                SeatTable,
+                                JoinType.LEFT,
+                                additionalConstraint = { SeatTable.id eq SeatAssignmentTable.seatId },
+                            )
                             .slice(SeatTable.seatCode)
                             .select { SeatAssignmentTable.bookingSegmentId eq segment.id }
                             .limit(1)

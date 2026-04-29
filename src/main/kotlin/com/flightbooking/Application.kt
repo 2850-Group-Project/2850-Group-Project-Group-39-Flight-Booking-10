@@ -4,11 +4,13 @@ import com.flightbooking.database.DBFactory
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.StaffSession
 import com.flightbooking.models.UserSession
+import com.flightbooking.routes.airportSearchRoutes
 import com.flightbooking.routes.authRoutes
 import com.flightbooking.routes.bookingRoutes
 import com.flightbooking.routes.changeRequestRoutes
+import com.flightbooking.routes.complaintsRoutes
 import com.flightbooking.routes.confirmationRoutes
-import com.flightbooking.routes.flightRoutes
+import com.flightbooking.routes.flightSelectRoutes
 import com.flightbooking.routes.pagesRoutes
 import com.flightbooking.routes.paymentRoutes
 import com.flightbooking.routes.seatSelectionRoutes
@@ -17,6 +19,7 @@ import com.flightbooking.routes.staffBookingsRoutes
 import com.flightbooking.routes.staffNotificationsRoutes
 import com.flightbooking.routes.staffPagesRoutes
 import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.install
@@ -91,7 +94,9 @@ private fun Application.configureServer() {
         }
     }
 
-    install(ContentNegotiation)
+    install(ContentNegotiation) {
+        json()
+    }
 
     install(Pebble) {
         // Sets prefix for pebble templates so we don't need to repeat it
@@ -166,11 +171,13 @@ private fun Application.registerRoutes() {
         staffPagesRoutes()
         staffBookingsRoutes()
         staffNotificationsRoutes()
-        flightRoutes()
+        flightSelectRoutes()
+        airportSearchRoutes()
         bookingRoutes()
         changeRequestRoutes()
         seatSelectionRoutes()
         paymentRoutes()
         confirmationRoutes()
+        complaintsRoutes()
     }
 }

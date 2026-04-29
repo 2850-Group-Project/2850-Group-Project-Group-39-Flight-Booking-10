@@ -4,6 +4,7 @@ import com.flightbooking.mappers.toStaff
 import com.flightbooking.models.Staff
 import com.flightbooking.tables.StaffTable
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -80,4 +81,13 @@ class StaffTableAccess {
                 .firstOrNull()
                 ?.let { it.toStaff() }
         }
+
+    fun findByStaffId(staffId: Int): List<Staff> {
+        return transaction {
+            StaffTable
+                .select { StaffTable.id eq staffId }
+                .orderBy(StaffTable.createdAt, SortOrder.DESC)
+                .map { it.toStaff() }
+        }
+    }
 }

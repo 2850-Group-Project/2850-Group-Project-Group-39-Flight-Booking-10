@@ -67,11 +67,9 @@ fun Route.paymentRoutes() {
         val cardNumber = params["cardNumber"]?.trim()
         val expiry = params["expiry"]?.trim()
         val cvv = params["cvv"]?.trim()
-        println("Payment submitted:")
-        println("Card: $cardNumber, Expiry: $expiry, CVV: $cvv")
-
         val finalTotal = calculateTotal(bookingSession)
-        println("total = $finalTotal")
+        println("Payment submitted: Card: $cardNumber, Expiry: $expiry, CVV: $cvv")
+
         val paymentTableAccess = PaymentTableAccess()
         val paymentId =
             paymentTableAccess

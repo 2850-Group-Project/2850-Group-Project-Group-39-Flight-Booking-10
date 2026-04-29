@@ -6,10 +6,9 @@
   <link rel="stylesheet" href="/static/css/Home.css">
   <link rel="stylesheet" href="/static/css/Flight_Search.css">
   <link rel="stylesheet" href="/static/css/Flight_Passengers.css">
-  <title>SkyBook - Passenger Details</title>
+  <title>Passenger Details</title>
 </head>
 <body>
-
   <!-- NAV -->
   <nav>
     {% if isLoggedIn %}
@@ -295,8 +294,9 @@
     </section>
   </main>
 
+  <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <span>© 2026 SkyBook. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

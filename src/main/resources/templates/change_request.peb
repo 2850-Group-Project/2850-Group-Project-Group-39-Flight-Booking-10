@@ -3,177 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Change Request - SkyFlow</title>
-  <style>
-    :root{
-      --bg0:#0b0d12;
-      --bg1:#101420;
-      --card:#0f1320;
-      --line:rgba(255,255,255,.10);
-      --muted:rgba(255,255,255,.70);
-      --muted2:rgba(255,255,255,.55);
-      --text:#ffffff;
-      --accent:#3f5efb;
-      --danger:#ff4d4d;
-      --shadow:0 20px 60px rgba(0,0,0,.45);
-      --radius:18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color:var(--text);
-      background: radial-gradient(1200px 800px at 20% 20%, rgba(63,94,251,.18), transparent 60%),
-                  radial-gradient(900px 600px at 90% 10%, rgba(56,189,248,.12), transparent 55%),
-                  linear-gradient(180deg, var(--bg0), var(--bg1));
-      min-height:100vh;
-    }
-    .wrap{max-width:1100px;margin:0 auto;padding:26px 18px 60px;}
-    .topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:14px;
-      margin-bottom:18px;
-    }
-    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.2px;opacity:.95;}
-    .brand-badge{
-      width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: 0 12px 30px rgba(0,0,0,.25);
-      font-size:16px;
-    }
-    .right{display:flex;align-items:center;gap:10px;}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:7px 10px;border-radius:999px;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.12);
-      color:rgba(255,255,255,.88);
-      font-size:12px;
-      white-space:nowrap;
-    }
-    .navbtn{
-      padding:10px 12px;border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.9);
-      text-decoration:none;
-      font-weight:800;
-      transition:.18s ease;
-      cursor:pointer;
-      display:inline-flex;align-items:center;gap:8px;
-      white-space:nowrap;
-    }
-    .navbtn:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
-    .navbtn.red{ border-color: rgba(255,77,77,.28); background: rgba(255,77,77,.12); }
-
-    .grid{display:grid;grid-template-columns: 1.1fr .9fr; gap:16px;}
-    @media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
-
-    .card{
-      border-radius:var(--radius);
-      background: rgba(15,19,32,.90);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow);
-      padding:18px;
-    }
-    h1{margin:0;font-size:22px;letter-spacing:-.3px;}
-    .sub{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.45;}
-    .muted{color:var(--muted2);}
-    label{
-      display:block;margin:12px 0 8px;
-      color: rgba(255,255,255,.78);
-      font-size:13px;font-weight:800;
-      letter-spacing:.35px;text-transform:uppercase;
-    }
-    .input, select, textarea{
-      width:100%;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(10,12,18,.55);
-      color:white;
-      outline:none;
-      font-size:14px;
-      transition:.18s ease;
-    }
-    textarea{min-height:110px; resize:vertical;}
-    .input:focus, select:focus, textarea:focus{
-      border-color: rgba(63,94,251,.65);
-      box-shadow: 0 0 0 4px rgba(63,94,251,.18);
-    }
-    .btn{
-      width:100%;
-      padding:12px 12px;
-      border:none;
-      border-radius:14px;
-      background: linear-gradient(90deg, var(--accent), #2b7bff);
-      color:white;
-      font-weight:900;
-      font-size:14px;
-      cursor:pointer;
-      transition:.18s ease;
-      margin-top:14px;
-    }
-    .btn:hover{ filter:brightness(1.05); transform: translateY(-1px); }
-    .btn:active{ transform: translateY(0px); }
-    .btn2{
-      padding:10px 12px;border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.92);
-      font-weight:900;
-      cursor:pointer;
-      transition:.18s ease;
-      white-space:nowrap;
-    }
-    .btn2:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
-    .msg{
-      margin:0 0 12px;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.90);
-      font-size:13px;
-      line-height:1.35;
-    }
-    .msg.err{ background: rgba(255,77,77,.12); border-color: rgba(255,77,77,.25); color:#ffd0d0; }
-
-    .kv{
-      display:grid; grid-template-columns: 140px 1fr;
-      gap:10px; padding:10px 0;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      font-size:14px;
-    }
-    .kv:last-child{border-bottom:none;}
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:7px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      font-size:12px;font-weight:900;color:rgba(255,255,255,.88);
-    }
-    table{width:100%;border-collapse:separate;border-spacing:0 10px;margin-top:10px;}
-    th{ text-align:left;font-size:12px;color: rgba(255,255,255,.65);font-weight:900;padding:0 10px 6px;letter-spacing:.4px; }
-    td{
-      padding:12px 10px;background: rgba(15,19,32,.55);
-      border-top:1px solid rgba(255,255,255,.10);
-      border-bottom:1px solid rgba(255,255,255,.10);
-      font-size:14px;color: rgba(255,255,255,.92);
-    }
-    tr td:first-child{
-      border-left:1px solid rgba(255,255,255,.10);
-      border-top-left-radius:14px;border-bottom-left-radius:14px;
-    }
-    tr td:last-child{
-      border-right:1px solid rgba(255,255,255,.10);
-      border-top-right-radius:14px;border-bottom-right-radius:14px;
-    }
-    .row{display:flex;gap:10px;align-items:center;}
-    .row .input{flex:1;}
-  </style>
+  <title>Change Request</title>
+  <link rel="stylesheet" href="/static/css/Change_Request.css">
+  <link rel="stylesheet" href="/static/css/Home.css">
 </head>
 <body>
+  <!-- MAIN BODY -->
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
@@ -188,7 +23,7 @@
     </div>
 
     <div class="grid">
-      <!-- LEFT: Current Booking Info -->
+      <!-- LEFT: CURRENT BOOKING INFO -->
       <div class="card">
         <h1>Change Request</h1>
         <p class="sub">Submit a request to change your flight/seat. A staff member will review and update the request status.</p >
@@ -258,7 +93,7 @@
         </form>
       </div>
 
-      <!-- RIGHT: Search flights + select -->
+      <!-- RIGHT: SEARCH FLIGHTS + SELECT -->
       <div class="card">
         <h1>Flight Search</h1>
         <p class="sub">Search by flight number and pick a new flight. Seats shown on the left update after selecting a flight.</p >
@@ -310,5 +145,17 @@
       </div>
     </div>
   </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 SkyBook. All rights reserved</span>
+    <div class="footer-links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/help">Help</a>
+      <a href="/complaints">Complaints</a>
+    </div>
+  </footer>
+  
 </body>
 </html>

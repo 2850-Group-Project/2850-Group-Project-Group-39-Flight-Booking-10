@@ -198,10 +198,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             val originalSeatId = seedSeat(originalFlightId, "1A")
 
             client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
-
-            val createResponse =
+            assertEquals(HttpStatusCode.Found, client.loginStaff().status)
+            assertEquals(
+                HttpStatusCode.Found,
                 client.submitForm(
                     url = "/staff/bookings/create",
                     formParameters =
@@ -212,33 +211,25 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
                             append("flightId", originalFlightId.toString())
                             append("bookingStatus", "pending")
                         },
-                )
-            assertEquals(HttpStatusCode.Found, createResponse.status)
-
+                ).status,
+            )
             val bookingId = latestBookingId()
-            val assignSeatResponse =
-                client.submitForm(
-                    url = "/staff/bookings/update",
-                    formParameters =
-                        parameters {
-                            append("bookingId", bookingId.toString())
-                            append("bookingStatus", "confirmed")
-                            append("flightId", originalFlightId.toString())
-                            append("seatId", originalSeatId.toString())
-                        },
-                )
-            assertEquals(HttpStatusCode.Found, assignSeatResponse.status)
-
+            assertEquals(
+                HttpStatusCode.Found,
+                client.updateBooking(
+                    "bookingId" to bookingId.toString(),
+                    "bookingStatus" to "confirmed",
+                    "flightId" to originalFlightId.toString(),
+                    "seatId" to originalSeatId.toString(),
+                ).status,
+            )
             val response =
-                client.submitForm(
-                    url = "/staff/bookings/update",
-                    formParameters =
-                        parameters {
-                            append("bookingId", bookingId.toString())
-                            append("bookingStatus", "confirmed")
-                            append("flightId", newFlightId.toString())
-                        },
-                )
+                client
+                    .updateBooking(
+                        "bookingId" to bookingId.toString(),
+                        "bookingStatus" to "confirmed",
+                        "flightId" to newFlightId.toString(),
+                    )
 
             assertEquals(HttpStatusCode.Found, response.status)
             assertEquals("/staff/bookings", response.headers[HttpHeaders.Location])
@@ -246,6 +237,12 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals("available", seatStatus(originalSeatId))
             assertEquals(null, assignedSeatIdForBooking(bookingId))
         }
+
+    private suspend fun HttpClient.updateBooking(vararg params: Pair<String, String>) =
+        submitForm(
+            url = "/staff/bookings/update",
+            formParameters = parameters { params.forEach { (k, v) -> append(k, v) } },
+        )
 
     // Submit a valid staff registration form for staff bookings tests.
     private suspend fun HttpClient.registerStaff(

@@ -4,6 +4,7 @@ import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
 import com.flightbooking.models.BookingSession
+import com.flightbooking.models.Seat
 import com.flightbooking.models.UserSession
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
@@ -14,6 +15,7 @@ import com.flightbooking.tables.SeatTable
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.application.log
 import io.ktor.server.pebble.PebbleContent
@@ -119,38 +121,7 @@ fun Route.seatSelectionRoutes() {
 
         val seatRowsFromDb = seatAccess.getByAttribute(SeatTable.flightId, flight.id)
         val seatStatusByCode = seatRowsFromDb.associate { it.seatCode to it.status }
-
-        val layout =
-            when {
-                capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD ->
-                    SeatLayout(
-                        seatsPerRow = SMALL_SEATS_PER_ROW,
-                        letters = listOf("A", "B", "C", "D", "E", "F"),
-                        aisleGapsAfterIndex = setOf(SMALL_AISLE_GAP_INDEX),
-                    )
-
-                capacity <= MEDIUM_AIRCRAFT_CAP_THRESHOLD ->
-                    SeatLayout(
-                        seatsPerRow = MEDIUM_SEATS_PER_ROW,
-                        letters = listOf("A", "B", "C", "D", "E", "F", "G", "H"),
-                        aisleGapsAfterIndex =
-                            setOf(
-                                MEDIUM_FIRST_AISLE_GAP_INDEX,
-                                MEDIUM_SECOND_AISLE_GAP_INDEX,
-                            ),
-                    )
-
-                else ->
-                    SeatLayout(
-                        seatsPerRow = 10,
-                        letters = listOf("A", "B", "C", "D", "E", "F", "G", "H", "J", "K"),
-                        aisleGapsAfterIndex =
-                            setOf(
-                                LARGE_FIRST_AISLE_GAP_INDEX,
-                                LARGE_SECOND_AISLE_GAP_INDEX,
-                            ),
-                    )
-            }
+        val layout = getLayout(capacity)
 
         val totalRows = ceil(capacity / layout.seatsPerRow.toDouble()).toInt().coerceAtLeast(1)
 
@@ -209,129 +180,53 @@ fun Route.seatSelectionRoutes() {
 
         call.respond(PebbleContent("seat_selection.peb", model))
     }
-
-    /**
-     * Handles batch seat selection submit.
-     *
-     * POST /flights/seats
-     * Form params:
-     * - selectedSeats (JSON string): { passengerId: seatCode, ... }
-     *
-     * Behaviour:
-     * - Validates all seats are available
-     * - Creates booking segment (if not exists)
-     * - Creates seat assignments for all passengers
-     * - Updates seat table status to "occupied"
-     * - Redirects to payment
-     */
     post("/flights/seats") {
-        val session = call.sessions.get<UserSession>()
-        if (session == null) {
-            call.respondRedirect("/login")
-            return@post
-        }
-
         val bookingSession = call.sessions.get<BookingSession>()
-        if (bookingSession == null) {
-            call.respondRedirect("/home")
+        val redirect = resolvePostSessionRedirects(call, bookingSession)
+        if (redirect != null) {
+            call.respondRedirect(redirect)
             return@post
         }
-
-        val flightId = bookingSession.outboundFlightId
-        if (flightId == null) {
-            call.respondRedirect("/flights/search")
-            return@post
-        }
-
-        val params = call.receiveParameters()
-        val selectedSeatsJson = params["selectedSeats"]?.trim().orEmpty()
-
-        if (selectedSeatsJson.isBlank()) {
-            call.respondRedirect("/flights/seats?error=No seats selected")
-            return@post
-        }
-
-        // parsing the JSON: { "1": "3A", "2": "3B", ... }
-        val gson = Gson()
-        val selectedSeats: Map<String, String> =
-            try {
-                gson.fromJson(selectedSeatsJson, object : TypeToken<Map<String, String>>() {}.type)
-            } catch (e: JsonSyntaxException) {
-                call.application.log.error("Failed to parse seat selection JSON: ${e.message}", e)
-                call.respondRedirect("/flights/seats?error=Invalid seat selection format")
-                return@post
-            }
-
-        val seatAccess = SeatTableAccess()
-        val seatRows = seatAccess.getByAttribute(SeatTable.flightId, flightId)
-        val seatMap = seatRows.associateBy { it.seatCode }
-
-        // Validate all seats exist and are available
-        for ((_, seatCode) in selectedSeats) {
-            val seatRow = seatMap[seatCode]
-            if (seatRow == null) {
-                call.respondRedirect("/flights/seats?error=Seat $seatCode not found")
-                return@post
-            }
-            if (seatRow.status != "available") {
-                call.respondRedirect("/flights/seats?error=Seat $seatCode is already occupied")
-                return@post
-            }
-        }
-
-        // Create booking segment (if not exists)
-        val bookingSegmentId =
-            transaction {
-                val condition =
-                    (BookingSegmentTable.bookingId eq bookingSession.bookingId) and
-                        (BookingSegmentTable.flightId eq flightId)
-
-                val existing =
-                    BookingSegmentTable
-                        .select { condition }
-                        .firstOrNull()
-
-                if (existing != null) {
-                    existing[BookingSegmentTable.id]
-                } else {
-                    BookingSegmentTable.insert {
-                        it[BookingSegmentTable.bookingId] = bookingSession.bookingId
-                        it[BookingSegmentTable.flightId] = flightId
-                        it[BookingSegmentTable.flightFareId] =
-                            bookingSession.outboundFareId?.toInt() ?: 0
-                    }
-
-                    BookingSegmentTable
-                        .selectAll()
-                        .orderBy(BookingSegmentTable.id, SortOrder.DESC)
-                        .limit(1)
-                        .firstOrNull()
-                        ?.get(BookingSegmentTable.id) ?: 0
-                }
-            }
-
-        // puts seat assignment in
-        // seat assigment and seat table
-        transaction {
-            for ((passengerId, seatCode) in selectedSeats) {
-                val seatId = seatMap[seatCode]?.id ?: continue
-
-                // create new seat assignment
-                SeatAssignmentTable.insert {
-                    it[SeatAssignmentTable.passengerId] = passengerId.toInt()
-                    it[SeatAssignmentTable.seatId] = seatId
-                    it[SeatAssignmentTable.bookingSegmentId] = bookingSegmentId
-                }
-
-                // update seat status
-                SeatTable.update({ SeatTable.id eq seatId }) {
-                    it[SeatTable.status] = "occupied"
-                }
-            }
-        }
-
-        call.respondRedirect("/payment?ok=Seats assigned successfully")
+        handlePostSeats(call)
     }
+}
+
+/**
+ * Handles batch seat selection submit.
+ *
+ * POST /flights/seats
+ * Form params:
+ * - selectedSeats (JSON string): { passengerId: seatCode, ... }
+ *
+ * Behaviour:
+ * - Validates all seats are available
+ * - Creates booking segment (if not exists)
+ * - Creates seat assignments for all passengers
+ * - Updates seat table status to "occupied"
+ * - Redirects to payment
+ */
+private suspend fun handlePostSeats(call: ApplicationCall) {
+    val bookingSession = call.sessions.get<BookingSession>()
+
+    checkNotNull(bookingSession)
+    val flightId = checkNotNull(bookingSession.outboundFlightId)
+
+    val selectedSeatsJson = call.receiveParameters()["selectedSeats"]?.trim().orEmpty()
+    val selectedSeats = parseSelectedSeats(call, selectedSeatsJson) ?: return
+
+    val seatAccess = SeatTableAccess()
+    val seatRows = seatAccess.getByAttribute(SeatTable.flightId, flightId)
+    val seatMap = seatRows.associateBy { it.seatCode }
+
+    val validateSeatsError = validateSeats(selectedSeats, seatMap)
+    if (validateSeatsError != null) {
+        call.respondRedirect("/flights/seats?error=$validateSeatsError")
+        return
+    }
+
+    val bookingSegmentId = createBookingSegment(bookingSession, flightId)
+    assignSeats(selectedSeats, seatMap, bookingSegmentId)
+    call.respondRedirect("/payment?ok=Seats assigned successfully")
 }
 
 private data class SeatLayout(
@@ -358,3 +253,141 @@ private data class SeatLayout(
         }
     }
 }
+
+private suspend fun getLayout(capacity: Int): SeatLayout {
+    val layout =
+        when {
+            capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD ->
+                SeatLayout(
+                    seatsPerRow = SMALL_SEATS_PER_ROW,
+                    letters = listOf("A", "B", "C", "D", "E", "F"),
+                    aisleGapsAfterIndex = setOf(SMALL_AISLE_GAP_INDEX),
+                )
+
+            capacity <= MEDIUM_AIRCRAFT_CAP_THRESHOLD ->
+                SeatLayout(
+                    seatsPerRow = MEDIUM_SEATS_PER_ROW,
+                    letters = listOf("A", "B", "C", "D", "E", "F", "G", "H"),
+                    aisleGapsAfterIndex =
+                        setOf(
+                            MEDIUM_FIRST_AISLE_GAP_INDEX,
+                            MEDIUM_SECOND_AISLE_GAP_INDEX,
+                        ),
+                )
+
+            else ->
+                SeatLayout(
+                    seatsPerRow = 10,
+                    letters = listOf("A", "B", "C", "D", "E", "F", "G", "H", "J", "K"),
+                    aisleGapsAfterIndex =
+                        setOf(
+                            LARGE_FIRST_AISLE_GAP_INDEX,
+                            LARGE_SECOND_AISLE_GAP_INDEX,
+                        ),
+                )
+        }
+    return layout
+}
+
+// Create booking segment (if not exists)
+private suspend fun createBookingSegment(
+    bookingSession: BookingSession,
+    flightId: Int,
+): Int {
+    val bookingSegmentId =
+        transaction {
+            val condition =
+                (BookingSegmentTable.bookingId eq bookingSession.bookingId) and
+                    (BookingSegmentTable.flightId eq flightId)
+
+            val existing =
+                BookingSegmentTable
+                    .select { condition }
+                    .firstOrNull()
+
+            if (existing != null) {
+                existing[BookingSegmentTable.id]
+            } else {
+                BookingSegmentTable.insert {
+                    it[BookingSegmentTable.bookingId] = bookingSession.bookingId
+                    it[BookingSegmentTable.flightId] = flightId
+                    it[BookingSegmentTable.flightFareId] =
+                        bookingSession.outboundFareId?.toInt() ?: 0
+                }
+
+                BookingSegmentTable
+                    .selectAll()
+                    .orderBy(BookingSegmentTable.id, SortOrder.DESC)
+                    .limit(1)
+                    .firstOrNull()
+                    ?.get(BookingSegmentTable.id) ?: 0
+            }
+        }
+    return bookingSegmentId
+}
+
+// puts seat assignment in
+// seat assigment and seat table
+private fun assignSeats(
+    selectedSeats: Map<String, String>,
+    seatMap: Map<String, Seat>,
+    bookingSegmentId: Int,
+) {
+    transaction {
+        selectedSeats.forEach { (passengerId, seatCode) ->
+            val seatId = seatMap[seatCode]!!.id
+
+            // create new seat assignment
+            SeatAssignmentTable.insert {
+                it[SeatAssignmentTable.passengerId] = passengerId.toInt()
+                it[SeatAssignmentTable.seatId] = seatId
+                it[SeatAssignmentTable.bookingSegmentId] = bookingSegmentId
+            }
+
+            // update seat status
+            SeatTable.update({ SeatTable.id eq seatId }) {
+                it[SeatTable.status] = "occupied"
+            }
+        }
+    }
+}
+
+private fun resolvePostSessionRedirects(
+    call: ApplicationCall,
+    bookingSession: BookingSession?,
+): String? =
+    when {
+        call.sessions.get<UserSession>() == null -> "/login"
+        bookingSession == null -> "/home"
+        bookingSession.outboundFlightId == null -> "/flights/search"
+        else -> null
+    }
+
+// parsing the JSON: { "1": "3A", "2": "3B", ... }
+private suspend fun parseSelectedSeats(
+    call: ApplicationCall,
+    json: String,
+): Map<String, String>? {
+    if (json.isBlank()) {
+        call.respondRedirect("/flights/seats?error=No seats selected")
+        return null
+    }
+    return try {
+        Gson().fromJson(json, object : TypeToken<Map<String, String>>() {}.type)
+    } catch (e: JsonSyntaxException) {
+        call.application.log.error("Failed to parse seat selection JSON: ${e.message}", e)
+        call.respondRedirect("/flights/seats?error=Invalid seat selection format")
+        null
+    }
+}
+
+// Validate all seats exist and are available
+private fun validateSeats(
+    selectedSeats: Map<String, String>,
+    seatMap: Map<String, Seat>,
+): String? =
+    selectedSeats.entries
+        .firstNotNullOfOrNull { (_, seatCode) ->
+            val seat = seatMap[seatCode] ?: return@firstNotNullOfOrNull "Seat $seatCode not found"
+            "Seat $seatCode is already occupied".takeIf { seat.status != "available" }
+        }
