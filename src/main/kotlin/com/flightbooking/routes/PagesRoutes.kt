@@ -183,16 +183,6 @@ fun Route.pagesRoutes() {
     }
 
     /**
-     * Placeholder for complaints page (not implemented yet).
-     *
-     * GET /profile/complaints
-     * - Always redirects to /404 (until implemented).
-     */
-    get("/profile/complaints") {
-        call.respondRedirect("/404")
-    }
-
-    /**
      * Placeholder for notifications page (not implemented yet).
      *
      * GET /profile/notifications
