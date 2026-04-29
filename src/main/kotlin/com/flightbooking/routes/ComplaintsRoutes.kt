@@ -1,118 +1,79 @@
 package com.flightbooking.routes
 
-import io.ktor.server.routing.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.response.*
-import io.ktor.server.pebble.*
-import io.ktor.server.pebble.PebbleContent
-import io.ktor.server.sessions.*
-
-import com.flightbooking.access.UserTableAccess
 import com.flightbooking.access.ComplaintTableAccess
-import com.flightbooking.access.StaffTableAccess
-
-import com.flightbooking.tables.*
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insert
-
+import com.flightbooking.access.UserTableAccess
 import com.flightbooking.models.UserSession
-import com.flightbooking.models.Complaint
+import com.flightbooking.tables.ComplaintTable
+import io.ktor.server.application.call
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.transaction
 
-import com.flightbooking.routes.authRoutes
-
+// difference between complaints and profile complaints
+// complaints is to make a complaint
+// profile complaints is to see all the complaints you have made and updates to them?
 fun Route.complaintsRoutes() {
-    // difference between complaints and profile complaints
-    // complaints is to make a complaint
-    // profile complaints is to see all the complaints you have made and updates to them?
-    get("/complaints") {
-        val userSession = call.sessions.get<UserSession>()
-        
-        if (userSession == null) {
-            call.respondRedirect("/login")
-            return@get
-        }
+    get("/complaints") { handleGetComplaints(call) }
+    post("/complaints/submit") { handleSubmitComplaint(call) }
+    get("/profile/complaints") { handleProfileComplaints(call) }
+}
 
-        val success = call.request.queryParameters["success"] == "true"
-        val error   = call.request.queryParameters["error"]
+private suspend fun handleGetComplaints(call: io.ktor.server.application.ApplicationCall) {
+    val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
+    call.respond(
+        PebbleContent(
+            "complaints.peb",
+            mapOf(
+                "userSession" to userSession,
+                "success" to if (call.request.queryParameters["success"] == "true") "true" else "false",
+                "error" to (call.request.queryParameters["error"] ?: ""),
+            ),
+        ),
+    )
+}
 
-        call.respond(PebbleContent("complaints.peb", mapOf(
-            "userSession" to userSession,
-            "success" to if (success) "true" else "false",
-            "error" to (error ?: "")
-        )))
-    }
+private suspend fun handleSubmitComplaint(call: io.ktor.server.application.ApplicationCall) {
+    val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
+    println(userSession)
+    val params = call.receiveParameters()
+    val complaintText = params["message"] ?: ""
+    val type = params["type"] ?: ""
+    val user = UserTableAccess().findByEmail(userSession.userEmail)
 
-    post("/complaints/submit") {
-        val userSession = call.sessions.get<UserSession>()
-        println(userSession)
-        
-        if (userSession == null) {
-            call.respondRedirect("/login")
-            return@post
-        }
-
-        val params = call.receiveParameters()
-        val complaintText = params["message"] ?: ""
-        val type = params["type"] ?: ""
-        if (complaintText == "") {
-            call.respondRedirect("/complaints?error=server_error")
-            return@post
-        }
-        if (complaintText.length < 2) {
-            call.respondRedirect("/complaints?error=missing_fields")
-            return@post
-        }
-
-        val user = UserTableAccess().findByEmail(userSession.userEmail)
-        if (user == null) {
-            call.respondRedirect("/login")
-            return@post
-        }
-
-        val userId = user.id
-        
+    if (complaintText.length < 2 || user == null) {
+        val error = if (complaintText.length < 2) "missing_fields" else "server_error"
+        call.respondRedirect("/complaints?error=$error")
+    } else {
         transaction {
             ComplaintTable.insert {
-                it[ComplaintTable.userId] = userId
+                it[ComplaintTable.userId] = user.id
                 it[ComplaintTable.type] = type
                 it[ComplaintTable.message] = complaintText
             }
         }
-        
         call.respondRedirect("/complaints?success=true")
     }
+}
 
-    // complaints page to display current complaints that the user has made 
-    // as well as updates on those complaints
-    get("/profile/complaints") {
-        val userSession = call.sessions.get<UserSession>()
-        if (userSession == null) {
-            call.respondRedirect("/login")
-            return@get
-        }
-
-        val user = UserTableAccess().findByEmail(userSession.userEmail)
-        if (user == null) {
-            call.respondRedirect("/login")
-            return@get
-        }
-
-        val userId = user.id
-
-        val complaints = ComplaintTableAccess().findByUserId(userId)
-
-        call.respond(
-            PebbleContent(
-                "profile_complaints.peb",
-                mapOf<String, Any>(
-                    "userSession" to userSession,
-                    "complaints"  to complaints,
-                )
-            )
-        )
-    }
+// complaints page to display current complaints that the user has made
+private suspend fun handleProfileComplaints(call: io.ktor.server.application.ApplicationCall) {
+    val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
+    val user = UserTableAccess().findByEmail(userSession.userEmail) ?: return call.respondRedirect("/login")
+    call.respond(
+        PebbleContent(
+            "profile_complaints.peb",
+            mapOf<String, Any>(
+                "userSession" to userSession,
+                "complaints" to ComplaintTableAccess().findByUserId(user.id),
+            ),
+        ),
+    )
 }

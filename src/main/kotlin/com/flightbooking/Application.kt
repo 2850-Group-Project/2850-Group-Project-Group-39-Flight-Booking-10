@@ -1,48 +1,50 @@
 package com.flightbooking
 
 import com.flightbooking.database.DBFactory
-
-import com.flightbooking.routes.authRoutes
-import com.flightbooking.routes.staffAuthRoutes
-import com.flightbooking.routes.staffPagesRoutes
-import com.flightbooking.routes.staffNotificationsRoutes
-import com.flightbooking.routes.pagesRoutes
-import com.flightbooking.routes.staffBookingsRoutes
-import com.flightbooking.routes.seatSelectionRoutes
-import com.flightbooking.routes.flightRoutes
-import com.flightbooking.routes.changeRequestRoutes
-import com.flightbooking.routes.bookingRoutes
-import com.flightbooking.routes.paymentRoutes
-import com.flightbooking.routes.confirmationRoutes
-import com.flightbooking.routes.complaintsRoutes
-
-import com.flightbooking.models.UserSession
-import com.flightbooking.models.StaffSession
 import com.flightbooking.models.BookingSession
-
-import io.pebbletemplates.pebble.loader.ClasspathLoader
-
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.netty.EngineMain
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-import io.ktor.server.pebble.*
-import io.ktor.server.plugins.callloging.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.sessions.*
-import io.ktor.server.response.*
-import io.ktor.server.http.content.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.plugins.contentnegotiation.*
-
-import java.sql.SQLException
-import java.io.IOException
-
+import com.flightbooking.models.StaffSession
+import com.flightbooking.models.UserSession
+import com.flightbooking.routes.airportSearchRoutes
+import com.flightbooking.routes.authRoutes
+import com.flightbooking.routes.bookingRoutes
+import com.flightbooking.routes.changeRequestRoutes
+import com.flightbooking.routes.complaintsRoutes
+import com.flightbooking.routes.confirmationRoutes
+import com.flightbooking.routes.flightSelectRoutes
+import com.flightbooking.routes.pagesRoutes
+import com.flightbooking.routes.paymentRoutes
+import com.flightbooking.routes.seatSelectionRoutes
+import com.flightbooking.routes.staffAuthRoutes
+import com.flightbooking.routes.staffBookingsRoutes
+import com.flightbooking.routes.staffNotificationsRoutes
+import com.flightbooking.routes.staffPagesRoutes
 import io.ktor.http.HttpStatusCode
-
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
+import io.ktor.server.application.install
+import io.ktor.server.application.log
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.netty.EngineMain
+import io.ktor.server.pebble.Pebble
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import io.ktor.server.sessions.SessionStorageMemory
+import io.ktor.server.sessions.Sessions
+import io.ktor.server.sessions.cookie
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.set
+import io.pebbletemplates.pebble.loader.ClasspathLoader
 import org.slf4j.event.Level
+import java.io.IOException
+import java.sql.SQLException
 
 /**
  * Entry point for the Ktor application.
@@ -98,10 +100,12 @@ private fun Application.configureServer() {
 
     install(Pebble) {
         // Sets prefix for pebble templates so we don't need to repeat it
-        loader(ClasspathLoader().apply {
-            prefix = "templates" 
-        })
-        cacheActive(false) 
+        loader(
+            ClasspathLoader().apply {
+                prefix = "templates"
+            },
+        )
+        cacheActive(false)
     }
 
     install(Sessions) {
@@ -114,7 +118,7 @@ private fun Application.configureServer() {
             cookie.path = "/"
             cookie.httpOnly = true
         }
-        
+
         cookie<BookingSession>("BOOKING_SESSION", storage = SessionStorageMemory()) {
             cookie.path = "/"
             cookie.httpOnly = true
@@ -135,24 +139,24 @@ private fun Application.initialiseDatabase(url: String? = null) {
             DBFactory.init(url = url)
         }
     } catch (e: SQLException) {
-        log.error("Failed to init DBFactory", e)
+        this.log.error("Failed to init DBFactory", e)
         dispose()
     } catch (e: IOException) {
-        log.error("Failed to init DBFactory", e)
+        this.log.error("Failed to init DBFactory", e)
         dispose()
     }
 }
 
 /**
- * Mounts route handlers. 
+ * Mounts route handlers.
  * Includes static assets, auth, pages, staff, flights, and bookings.
  */
 private fun Application.registerRoutes() {
     // Prepare and load the routes
     routing {
         staticResources("/static", "static") // allows easy stylesheet reference (like pebble "templates" prefix)
-        
-        // TODO: WE NEED TO MOVE THESE AWAY
+
+        // to do: WE NEED TO MOVE THESE AWAY
         get("/") {
             call.respondRedirect("/login")
         }
@@ -167,7 +171,8 @@ private fun Application.registerRoutes() {
         staffPagesRoutes()
         staffBookingsRoutes()
         staffNotificationsRoutes()
-        flightRoutes()
+        flightSelectRoutes()
+        airportSearchRoutes()
         bookingRoutes()
         changeRequestRoutes()
         seatSelectionRoutes()

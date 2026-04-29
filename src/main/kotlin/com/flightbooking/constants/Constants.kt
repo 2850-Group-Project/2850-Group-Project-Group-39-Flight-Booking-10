@@ -1,20 +1,20 @@
 package com.flightbooking.constants
 
-const val IATA_CODE_LENGTH : Int = 10
-const val STANDARD_FIELD_LENGTH : Int = 255
-const val SHORT_FIELD_LENGTH : Int = 50
-const val CLASS_CODE_LENGTH : Int = 10
-const val CURRENCY_LENGTH : Int = 10
-const val DOB_LENGTH : Int = 20
-const val PASSENGER_TITLE_LENGTH : Int = 20
-const val GENDER_LENGTH : Int = 10
-const val DOCUMENT_NUMBER_LENGTH : Int = 100
-const val DOCUMENT_EXPIRY_LENGTH : Int = 20
-const val DOCUMENT_COUNTRY_LENGTH : Int = 10
-const val SHORTER_FIELD_LENGTH : Int = 20
-const val SHORTEST_FIELD_LENGTH : Int = 10
+const val IATA_CODE_LENGTH: Int = 10
+const val STANDARD_FIELD_LENGTH: Int = 255
+const val SHORT_FIELD_LENGTH: Int = 50
+const val CLASS_CODE_LENGTH: Int = 10
+const val CURRENCY_LENGTH: Int = 10
+const val DOB_LENGTH: Int = 20
+const val PASSENGER_TITLE_LENGTH: Int = 20
+const val GENDER_LENGTH: Int = 10
+const val DOCUMENT_NUMBER_LENGTH: Int = 100
+const val DOCUMENT_EXPIRY_LENGTH: Int = 20
+const val DOCUMENT_COUNTRY_LENGTH: Int = 10
+const val SHORTER_FIELD_LENGTH: Int = 20
+const val SHORTEST_FIELD_LENGTH: Int = 10
 
-const val DEFAULT_CARRY_ON_WEIGHT_ALLOWED : Int = 7
+const val DEFAULT_CARRY_ON_WEIGHT_ALLOWED: Int = 7
 
 const val MIN_AGE = 18
 const val MAX_AGE = 80
@@ -40,8 +40,8 @@ const val DEFAULT_CAPACITY = 100
 const val SEATS_DIVIDER_OFFSET = 2
 const val MIN_SEATS_AVAILABLE = 5
 
-const val DAYS_BEFORE_AND_AFTER_TO_SHOW : Long = 5
+const val DAYS_BEFORE_AND_AFTER_TO_SHOW: Long = 5
 
-const val TIMESTAMP_DAYS_UPPER_LIMIT : Int = 60
-const val TIMESTAMP_HOURS_UPPER_LIMIT : Int = 23
-const val TIMESTAMP_MINUTES_UPPER_LIMIT : Int = 59
+const val TIMESTAMP_DAYS_UPPER_LIMIT: Int = 60
+const val TIMESTAMP_HOURS_UPPER_LIMIT: Int = 23
+const val TIMESTAMP_MINUTES_UPPER_LIMIT: Int = 59

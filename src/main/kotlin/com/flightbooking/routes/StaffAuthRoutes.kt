@@ -2,12 +2,16 @@ package com.flightbooking.routes
 
 import com.flightbooking.models.StaffSession
 import com.flightbooking.service.StaffAuthService
-import io.ktor.server.application.*
-import io.ktor.server.pebble.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
+import io.ktor.server.application.call
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
 
 /**
  * Staff authentication routes (login + registration).
@@ -54,23 +58,23 @@ fun Route.staffAuthRoutes() {
         val password = params["password"].orEmpty()
         val confirmPassword = params["confirmPassword"].orEmpty()
         val role = params["role"]?.trim()
-        val inviteCode = params["inviteCode"]?.trim().orEmpty() 
-        val expectedInvite = "STAFF-CHECK" 
+        val inviteCode = params["inviteCode"]?.trim().orEmpty()
+        val expectedInvite = "STAFF-CHECK"
 
         if (password != confirmPassword) {
             call.respond(
                 PebbleContent(
                     "staff_register.peb",
-                    mapOf("error" to "Passwords do not match")
-                )
+                    mapOf("error" to "Passwords do not match"),
+                ),
             )
             return@post
         }
 
-        if (inviteCode != expectedInvite) { 
-             call.respond(PebbleContent("staff_register.peb", mapOf("error" to "Invalid invite code"))) 
-              return@post 
-        } 
+        if (inviteCode != expectedInvite) {
+            call.respond(PebbleContent("staff_register.peb", mapOf("error" to "Invalid invite code")))
+            return@post
+        }
         if (StaffAuthService.register(email, password, firstName, lastName, role)) {
             call.respondRedirect("/staff/login")
         } else {

@@ -1,20 +1,20 @@
 package com.flightbooking.tables
 
-import org.jetbrains.exposed.sql.Table
-import com.flightbooking.constants.IATA_CODE_LENGTH
-import com.flightbooking.constants.STANDARD_FIELD_LENGTH
-import com.flightbooking.constants.SHORT_FIELD_LENGTH
-import com.flightbooking.constants.DEFAULT_CARRY_ON_WEIGHT_ALLOWED
 import com.flightbooking.constants.CLASS_CODE_LENGTH
 import com.flightbooking.constants.CURRENCY_LENGTH
+import com.flightbooking.constants.DEFAULT_CARRY_ON_WEIGHT_ALLOWED
 import com.flightbooking.constants.DOB_LENGTH
-import com.flightbooking.constants.PASSENGER_TITLE_LENGTH
-import com.flightbooking.constants.GENDER_LENGTH
-import com.flightbooking.constants.SHORTEST_FIELD_LENGTH
-import com.flightbooking.constants.DOCUMENT_NUMBER_LENGTH
 import com.flightbooking.constants.DOCUMENT_COUNTRY_LENGTH
 import com.flightbooking.constants.DOCUMENT_EXPIRY_LENGTH
+import com.flightbooking.constants.DOCUMENT_NUMBER_LENGTH
+import com.flightbooking.constants.GENDER_LENGTH
+import com.flightbooking.constants.IATA_CODE_LENGTH
+import com.flightbooking.constants.PASSENGER_TITLE_LENGTH
 import com.flightbooking.constants.SHORTER_FIELD_LENGTH
+import com.flightbooking.constants.SHORTEST_FIELD_LENGTH
+import com.flightbooking.constants.SHORT_FIELD_LENGTH
+import com.flightbooking.constants.STANDARD_FIELD_LENGTH
+import org.jetbrains.exposed.sql.Table
 
 /**
  * Exposed table definition for the `airport` table.

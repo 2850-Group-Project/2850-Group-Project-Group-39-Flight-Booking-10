@@ -1,23 +1,26 @@
 package com.flightbooking.routes
 
-import io.ktor.server.routing.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.pebble.*
-import io.ktor.server.sessions.*
-
-import com.flightbooking.models.UserSession
+import com.flightbooking.access.BookingTableAccess
+import com.flightbooking.access.PaymentTableAccess
 import com.flightbooking.models.BookingSession
-
-import com.flightbooking.models.FlightSearch
-import com.flightbooking.models.PassengerInput
-
-import org.jetbrains.exposed.sql.*
+import com.flightbooking.models.UserSession
+import com.flightbooking.tables.FlightFareTable
+import io.ktor.server.application.call
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import com.flightbooking.tables.*
 
-import java.util.UUID
+private const val RETURN_FARE_DISCOUNT = 0.5
+private const val PROVIDER_REFERENCE_DIGITS = 4
 
 fun Route.paymentRoutes() {
     get("/payment") {
@@ -40,44 +43,9 @@ fun Route.paymentRoutes() {
                 "payment.peb",
                 mapOf(
                     "userSession" to userSession,
-                    "bookingSession" to bookingSession
-                )
-            )
-        )
-    }
-
-    get("/test-payment") {
-        val fakeSearch = FlightSearch(
-            tripType = "oneway",
-            origin = "London",
-            destination = "Dubai",
-            departureDate = "2026-08-12",
-            returnDate = "",
-            adults = "1",
-            children = "0",
-            infants = "0"
-        )
-
-        val fakeBooking = BookingSession(
-            outboundFlightId = 123,
-            outboundFareId = 456,
-            search = fakeSearch,
-        )
-
-        val fakeUser = UserSession(
-            userEmail = "test@example.com",
-            firstName = "Test"
-        )
-
-
-        call.respond(
-            PebbleContent(
-                "payment.peb",
-                mapOf(
-                    "userSession" to fakeUser,
-                    "bookingSession" to fakeBooking
-                )
-            )
+                    "bookingSession" to bookingSession,
+                ),
+            ),
         )
     }
 
@@ -99,65 +67,57 @@ fun Route.paymentRoutes() {
         val cardNumber = params["cardNumber"]?.trim()
         val expiry = params["expiry"]?.trim()
         val cvv = params["cvv"]?.trim()
+        val finalTotal = calculateTotal(bookingSession)
+        println("Payment submitted: Card: $cardNumber, Expiry: $expiry, CVV: $cvv")
 
-        println("Payment submitted:")
-        println("Card: $cardNumber, Expiry: $expiry, CVV: $cvv")
-
-        val outboundFarePrice = bookingSession.outboundFareId?.let { fareId ->
-            transaction {
-                FlightFareTable
-                    .select { FlightFareTable.id eq fareId }
-                    .single()[FlightFareTable.price]
-            }
-        } ?: 0.0
-        println("outboundFarePrice = $outboundFarePrice")
-
-        val returnFarePrice = bookingSession.returnFareId?.let { fareId ->
-            transaction {
-                FlightFareTable
-                    .select { FlightFareTable.id eq fareId }
-                    .single()[FlightFareTable.price]
-            }
-        } ?: 0.0
-        val discountedReturnFare = if (bookingSession.returnFareId != null) {
-            returnFarePrice * 0.5
-        } else {
-            returnFarePrice
-        }
-        println("discountedReturnFare = $discountedReturnFare")
-
-        val adults = bookingSession.search?.adults?.toIntOrNull() ?: 0
-        val children = bookingSession.search?.children?.toIntOrNull() ?: 0
-        val infants = bookingSession.search?.infants?.toIntOrNull() ?: 0
-        val passengerCount = adults + children + infants
-        println("passengerCount = $passengerCount")
-
-        val baseTotal = outboundFarePrice + discountedReturnFare
-        val finalTotal = baseTotal * passengerCount
-        println("total = $finalTotal")
-
-        transaction {
-            // get user id using user email
-            val userId = UserTable
-                .select { UserTable.email eq userSession.userEmail }
-                .singleOrNull()
-                ?.get(UserTable.id)
-            
-            // create new booking insert
-            BookingTable.insert {
-                it[BookingTable.id] = bookingSession.bookingId
-                it[BookingTable.userId] = userId
-                it[BookingTable.bookingReference] = UUID.randomUUID().toString().take(8)
-                it[BookingTable.bookingStatus] = "confirmed" // THIS SHOULD BE PENDING, UNTIL PROPERLY PROCESSED BY BANK (confirmed FOR THE SAKE OF DEMO)
-                it[BookingTable.amendable] = 1
-            }
-
-            // update booking with new payment id
-            BookingTable.update({ BookingTable.id eq bookingSession.bookingId }) {
-                it[BookingTable.paymentId] = paymentId
-            }
-        }
+        val paymentTableAccess = PaymentTableAccess()
+        val paymentId =
+            paymentTableAccess
+                .createPayment(
+                    bookingId = bookingSession.bookingId,
+                    amount = finalTotal,
+                    paymentMethod = "card",
+                    paymentStatus = "paid",
+                    paidAt = java.time.LocalDateTime.now().toString(),
+                    providerReference = cardNumber?.takeLast(PROVIDER_REFERENCE_DIGITS) ?: "0000",
+                    currency = "GBP",
+                )
+        val bookingTableAccess = BookingTableAccess()
+        bookingTableAccess.createBookingWithPaymentUpdate(bookingSession, paymentId, userSession.userEmail)
 
         call.respondRedirect("/confirmation")
     }
+}
+
+private suspend fun calculateTotal(bookingSession: BookingSession): Double {
+    val outboundFarePrice =
+        bookingSession.outboundFareId?.let { fareId ->
+            transaction {
+                FlightFareTable
+                    .select { FlightFareTable.id eq fareId }
+                    .single()[FlightFareTable.price]
+            }
+        } ?: 0.0
+
+    val returnFarePrice =
+        bookingSession.returnFareId?.let { fareId ->
+            transaction {
+                FlightFareTable
+                    .select { FlightFareTable.id eq fareId }
+                    .single()[FlightFareTable.price]
+            }
+        } ?: 0.0
+
+    val discountedReturnFare =
+        if (bookingSession.returnFareId != null) {
+            returnFarePrice * RETURN_FARE_DISCOUNT
+        } else {
+            returnFarePrice
+        }
+    val adults = bookingSession.search?.adults?.toIntOrNull() ?: 0
+    val children = bookingSession.search?.children?.toIntOrNull() ?: 0
+    val infants = bookingSession.search?.infants?.toIntOrNull() ?: 0
+    val passengerCount = adults + children + infants
+
+    return (outboundFarePrice + discountedReturnFare) * passengerCount
 }

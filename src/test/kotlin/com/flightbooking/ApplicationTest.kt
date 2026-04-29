@@ -10,24 +10,26 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ApplicationTest : IntegrationTestSupport() {
-    @Test
     // Smoke test to verify the login page renders successfully.
-    fun loginPageLoads() = testApplication {
-        configureApp()
-
-        val response = client.get("/login")
-        assertEquals(HttpStatusCode.OK, response.status)
-        assertTrue(response.bodyAsText().contains("Login"))
-    }
-
     @Test
-    // Unauthenticated users should be redirected to the login page from home.
-    fun unauthenticatedHomeRedirectsToLogin() = testApplication {
-        configureApp()
-        val client = createClient { followRedirects = false }
+    fun loginPageLoads() =
+        testApplication {
+            configureApp()
 
-        val response = client.get("/home")
-        assertEquals(HttpStatusCode.Found, response.status)
-        assertEquals("/login", response.headers[HttpHeaders.Location])
-    }
+            val response = client.get("/login")
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertTrue(response.bodyAsText().contains("Login"))
+        }
+
+    // Unauthenticated users should be redirected to the login page from home.
+    @Test
+    fun unauthenticatedHomeRedirectsToLogin() =
+        testApplication {
+            configureApp()
+            val client = createClient { followRedirects = false }
+
+            val response = client.get("/home")
+            assertEquals(HttpStatusCode.Found, response.status)
+            assertEquals("/login", response.headers[HttpHeaders.Location])
+        }
 }
