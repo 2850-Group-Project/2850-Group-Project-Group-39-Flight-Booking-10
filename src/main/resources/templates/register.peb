@@ -3,10 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Create Account - SkyFlow</title>
+  <title>SkyFlow - Create Account</title>
   <link rel="stylesheet" href="/static/css/Register.css">
 </head>
-
 <body>
   <header class="topbar">
     <div class="brand">
@@ -19,6 +18,7 @@
     </div>
   </header>
 
+  <!-- JARGON -->
   <div class="shell">
     <section class="hero">
       <div class="tag">SKYFLOW LOYALTY</div>
@@ -57,6 +57,7 @@
       </div>
     </section>
 
+    <!-- LOGIN OPTIONS -->
     <main class="panel">
       <div class="card">
         <h2>Create your SkyFlow account</h2>
@@ -122,14 +123,15 @@
     </main>
   </div>
 
+  <!-- FOOTER -->
   <footer class="bottombar">
+    <div>© 2026 SkyBook. All rights reserved</div>
     <div class="links">
       <a href="#" onclick="return false;">Privacy Policy</a >
       <a href="#" onclick="return false;">Terms of Service</a >
       <a href="#" onclick="return false;">Cookie Settings</a >
       <a href="#" onclick="return false;">Contact Support</a >
     </div>
-    <div>© 2026 SkyBook. All rights reserved</div>
   </footer>
 </body>
 </html>

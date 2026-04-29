@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Complaints - SkyFlow</title>
+  <title>My Complaints</title>
   <link rel="stylesheet" href="/static/css/Profile_Complaints.css">
   <link rel="stylesheet" href="/static/css/Home.css">
 </head>
@@ -30,6 +30,7 @@
     <a href="/complaints" class="btn-new">+ New Complaint</a>
   </div>
 
+  <!-- COMPLAINTS LIST -->
   {% if complaints is empty %}
     <div class="empty">
       <div class="empty-icon">📭</div>
@@ -72,6 +73,7 @@
 
 </div>
 
+<!-- FOOTER -->
 <footer>
   <span>© 2026 SkyBook. All rights reserved</span>
   <div class="footer-links">

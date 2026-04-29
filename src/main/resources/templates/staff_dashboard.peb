@@ -3,213 +3,228 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Staff Dashboard - SkyFlow</title>
+  <title>Staff Dashboard</title>
   <link rel="stylesheet" href="/static/css/Staff_Dashboard.css">
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-badge">✈</div>
-        <div class="brand-title">SkyFlow Staff</div>
+<!-- SIDEBAR -->
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">✈</div>
+      <div class="brand-title">SkyFlow Staff</div>
+    </div>
+
+    <!-- OPTIONS: SIDEBAR -->
+    <div class="nav-title">MAIN MENU</div>
+    <nav class="nav">
+      <a class="active" href=" "><span class="ico">📊</span> Operations Control</a >
+      <a href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
+      <a href="#" onclick="return false;"><span class="ico">👥</span> Crew Assignments</a >
+      <a href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
+      <a href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
+      <a href="#" onclick="return false;"><span class="ico">✅</span> Compliance Reports</a >
+    </nav>
+
+    <div class="nav-title">SYSTEM</div>
+    <nav class="nav">
+      <a href="#" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a >
+      <a href="#" onclick="return false;"><span class="ico">🔔</span> Alert Configuration</a >
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="logout" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
+    </div>
+  </aside>
+
+  <!-- OPTIONS: ACCOUNT -->
+  <div class="main">
+    <header class="topbar">
+      <div class="right">
+        <a class="top" href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
+        <a class="top" href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
+        <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
+        <a class="top" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
+        <div class="profile">
+          <div class="avatar"></div>
+          <div class="name">
+            <b>{{ staffName }}</b>
+            <span>{{ staffRole }}</span>
+          </div>
+        </div>
       </div>
+    </header>
 
-      <div class="nav-title">MAIN MENU</div>
-      <nav class="nav">
-        <a class="active" href=" "><span class="ico">📊</span> Operations Control</a >
-        <a href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
-        <a href="#" onclick="return false;"><span class="ico">👥</span> Crew Assignments</a >
-        <a href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
-        <a href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
-        <a href="#" onclick="return false;"><span class="ico">✅</span> Compliance Reports</a >
-      </nav>
+    <!-- INFORMATION SUMMARY -->
+    <div class="content">
+      <div class="crumbs">Operations Control <span class="muted">›</span> <b>Dashboard</b></div>
+      <h1>Operational Overview</h1>
 
-      <div class="nav-title">SYSTEM</div>
-      <nav class="nav">
-        <a href="#" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a >
-        <a href="#" onclick="return false;"><span class="ico">🔔</span> Alert Configuration</a >
-      </nav>
+      <section class="cards">
+        <div class="card">
+          <div class="top">
+            <div class="badge">✈️</div>
+            <div class="pill">Live</div>
+          </div>
+          <div class="kpi">
+            <span>Active Flights</span>
+            <b>{{ activeFlights }}</b>
+          </div>
+        </div>
 
-      <div class="sidebar-footer">
-        <a class="logout" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
-      </div>
-    </aside>
+        <div class="card">
+          <div class="top">
+            <div class="badge">📈</div>
+            <div class="pill">Seat Utilization</div>
+          </div>
+          <div class="kpi">
+            <span>Load Factor</span>
+            <b>{{ loadFactor }}</b>
+          </div>
+        </div>
 
-    <div class="main">
-      <header class="topbar">
-        <div class="right">
-          <a class="top" href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
-          <a class="top" href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
-          <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
-          <a class="top" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
-          <div class="profile">
-            <div class="avatar"></div>
-            <div class="name">
-              <b>{{ staffName }}</b>
-              <span>{{ staffRole }}</span>
+        <div class="card">
+          <div class="top">
+            <div class="badge">🗓️</div>
+            <div class="pill">Today</div>
+          </div>
+          <div class="kpi">
+            <span>Departures Today</span>
+            <b>{{ departuresToday }}</b>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="top">
+            <div class="badge">⚠️</div>
+            <div class="pill">Open</div>
+          </div>
+          <div class="kpi">
+            <span>System Alerts</span>
+            <b>{{ systemAlerts }}</b>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>Global Booking Velocity</h2>
+          <p class="sub">Summary view powered by current database state (live counts).</p >
+          <div class="mini">
+            <div class="spark">
+              <div class="bar" style="height:38%"></div>
+              <div class="bar" style="height:52%"></div>
+              <div class="bar" style="height:45%"></div>
+              <div class="bar" style="height:62%"></div>
+              <div class="bar" style="height:58%"></div>
+              <div class="bar" style="height:72%"></div>
+              <div class="bar" style="height:66%"></div>
+              <div class="bar" style="height:78%"></div>
+            </div>
+            <div class="legend">
+              <div class="tag"><span class="dot"></span> Active Flights: <b style="color:white">{{ activeFlights }}</b></div>
+              <div class="tag"><span class="dot" style="background:rgba(56,189,248,.9); box-shadow:0 0 0 4px rgba(56,189,248,.18)"></span> Departures Today: <b style="color:white">{{ departuresToday }}</b></div>
+              <div class="tag"><span class="dot" style="background:rgba(239,68,68,.95); box-shadow:0 0 0 4px rgba(239,68,68,.14)"></span> Open Alerts: <b style="color:white">{{ systemAlerts }}</b></div>
             </div>
           </div>
         </div>
-      </header>
-
-      <div class="content">
-        <div class="crumbs">Operations Control <span class="muted">›</span> <b>Dashboard</b></div>
-        <h1>Operational Overview</h1>
-
-        <section class="cards">
-          <div class="card">
-            <div class="top">
-              <div class="badge">✈️</div>
-              <div class="pill">Live</div>
-            </div>
-            <div class="kpi">
-              <span>Active Flights</span>
-              <b>{{ activeFlights }}</b>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="top">
-              <div class="badge">📈</div>
-              <div class="pill">Seat Utilization</div>
-            </div>
-            <div class="kpi">
-              <span>Load Factor</span>
-              <b>{{ loadFactor }}</b>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="top">
-              <div class="badge">🗓️</div>
-              <div class="pill">Today</div>
-            </div>
-            <div class="kpi">
-              <span>Departures Today</span>
-              <b>{{ departuresToday }}</b>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="top">
-              <div class="badge">⚠️</div>
-              <div class="pill">Open</div>
-            </div>
-            <div class="kpi">
-              <span>System Alerts</span>
-              <b>{{ systemAlerts }}</b>
-            </div>
-          </div>
-        </section>
-
-        <section class="grid">
-          <div class="panel">
-            <h2>Global Booking Velocity</h2>
-            <p class="sub">Summary view powered by current database state (live counts).</p >
-            <div class="mini">
-              <div class="spark">
-                <div class="bar" style="height:38%"></div>
-                <div class="bar" style="height:52%"></div>
-                <div class="bar" style="height:45%"></div>
-                <div class="bar" style="height:62%"></div>
-                <div class="bar" style="height:58%"></div>
-                <div class="bar" style="height:72%"></div>
-                <div class="bar" style="height:66%"></div>
-                <div class="bar" style="height:78%"></div>
-              </div>
-              <div class="legend">
-                <div class="tag"><span class="dot"></span> Active Flights: <b style="color:white">{{ activeFlights }}</b></div>
-                <div class="tag"><span class="dot" style="background:rgba(56,189,248,.9); box-shadow:0 0 0 4px rgba(56,189,248,.18)"></span> Departures Today: <b style="color:white">{{ departuresToday }}</b></div>
-                <div class="tag"><span class="dot" style="background:rgba(239,68,68,.95); box-shadow:0 0 0 4px rgba(239,68,68,.14)"></span> Open Alerts: <b style="color:white">{{ systemAlerts }}</b></div>
-              </div>
-            </div>
-          </div>
-          <div class="panel">
-            <h2>Quick Status</h2>
-            <p class="sub">Operational signals derived from flight/seat/complaint tables.</p >
-            <table>
-              <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="muted">Load Factor</td>
-                  <td><b>{{ loadFactor }}</b></td>
-                </tr>
-                <tr>
-                  <td class="muted">Active Flights</td>
-                  <td><b>{{ activeFlights }}</b></td>
-                </tr>
-                <tr>
-                  <td class="muted">Departures Today</td>
-                  <td><b>{{ departuresToday }}</b></td>
-                </tr>
-                <tr>
-                  <td class="muted">Open Alerts</td>
-                  <td><b>{{ systemAlerts }}</b></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="panel">
-          <h2>Active Flight Operations</h2>
-          <p class="sub">Live flight list (no gate/crew fields because they do not exist in current schema).</p >
-
+        <div class="panel">
+          <h2>Quick Status</h2>
+          <p class="sub">Operational signals derived from flight/seat/complaint tables.</p >
           <table>
             <thead>
               <tr>
-                <th>Flight No.</th>
-                <th>Destination</th>
-                <th>Departure</th>
-                <th>Status</th>
-                <th>Capacity</th>
-                <th>Assigned Seats</th>
-                <th>Util</th>
+                <th>Metric</th>
+                <th>Value</th>
               </tr>
             </thead>
             <tbody>
-              {% if flights is not empty %}
-                {% for f in flights %}
-                  <tr>
-                    <td><b>{{ f.no }}</b></td>
-                    <td>{{ f.dest }}</td>
-                    <td>{{ f.dep }}</td>
-                    <td>
-                      <span class="status {{ f.status | lower }}">
-                        <span class="s"></span>
-                        {{ f.status }}
-                      </span>
-                    </td>
-                    <td>{{ f.capacity }}</td>
-                    <td>{{ f.assigned }}</td>
-                    <td><b>{{ f.util }}</b></td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td colspan="7" class="muted">No flights available.</td>
-                </tr>
-              {% endif %}
+              <tr>
+                <td class="muted">Load Factor</td>
+                <td><b>{{ loadFactor }}</b></td>
+              </tr>
+              <tr>
+                <td class="muted">Active Flights</td>
+                <td><b>{{ activeFlights }}</b></td>
+              </tr>
+              <tr>
+                <td class="muted">Departures Today</td>
+                <td><b>{{ departuresToday }}</b></td>
+              </tr>
+              <tr>
+                <td class="muted">Open Alerts</td>
+                <td><b>{{ systemAlerts }}</b></td>
+              </tr>
             </tbody>
           </table>
+        </div>
+      </section>
 
-          <div class="bottom">
-            <div>Signed in as <b>{{ staffEmail }}</b></div>
-            <div class="links">
-              <a href=" " onclick="return false;">Operational Policy</a >
-              <a href="#" onclick="return false;">Privacy</a >
-              <a href="#" onclick="return false;">Help Desk</a >
-            </div>
+      <section class="panel">
+        <h2>Active Flight Operations</h2>
+        <p class="sub">Live flight list (no gate/crew fields because they do not exist in current schema).</p >
+
+        <table>
+          <thead>
+            <tr>
+              <th>Flight No.</th>
+              <th>Destination</th>
+              <th>Departure</th>
+              <th>Status</th>
+              <th>Capacity</th>
+              <th>Assigned Seats</th>
+              <th>Util</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if flights is not empty %}
+              {% for f in flights %}
+                <tr>
+                  <td><b>{{ f.no }}</b></td>
+                  <td>{{ f.dest }}</td>
+                  <td>{{ f.dep }}</td>
+                  <td>
+                    <span class="status {{ f.status | lower }}">
+                      <span class="s"></span>
+                      {{ f.status }}
+                    </span>
+                  </td>
+                  <td>{{ f.capacity }}</td>
+                  <td>{{ f.assigned }}</td>
+                  <td><b>{{ f.util }}</b></td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="7" class="muted">No flights available.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+
+        <div class="bottom">
+          <div>Signed in as <b>{{ staffEmail }}</b></div>
+          <div class="links">
+            <a href=" " onclick="return false;">Operational Policy</a >
+            <a href="#" onclick="return false;">Privacy</a >
+            <a href="#" onclick="return false;">Help Desk</a >
           </div>
-        </section>
+        </div>
+      </section>
 
-      </div>
     </div>
   </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 SkyFlow. All rights reserved</span>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/help">Help</a>
+    <a href="/complaints">Complaints</a>
+  </div>
+</footer>
 </body>
 </html>

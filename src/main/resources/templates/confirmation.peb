@@ -8,7 +8,6 @@
   <title>Booking Confirmed</title>
 </head>
 <body>
-
   <!-- NAV -->
   <nav>
     <a href="/" class="brand">
@@ -93,7 +92,7 @@
         </div>
       </div>
 
-      <!-- RETURN (only if exists) -->
+      <!-- RETURN: ONLY IF IT EXISTS -->
       {% if bookingSession.returnFlightId != null %}
       <div class="confirm-section">
         <div class="section-title">Return Flight</div>

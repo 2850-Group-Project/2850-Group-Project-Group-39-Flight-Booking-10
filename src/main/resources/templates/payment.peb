@@ -9,10 +9,9 @@
   <link rel="stylesheet" href="/static/css/Flight_Passengers.css">
   <link rel="stylesheet" href="/static/css/Payment.css">
 
-  <title>SkyBook - Payment</title>
+  <title>Payment</title>
 </head>
 <body>
-
   <!-- NAV -->
   <nav>
     <a href="/home" class="brand">
@@ -26,7 +25,7 @@
   </nav>
 
   <main>
-    <!-- SEARCH SUMMARY (same style as passenger page) -->
+    <!-- SEARCH SUMMARY -->
     <section class="search-summary">
       <div class="summary-inner">
         <div class="summary-route">
@@ -68,7 +67,7 @@
       </div>
     </section>
 
-    <!-- PAYMENT SECTION -->
+    <!-- PAYMENT -->
     <section class="passengers-section">
       <div class="passengers-header">
         <h2 class="passengers-title">Payment Details</h2>
@@ -114,6 +113,7 @@
 
   </main>
 
+  <!-- FOOTER -->
   <footer>
     <span>© 2026 SkyBook. All rights reserved</span>
     <div class="footer-links">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Login - SkyFlow</title>
+  <title>SkyFlow - Login</title>
   <link rel="stylesheet" href="/static/css/Login.css">
 </head>
 <body>
@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="quote">“The best booking experience I’ve had in years.” — @travel_enthusiast</div>
+      <div class="quote">“The best booking experience I've had in years.” — @travel_enthusiast</div>
     </section>
 
     <main class="panel">
@@ -75,8 +75,9 @@
           <button class="primary" type="submit">Sign In →</button>
         </form>
 
+        <!-- LOGIN / SIGN IN -->
         <div class="cta">
-          <span>Don’t have an account?</span>
+          <span>Don't have an account?</span>
           <a href="/register">Create Account</a >
         </div>
         <div class="cta" style="margin-top:10px;">
@@ -84,6 +85,7 @@
           <a href="/staff/login">Login as staff</a >
         </div>
 
+        <!-- FOOTER -->
         <div class="footer">
           <a href="#" onclick="return false;">Privacy Policy</a >
           <span>•</span>

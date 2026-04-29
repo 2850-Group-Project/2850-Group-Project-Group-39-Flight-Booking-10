@@ -3,204 +3,218 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bookings - SkyFlow Staff</title>
+  <title>Staff - Bookings</title>
   <link rel="stylesheet" href="/static/css/Staff_Bookings.css">
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="brand-badge">✈</div>
-        <div>SkyFlow Staff</div>
-      </div>
-      <div class="right">
-        <span class="pill">{{ staffName }} • {{ staffRole }}</span>
-        <a class="navbtn" href="/staff/dashboard">Dashboard</a >
-        <span class="muted">•</span>
-        <a class="navbtn red" href="/staff/logout">Logout</a >
-      </div>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge">✈</div>
+      <div>SkyFlow Staff</div>
     </div>
+    <div class="right">
+      <span class="pill">{{ staffName }} • {{ staffRole }}</span>
+      <a class="navbtn" href="/staff/dashboard">Dashboard</a >
+      <span class="muted">•</span>
+      <a class="navbtn red" href="/staff/logout">Logout</a >
+    </div>
+  </div>
 
-    <div class="grid">
-      <div class="card">
-        <div class="section-title">
+  <!-- BOOKINGS: STAFF BOOKINGS MANAGEMENT -->
+  <div class="grid">
+    <div class="card">
+      <div class="section-title">
+        <div>
+          <h1>Bookings</h1>
+          <p class="sub">Manage bookings, assign flights and seats. Seat list is filtered by the selected flight.</p >
+        </div>
+      </div>
+
+      <form action="/staff/bookings/create" method="post">
+        <div class="row">
           <div>
-            <h1>Bookings</h1>
-            <p class="sub">Manage bookings, assign flights and seats. Seat list is filtered by the selected flight.</p >
+            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Passenger Email</label>
+            <input class="input" type="email" name="passengerEmail" required placeholder="passenger@example.com" />
+          </div>
+          <div>
+            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">First Name</label>
+            <input class="input" type="text" name="passengerFirstName" placeholder="First name" />
+          </div>
+          <div>
+            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Last Name</label>
+            <input class="input" type="text" name="passengerLastName" placeholder="Last name" />
+          </div>
+          <div>
+            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Flight</label>
+            <select name="flightId" required>
+              <option value="">Select flight</option>
+              {% for f in flights %}
+                <option value="{{ f.id }}">{{ f.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Status</label>
+            <select name="bookingStatus" required>
+              <option value="pending">pending</option>
+              <option value="confirmed">confirmed</option>
+              <option value="cancelled">cancelled</option>
+            </select>
           </div>
         </div>
 
-        <form action="/staff/bookings/create" method="post">
-          <div class="row">
-            <div>
-              <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Passenger Email</label>
-              <input class="input" type="email" name="passengerEmail" required placeholder="passenger@example.com" />
-            </div>
-            <div>
-              <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">First Name</label>
-              <input class="input" type="text" name="passengerFirstName" placeholder="First name" />
-            </div>
-            <div>
-              <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Last Name</label>
-              <input class="input" type="text" name="passengerLastName" placeholder="Last name" />
-            </div>
-            <div>
-              <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Flight</label>
-              <select name="flightId" required>
-                <option value="">Select flight</option>
-                {% for f in flights %}
-                  <option value="{{ f.id }}">{{ f.label }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div>
-              <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Status</label>
-              <select name="bookingStatus" required>
-                <option value="pending">pending</option>
-                <option value="confirmed">confirmed</option>
-                <option value="cancelled">cancelled</option>
-              </select>
-            </div>
+        <div style="margin-top:10px; display:grid; grid-template-columns: 1fr 220px; gap:10px; align-items:end;">
+          <div>
+            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Seat (optional, must match flight)</label>
+            <select name="seatId">
+              <option value="">No seat</option>
+            </select>
+            <div class="sub" style="margin-top:8px;">After creating, edit the booking to assign a seat for its flight.</div>
           </div>
+          <div>
+            <button class="btn primary" type="submit">Create Booking →</button>
+          </div>
+        </div>
+      </form>
+    </div>
 
-          <div style="margin-top:10px; display:grid; grid-template-columns: 1fr 220px; gap:10px; align-items:end;">
-            <div>
-              <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Seat (optional, must match flight)</label>
-              <select name="seatId">
-                <option value="">No seat</option>
-              </select>
-              <div class="sub" style="margin-top:8px;">After creating, edit the booking to assign a seat for its flight.</div>
-            </div>
-            <div>
-              <button class="btn primary" type="submit">Create Booking →</button>
-            </div>
+    <!-- EXISTING BOOKINGS -->
+    <div class="card">
+      <div class="section-title">
+        <div>
+          <h1>Existing Bookings</h1>
+          <p class="sub">Update status, flight, and seat. If you change flight, seat will reset and must be re-selected.</p >
+        </div>
+        <form action="/staff/bookings" method="get" style="display:flex; gap:10px; align-items:end; margin-left:auto; min-width:340px;">
+          <div style="flex:1;">
+            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Search Booking ID</label>
+            <input class="input" name="q" value="{{ q }}" placeholder="e.g. 4" />
           </div>
+          <button class="btn" type="submit" style="width:120px;">Search</button>
         </form>
       </div>
 
-      <div class="card">
-        <div class="section-title">
-          <div>
-            <h1>Existing Bookings</h1>
-            <p class="sub">Update status, flight, and seat. If you change flight, seat will reset and must be re-selected.</p >
-          </div>
-          <form action="/staff/bookings" method="get" style="display:flex; gap:10px; align-items:end; margin-left:auto; min-width:340px;">
-            <div style="flex:1;">
-              <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Search Booking ID</label>
-              <input class="input" name="q" value="{{ q }}" placeholder="e.g. 4" />
-            </div>
-            <button class="btn" type="submit" style="width:120px;">Search</button>
-          </form>
-        </div>
-
-        <table class="table">
-          <thead>
+      <!-- BOOKING DETAILS -->
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Booking</th>
+            <th>Passenger</th>
+            <th>Status</th>
+            <th>Flight</th>
+            <th>Seat</th>
+            <th style="width:120px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if bookings is empty %}
             <tr>
-              <th>Booking</th>
-              <th>Passenger</th>
-              <th>Status</th>
-              <th>Flight</th>
-              <th>Seat</th>
-              <th style="width:120px;">Action</th>
+              <td colspan="6" class="muted">No bookings found.</td>
             </tr>
-          </thead>
-          <tbody>
-            {% if bookings is empty %}
+          {% else %}
+            {% for b in bookings %}
               <tr>
-                <td colspan="6" class="muted">No bookings found.</td>
-              </tr>
-            {% else %}
-              {% for b in bookings %}
-                <tr>
-                  <td>
-                    <div style="font-weight:900;">{{ b.bookingReference }}</div>
-                    <div class="muted" style="margin-top:3px;">ID: {{ b.bookingId }}</div>
-                    <div class="muted" style="margin-top:3px;">{{ b.createdAt }}</div>
-                  </td>
+                <td>
+                  <div style="font-weight:900;">{{ b.bookingReference }}</div>
+                  <div class="muted" style="margin-top:3px;">ID: {{ b.bookingId }}</div>
+                  <div class="muted" style="margin-top:3px;">{{ b.createdAt }}</div>
+                </td>
 
-                  <td>
-                    <div style="font-weight:800;">{% if b.passengerName %}{{ b.passengerName }}{% else %}—{% endif %}</div>
-                    <div class="muted" style="margin-top:3px;">{% if b.passengerEmail %}{{ b.passengerEmail }}{% else %}—{% endif %}</div>
-                  </td>
+                <td>
+                  <div style="font-weight:800;">{% if b.passengerName %}{{ b.passengerName }}{% else %}—{% endif %}</div>
+                  <div class="muted" style="margin-top:3px;">{% if b.passengerEmail %}{{ b.passengerEmail }}{% else %}—{% endif %}</div>
+                </td>
 
-                  <td colspan="3">
-                    <form action="/staff/bookings/update" method="post" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
-                      <input type="hidden" name="bookingId" value="{{ b.bookingId }}" />
+                <td colspan="3">
+                  <form action="/staff/bookings/update" method="post" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                    <input type="hidden" name="bookingId" value="{{ b.bookingId }}" />
 
-                      <div>
-                        <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Status</label>
-                        <select name="bookingStatus">
-                          <option value="pending" {% if b.bookingStatus == "pending" %}selected{% endif %}>pending</option>
-                          <option value="confirmed" {% if b.bookingStatus == "confirmed" %}selected{% endif %}>confirmed</option>
-                          <option value="cancelled" {% if b.bookingStatus == "cancelled" %}selected{% endif %}>cancelled</option>
-                        </select>
-                      </div>
+                    <div>
+                      <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Status</label>
+                      <select name="bookingStatus">
+                        <option value="pending" {% if b.bookingStatus == "pending" %}selected{% endif %}>pending</option>
+                        <option value="confirmed" {% if b.bookingStatus == "confirmed" %}selected{% endif %}>confirmed</option>
+                        <option value="cancelled" {% if b.bookingStatus == "cancelled" %}selected{% endif %}>cancelled</option>
+                      </select>
+                    </div>
 
-                      <div>
-                        <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Flight</label>
-                        <select name="flightId">
-                          <option value="">No flight</option>
-                          {% for f in flights %}
-                            <option value="{{ f.id }}"
-                              {% if b.flightId is not null and f.id == b.flightId %}selected{% endif %}>
-                              {{ f.label }}
-                            </option>
-                          {% endfor %}
-                        </select>
-                      </div>
+                    <div>
+                      <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Flight</label>
+                      <select name="flightId">
+                        <option value="">No flight</option>
+                        {% for f in flights %}
+                          <option value="{{ f.id }}"
+                            {% if b.flightId is not null and f.id == b.flightId %}selected{% endif %}>
+                            {{ f.label }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
 
-                      <div>
-                        <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Seat</label>
-                        <select name="seatId">
-                          <option value="">No seat</option>
+                    <div>
+                      <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Seat</label>
+                      <select name="seatId">
+                        <option value="">No seat</option>
 
-                          {% if b.flightId is not null %}
-                            {% set fid = b.flightId %}
-                            {% set seats = seatsByFlight[fid] %}
-                            {% if seats is not empty %}
-                              {% for s in seats %}
-                                {% set isCurrent = false %}
-                                {% if b.seatId is not empty %}
-                                  {% if ("" ~ s.id) == ("" ~ b.seatId) %}
-                                    {% set isCurrent = true %}
-                                  {% endif %}
+                        {% if b.flightId is not null %}
+                          {% set fid = b.flightId %}
+                          {% set seats = seatsByFlight[fid] %}
+                          {% if seats is not empty %}
+                            {% for s in seats %}
+                              {% set isCurrent = false %}
+                              {% if b.seatId is not empty %}
+                                {% if ("" ~ s.id) == ("" ~ b.seatId) %}
+                                  {% set isCurrent = true %}
                                 {% endif %}
+                              {% endif %}
 
-                                {% if s.status == "available" or isCurrent %}
-                                  <option value="{{ s.id }}"
-                                    {% if isCurrent %}selected{% endif %}>
-                                    {{ s.seatCode }}{% if s.status != "available" %} (assigned){% endif %}
-                                  </option>
-                                {% endif %}
-                              {% endfor %}
-                            {% endif %}
+                              {% if s.status == "available" or isCurrent %}
+                                <option value="{{ s.id }}"
+                                  {% if isCurrent %}selected{% endif %}>
+                                  {{ s.seatCode }}{% if s.status != "available" %} (assigned){% endif %}
+                                </option>
+                              {% endif %}
+                            {% endfor %}
                           {% endif %}
-                        </select>
-                        <div class="muted" style="margin-top:6px;font-size:12px;">
-                          Current: {% if b.seatCode %}{{ b.seatCode }}{% else %}no seat{% endif %}
-                        </div>
+                        {% endif %}
+                      </select>
+                      <div class="muted" style="margin-top:6px;font-size:12px;">
+                        Current: {% if b.seatCode %}{{ b.seatCode }}{% else %}no seat{% endif %}
                       </div>
+                    </div>
 
-                      <div style="grid-column: 1 / -1; display:grid; grid-template-columns: 1fr 140px; gap:10px; margin-top:10px;">
-                        <div class="muted" style="font-size:12px; align-self:center;">
-                          Saving seat only works if it belongs to the selected flight.
-                        </div>
-                        <button class="btn primary" type="submit">Save</button>
+                    <div style="grid-column: 1 / -1; display:grid; grid-template-columns: 1fr 140px; gap:10px; margin-top:10px;">
+                      <div class="muted" style="font-size:12px; align-self:center;">
+                        Saving seat only works if it belongs to the selected flight.
                       </div>
-                    </form>
-                  </td>
+                      <button class="btn primary" type="submit">Save</button>
+                    </div>
+                  </form>
+                </td>
 
-                  <td>
-                    <div class="pill">{% if b.bookingStatus %}{{ b.bookingStatus }}{% else %}—{% endif %}</div>
-                  </td>
-                </tr>
-              {% endfor %}
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-
+                <td>
+                  <div class="pill">{% if b.bookingStatus %}{{ b.bookingStatus }}{% else %}—{% endif %}</div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
     </div>
+
   </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 SkyFlow. All rights reserved</span>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/help">Help</a>
+    <a href="/complaints">Complaints</a>
+  </div>
+</footer>
 </body>
 </html>

@@ -20,7 +20,7 @@
     </div>
   </nav>
 
-  <!-- 404 MAIN BODY -->
+  <!-- MAIN BODY -->
   <div class="error-page">
     <div class="error-code">404</div>
     <h1 class="error-title">This page doesn't exist</h1>

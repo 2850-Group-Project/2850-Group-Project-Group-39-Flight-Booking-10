@@ -7,189 +7,202 @@
   <link rel="stylesheet" href="/static/css/Staff_Flights.css">
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="badge">✈</div>
-        <div>SkyFlow Staff</div>
-      </div>
-      <div class="nav">
-        <a class="link" href="/staff/dashboard">Dashboard</a >
-        <a class="link red" href="/staff/logout">Logout</a >
-      </div>
+<div class="wrap">
+  <!-- NAV -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="badge">✈</div>
+      <div>SkyFlow Staff</div>
     </div>
-
-    <h1>Flight Scheduler</h1>
-    <p class="sub">Create, edit, and manage flights directly from the database.</p >
-
-    <div class="grid">
-      <div class="card">
-        {% if error and error != "" %}
-          <div class="msg err">{{ error }}</div>
-        {% endif %}
-        {% if ok and ok != "" %}
-          <div class="msg">{{ ok }}</div>
-        {% endif %}
-
-        {% if editId and editId != 0 %}
-          <h2>Edit Flight #{{ editId }}</h2>
-          <form action="/staff/flights/update" method="post">
-            <input type="hidden" name="id" value="{{ editId }}"/>
-
-            <label for="flightNumber">Flight Number</label>
-            <input class="input" id="flightNumber" name="flightNumber" value="{{ editFlight.flightNumber }}" placeholder="e.g. 101"/>
-
-            <div class="row2">
-              <div>
-                <label for="originId">Origin</label>
-                <select id="originId" name="originId" required>
-                  {% for a in airports %}
-                    <option value="{{ a.id }}" {% if editFlight.originId == a.id %}selected{% endif %}>
-                      {{ a.iata }} {{ a.name }}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div>
-                <label for="destId">Destination</label>
-                <select id="destId" name="destId" required>
-                  {% for a in airports %}
-                    <option value="{{ a.id }}" {% if editFlight.destId == a.id %}selected{% endif %}>
-                      {{ a.iata }} {{ a.name }}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-
-            <label for="dep">Scheduled Departure Time</label>
-            <input class="input" id="dep" name="dep" value="{{ editFlight.dep }}" placeholder="YYYY-MM-DD HH:MM:SS"/>
-
-            <label for="arr">Scheduled Arrival Time</label>
-            <input class="input" id="arr" name="arr" value="{{ editFlight.arr }}" placeholder="YYYY-MM-DD HH:MM:SS"/>
-
-            <div class="row2">
-              <div>
-                <label for="status">Status</label>
-                <select id="status" name="status">
-                  <option value="scheduled" {% if editFlight.status == "scheduled" %}selected{% endif %}>scheduled</option>
-                  <option value="delayed" {% if editFlight.status == "delayed" %}selected{% endif %}>delayed</option>
-                  <option value="departed" {% if editFlight.status == "departed" %}selected{% endif %}>departed</option>
-                  <option value="arrived" {% if editFlight.status == "arrived" %}selected{% endif %}>arrived</option>
-                  <option value="cancelled" {% if editFlight.status == "cancelled" %}selected{% endif %}>cancelled</option>
-                </select>
-              </div>
-              <div>
-                <label for="capacity">Capacity</label>
-                <input class="input" id="capacity" name="capacity" value="{{ editFlight.capacity }}" placeholder="e.g. 180"/>
-              </div>
-            </div>
-
-            <button class="btn" type="submit">Save Changes</button>
-            <a class="a" style="margin-top:10px;width:100%;justify-content:center;" href="/staff/flights">Cancel Editing</a >
-          </form>
-        {% else %}
-          <h2>Create New Flight</h2>
-          <form action="/staff/flights/create" method="post">
-            <label for="flightNumber">Flight Number</label>
-            <input class="input" id="flightNumber" name="flightNumber" placeholder="e.g. 101"/>
-
-            <div class="row2">
-              <div>
-                <label for="originId">Origin</label>
-                <select id="originId" name="originId" required>
-                  {% for a in airports %}
-                    <option value="{{ a.id }}">{{ a.iata }} {{ a.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div>
-                <label for="destId">Destination</label>
-                <select id="destId" name="destId" required>
-                  {% for a in airports %}
-                    <option value="{{ a.id }}">{{ a.iata }} {{ a.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-
-            <label for="dep">Scheduled Departure Time</label>
-            <input class="input" id="dep" name="dep" placeholder="YYYY-MM-DD HH:MM:SS"/>
-
-            <label for="arr">Scheduled Arrival Time</label>
-            <input class="input" id="arr" name="arr" placeholder="YYYY-MM-DD HH:MM:SS"/>
-
-            <div class="row2">
-              <div>
-                <label for="status">Status</label>
-                <select id="status" name="status">
-                  <option value="scheduled" selected>scheduled</option>
-                  <option value="delayed">delayed</option>
-                  <option value="departed">departed</option>
-                  <option value="arrived">arrived</option>
-                  <option value="cancelled">cancelled</option>
-                </select>
-              </div>
-              <div>
-                <label for="capacity">Capacity</label>
-                <input class="input" id="capacity" name="capacity" placeholder="e.g. 180"/>
-              </div>
-            </div>
-
-            <button class="btn" type="submit">Create Flight</button>
-          </form>
-        {% endif %}
-      </div>
-
-      <div class="card">
-        <h2>Flights</h2>
-        <form action="/staff/flights" method="get" style="margin:10px 0 14px; display:flex; gap:10px; align-items:center;">
-          <input class="input"
-                 type="text"
-                 name="q"
-                 value="{{ q }}"
-                 placeholder="Search by flight number (e.g. 101)" />
-          <button class="a" type="submit" style="white-space:nowrap;">Search</button>
-          <a class="a" href=" " style="white-space:nowrap;">Clear</a >
-        </form>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>No.</th>
-              <th>Route</th>
-              <th>Departure</th>
-              <th>Arrival</th>
-              <th>Status</th>
-              <th>Cap.</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for f in flights %}
-              <tr>
-                <td>{{ f.id }}</td>
-                <td><span class="pill">{{ f.flightNumber }}</span></td>
-                <td>{{ f.originIata }} → {{ f.destIata }}</td>
-                <td>{{ f.dep }}</td>
-                <td>{{ f.arr }}</td>
-                <td>{{ f.status }}</td>
-                <td>{{ f.capacity }}</td>
-                <td>
-                  <div class="actions">
-                    <a class="a" href="/staff/flights?edit={{ f.id }}">Edit</a >
-                    <form action="/staff/flights/delete" method="post" style="margin:0;">
-                      <input type="hidden" name="id" value="{{ f.id }}"/>
-                      <button class="a red" type="submit">Delete</button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+    <div class="nav">
+      <a class="link" href="/staff/dashboard">Dashboard</a >
+      <a class="link red" href="/staff/logout">Logout</a >
     </div>
   </div>
+
+  <h1>Flight Scheduler</h1>
+  <p class="sub">Create, edit, and manage flights directly from the database.</p >
+
+  <div class="grid">
+    <div class="card">
+      {% if error and error != "" %}
+        <div class="msg err">{{ error }}</div>
+      {% endif %}
+      {% if ok and ok != "" %}
+        <div class="msg">{{ ok }}</div>
+      {% endif %}
+
+      {% if editId and editId != 0 %}
+        <h2>Edit Flight #{{ editId }}</h2>
+        <form action="/staff/flights/update" method="post">
+          <input type="hidden" name="id" value="{{ editId }}"/>
+
+          <label for="flightNumber">Flight Number</label>
+          <input class="input" id="flightNumber" name="flightNumber" value="{{ editFlight.flightNumber }}" placeholder="e.g. 101"/>
+
+          <div class="row2">
+            <div>
+              <label for="originId">Origin</label>
+              <select id="originId" name="originId" required>
+                {% for a in airports %}
+                  <option value="{{ a.id }}" {% if editFlight.originId == a.id %}selected{% endif %}>
+                    {{ a.iata }} {{ a.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label for="destId">Destination</label>
+              <select id="destId" name="destId" required>
+                {% for a in airports %}
+                  <option value="{{ a.id }}" {% if editFlight.destId == a.id %}selected{% endif %}>
+                    {{ a.iata }} {{ a.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <label for="dep">Scheduled Departure Time</label>
+          <input class="input" id="dep" name="dep" value="{{ editFlight.dep }}" placeholder="YYYY-MM-DD HH:MM:SS"/>
+
+          <label for="arr">Scheduled Arrival Time</label>
+          <input class="input" id="arr" name="arr" value="{{ editFlight.arr }}" placeholder="YYYY-MM-DD HH:MM:SS"/>
+
+          <div class="row2">
+            <div>
+              <label for="status">Status</label>
+              <select id="status" name="status">
+                <option value="scheduled" {% if editFlight.status == "scheduled" %}selected{% endif %}>scheduled</option>
+                <option value="delayed" {% if editFlight.status == "delayed" %}selected{% endif %}>delayed</option>
+                <option value="departed" {% if editFlight.status == "departed" %}selected{% endif %}>departed</option>
+                <option value="arrived" {% if editFlight.status == "arrived" %}selected{% endif %}>arrived</option>
+                <option value="cancelled" {% if editFlight.status == "cancelled" %}selected{% endif %}>cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label for="capacity">Capacity</label>
+              <input class="input" id="capacity" name="capacity" value="{{ editFlight.capacity }}" placeholder="e.g. 180"/>
+            </div>
+          </div>
+
+          <button class="btn" type="submit">Save Changes</button>
+          <a class="a" style="margin-top:10px;width:100%;justify-content:center;" href="/staff/flights">Cancel Editing</a >
+        </form>
+      {% else %}
+        <h2>Create New Flight</h2>
+        <form action="/staff/flights/create" method="post">
+          <label for="flightNumber">Flight Number</label>
+          <input class="input" id="flightNumber" name="flightNumber" placeholder="e.g. 101"/>
+
+          <div class="row2">
+            <div>
+              <label for="originId">Origin</label>
+              <select id="originId" name="originId" required>
+                {% for a in airports %}
+                  <option value="{{ a.id }}">{{ a.iata }} {{ a.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label for="destId">Destination</label>
+              <select id="destId" name="destId" required>
+                {% for a in airports %}
+                  <option value="{{ a.id }}">{{ a.iata }} {{ a.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <label for="dep">Scheduled Departure Time</label>
+          <input class="input" id="dep" name="dep" placeholder="YYYY-MM-DD HH:MM:SS"/>
+
+          <label for="arr">Scheduled Arrival Time</label>
+          <input class="input" id="arr" name="arr" placeholder="YYYY-MM-DD HH:MM:SS"/>
+
+          <div class="row2">
+            <div>
+              <label for="status">Status</label>
+              <select id="status" name="status">
+                <option value="scheduled" selected>scheduled</option>
+                <option value="delayed">delayed</option>
+                <option value="departed">departed</option>
+                <option value="arrived">arrived</option>
+                <option value="cancelled">cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label for="capacity">Capacity</label>
+              <input class="input" id="capacity" name="capacity" placeholder="e.g. 180"/>
+            </div>
+          </div>
+
+          <button class="btn" type="submit">Create Flight</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <!-- FLIGHT DETAILS -->
+    <div class="card">
+      <h2>Flights</h2>
+      <form action="/staff/flights" method="get" style="margin:10px 0 14px; display:flex; gap:10px; align-items:center;">
+        <input class="input"
+                type="text"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search by flight number (e.g. 101)" />
+        <button class="a" type="submit" style="white-space:nowrap;">Search</button>
+        <a class="a" href=" " style="white-space:nowrap;">Clear</a >
+      </form>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>No.</th>
+            <th>Route</th>
+            <th>Departure</th>
+            <th>Arrival</th>
+            <th>Status</th>
+            <th>Cap.</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in flights %}
+            <tr>
+              <td>{{ f.id }}</td>
+              <td><span class="pill">{{ f.flightNumber }}</span></td>
+              <td>{{ f.originIata }} → {{ f.destIata }}</td>
+              <td>{{ f.dep }}</td>
+              <td>{{ f.arr }}</td>
+              <td>{{ f.status }}</td>
+              <td>{{ f.capacity }}</td>
+              <td>
+                <div class="actions">
+                  <a class="a" href="/staff/flights?edit={{ f.id }}">Edit</a >
+                  <form action="/staff/flights/delete" method="post" style="margin:0;">
+                    <input type="hidden" name="id" value="{{ f.id }}"/>
+                    <button class="a red" type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 SkyFlow. All rights reserved</span>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/help">Help</a>
+    <a href="/complaints">Complaints</a>
+  </div>
+</footer>
 </body>
 </html>
