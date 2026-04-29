@@ -5,5 +5,8 @@
 /workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/StaffPagesRoutes.kt:64:11: The function staffPagesRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 37). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
 /workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/PagesRoutes.kt:45:11: The function pagesRoutes is too long (362). The maximum length is 60. [LongMethod]
 /workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/PagesRoutes.kt:45:11: The function pagesRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 46). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
-/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/SeatSelectionRoutes.kt:65:11: The function seatSelectionRoutes is too long (106). The maximum length is 60. [LongMethod]
-/workspaces/2850-Group-Project/src/main/kotlin/com/flightbooking/routes/SeatSelectionRoutes.kt:65:11: The function seatSelectionRoutes appears to be too complex based on Cyclomatic Complexity (complexity: 21). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
+
+
+[Incubating] Problems report is available at: file:///workspaces/2850-Group-Project/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
