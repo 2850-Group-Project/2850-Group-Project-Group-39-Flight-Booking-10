@@ -61,7 +61,7 @@
           {% if c.handledByStaffId %}
             <div class="handled-by">
               <span class="handled-icon">👤</span>
-              Being handled by staff #{{ c.handledByStaffId }}
+              Currently being processed by our staff
             </div>
           {% endif %}
 
