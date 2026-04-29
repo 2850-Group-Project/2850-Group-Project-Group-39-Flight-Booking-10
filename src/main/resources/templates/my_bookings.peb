@@ -15,6 +15,7 @@
       <span class="brand-title">SkyFlow</span>
     </a >
     <div class="nav-right">
+      <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
       <a href="/home" class="btn-ghost">Search</a >
       <a href="/profile" class="btn-primary">My Profile</a >
       <a href="/logout" class="btn-danger">Logout</a >
@@ -181,5 +182,6 @@
 
   <script src="/static/javascript/My_Bookings.js"></script>
   
+  <script src="/static/javascript/Large_Font.js"></script>
 </body>
 </html>

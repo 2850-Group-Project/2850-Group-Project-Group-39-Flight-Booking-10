@@ -15,6 +15,7 @@
       <div>SkyFlow Staff</div>
     </div>
     <div class="nav">
+        <a class="link" href="#" data-large-font-toggle>Large Font</a >
       <a class="link" href="/staff/dashboard">Dashboard</a >
       <a class="link red" href="/staff/logout">Logout</a >
     </div>
@@ -204,5 +205,6 @@
     <a href="/complaints">Complaints</a>
   </div>
 </footer>
+  <script src="/static/javascript/Large_Font.js"></script>
 </body>
 </html>
