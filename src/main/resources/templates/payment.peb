@@ -4,13 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Reuse your existing CSS files -->
   <link rel="stylesheet" href="/static/css/Home.css">
   <link rel="stylesheet" href="/static/css/Flight_Search.css">
   <link rel="stylesheet" href="/static/css/Flight_Passengers.css">
-  <link rel="stylesheet" href="/static/css/Payment.css"> <!-- optional new file -->
+  <link rel="stylesheet" href="/static/css/Payment.css">
 
-  <title>SkyBook – Payment</title>
+  <title>SkyBook - Payment</title>
 </head>
 <body>
 
@@ -27,7 +26,6 @@
   </nav>
 
   <main>
-
     <!-- SEARCH SUMMARY (same style as passenger page) -->
     <section class="search-summary">
       <div class="summary-inner">
