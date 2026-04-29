@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Complaints - SkyFlow</title>
+  <link rel="stylesheet" href="/static/css/Profile_Complaints.css">
+  <link rel="stylesheet" href="/static/css/Home.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="brand">
+    <div class="brand-badge">✈️</div>
+    <span class="brand-title">SkyFlow</span>
+  </a>
+  <div class="nav-right">
+    <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
+    <a href="/profile" class="btn-primary">My Account</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="page-top">
+    <div>
+      <h1>My Complaints</h1>
+      <p class="sub">Track the status of complaints you have submitted to our support team.</p>
+    </div>
+    <a href="/complaints" class="btn-new">+ New Complaint</a>
+  </div>
+
+  {% if complaints is empty %}
+    <div class="empty">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">No complaints yet</div>
+      <p class="empty-sub">If you've experienced an issue, <a href="/complaints">submit a complaint</a> and we'll look into it.</p>
+    </div>
+  {% else %}
+    <div class="list">
+      {% for c in complaints %}
+        {% set st = (c.status | default('open')) | lower %}
+        <div class="card" style="animation-delay: {{ loop.index * 60 }}ms">
+
+          <div class="card-top">
+            <div class="card-meta">
+              <div class="complaint-id">#{{ c.id }}</div>
+              <div class="type-badge">{{ c.type | default('General') }}</div>
+              <div class="pill {{ st }}">
+                <span class="dot"></span>
+                {{ c.status | default('open') }}
+              </div>
+            </div>
+            <div class="created-at">{{ c.createdAt }}</div>
+          </div>
+
+          <div class="message-body">
+            {{ c.message }}
+          </div>
+
+          {% if c.handledByStaffId %}
+            <div class="handled-by">
+              <span class="handled-icon">👤</span>
+              Being handled by staff #{{ c.handledByStaffId }}
+            </div>
+          {% endif %}
+
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
+
+<footer>
+  <span>© 2026 SkyFlow. All rights reserved.</span>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/help">Help</a>
+    <a href="/complaints">Complaints</a>
+  </div>
+</footer>
+
+</body>
+</html>

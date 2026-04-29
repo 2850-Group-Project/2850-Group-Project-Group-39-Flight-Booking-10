@@ -10,6 +10,8 @@ import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.sessions.*
 
 import com.flightbooking.access.UserTableAccess
+import com.flightbooking.access.ComplaintTableAccess
+import com.flightbooking.access.StaffTableAccess
 
 import com.flightbooking.tables.*
 import org.jetbrains.exposed.sql.*
@@ -56,7 +58,7 @@ fun Route.complaintsRoutes() {
         val params = call.receiveParameters()
         val complaintText = params["message"] ?: ""
         val type = params["type"] ?: ""
-        if (complaintText == null || complaintText == "") {
+        if (complaintText == "") {
             call.respondRedirect("/complaints?error=server_error")
             return@post
         }
@@ -82,5 +84,35 @@ fun Route.complaintsRoutes() {
         }
         
         call.respondRedirect("/complaints?success=true")
+    }
+
+    // complaints page to display current complaints that the user has made 
+    // as well as updates on those complaints
+    get("/profile/complaints") {
+        val userSession = call.sessions.get<UserSession>()
+        if (userSession == null) {
+            call.respondRedirect("/login")
+            return@get
+        }
+
+        val user = UserTableAccess().findByEmail(userSession.userEmail)
+        if (user == null) {
+            call.respondRedirect("/login")
+            return@get
+        }
+
+        val userId = user.id
+
+        val complaints = ComplaintTableAccess().findByUserId(userId)
+
+        call.respond(
+            PebbleContent(
+                "profile_complaints.peb",
+                mapOf<String, Any>(
+                    "userSession" to userSession,
+                    "complaints"  to complaints,
+                )
+            )
+        )
     }
 }

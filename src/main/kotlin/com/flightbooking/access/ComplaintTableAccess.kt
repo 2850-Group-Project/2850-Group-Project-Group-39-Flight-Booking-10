@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.SortOrder
 import java.time.Instant
 
 class ComplaintTableAccess {
@@ -26,6 +27,15 @@ class ComplaintTableAccess {
     fun <T> getByAttribute(attribute: Column<T>, value: T): List<Complaint> = transaction {
         ComplaintTable.select { attribute eq value } 
             .map { it.toComplaint() } 
+    }
+
+    fun findByUserId(userId: Int): List<Complaint> {
+        return transaction {
+            ComplaintTable
+                .select { ComplaintTable.userId eq userId }
+                .orderBy(ComplaintTable.createdAt, SortOrder.DESC)
+                .map { it.toComplaint() }
+        }
     }
 
     fun createComplaint(
