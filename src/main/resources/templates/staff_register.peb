@@ -14,6 +14,7 @@
           <div class="brand-badge">✈</div>
           <div>SkyFlow Staff</div>
         </div>
+        <a class="toplink" href="#" data-large-font-toggle>Large Font</a >
       </div>
 
       <div class="pill">Staff Onboarding</div>
@@ -78,5 +79,6 @@
       </div>
     </main>
   </div>
+  <script src="/static/javascript/Large_Font.js"></script>
 </body>
 </html>

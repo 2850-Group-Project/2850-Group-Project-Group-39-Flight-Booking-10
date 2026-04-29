@@ -41,6 +41,7 @@
   <div class="main">
     <header class="topbar">
       <div class="right">
+          <a class="top" href="#" data-large-font-toggle><span class="ico">A</span> Large Font</a >
         <a class="top" href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
         <a class="top" href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
         <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
@@ -226,5 +227,6 @@
     <a href="/complaints">Complaints</a>
   </div>
 </footer>
+  <script src="/static/javascript/Large_Font.js"></script>
 </body>
 </html>

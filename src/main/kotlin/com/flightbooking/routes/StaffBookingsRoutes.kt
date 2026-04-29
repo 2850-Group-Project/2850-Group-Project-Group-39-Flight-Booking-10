@@ -72,7 +72,7 @@ fun Route.staffBookingsRoutes() {
                 )
                 .selectAll()
                 .orderBy(FlightTable.id, SortOrder.DESC)
-                .limit(300)
+                .limit(50)
                 .orderBy(FlightTable.id, SortOrder.DESC)
                 .map { r ->
                     val fid = r[FlightTable.id]
