@@ -5,15 +5,6 @@ import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
-import com.flightbooking.service.SMALL_AIRCRAFT_CAP_THRESHOLD
-import com.flightbooking.service.SeatsModelParams
-import com.flightbooking.service.assignSeats
-import com.flightbooking.service.buildSeatRows
-import com.flightbooking.service.buildSeatsModel
-import com.flightbooking.service.createBookingSegment
-import com.flightbooking.service.getLayout
-import com.flightbooking.service.parseSelectedSeats
-import com.flightbooking.service.validateSeats
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.PassengerTable

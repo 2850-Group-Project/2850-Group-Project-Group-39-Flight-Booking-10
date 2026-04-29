@@ -1,10 +1,6 @@
 package com.flightbooking.routes
 
 import com.flightbooking.models.StaffSession
-import com.flightbooking.service.FullBookingInput
-import com.flightbooking.service.createFullBooking
-import com.flightbooking.service.fetchStaffModel
-import com.flightbooking.service.updateBookingSegment
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
 import io.ktor.server.application.call

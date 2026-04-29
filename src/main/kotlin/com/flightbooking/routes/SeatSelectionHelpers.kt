@@ -1,4 +1,4 @@
-package com.flightbooking.service
+package com.flightbooking.routes
 
 import com.flightbooking.models.Airport
 import com.flightbooking.models.BookingSession
