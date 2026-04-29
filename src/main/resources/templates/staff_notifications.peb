@@ -15,6 +15,7 @@
       <div>SkyFlow Staff</div>
     </div>
     <div class="right">
+        <a class="navbtn" href="#" data-large-font-toggle>Large Font</a >
       <span class="pill">{{ staffName }} • {{ staffRole }}</span>
       <a class="navbtn" href="/staff/dashboard">Dashboard</a >
       <a class="navbtn red" href="/staff/logout">Logout</a >
@@ -155,5 +156,6 @@
     <a href="/complaints">Complaints</a>
   </div>
 </footer>
+  <script src="/static/javascript/Large_Font.js"></script>
 </body>
 </html>
