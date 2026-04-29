@@ -31,11 +31,16 @@
 
     <div class="divider"></div>
 
-    {% if flash is defined %}
-      <div class="flash {{ flash.type }}">
-        {% if flash.type == "success" %}✓{% else %}✕{% endif %}
-        {{ flash.message }}
-      </div>
+    {% if success == "true" %}
+      <div class="flash success">✓ Your complaint has been submitted. We'll be in touch soon.</div>
+    {% endif %}
+
+    {% if error == "missing_fields" %}
+      <div class="flash error">✕ Please provide a full message.</div>
+    {% endif %}
+
+    {% if error == "server_error" %}
+      <div class="flash error">✕ Sorry, something went wrong.</div>
     {% endif %}
 
     <form action="/complaints/submit" method="POST">

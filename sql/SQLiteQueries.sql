@@ -3,7 +3,7 @@
 --      RUN WITH CTRL+SHIFT+Q         --
 ----------------------------------------
 
-select * from booking;
+select * from complaint;
 
 
 -- select * from passenger where passenger_id = 1234;

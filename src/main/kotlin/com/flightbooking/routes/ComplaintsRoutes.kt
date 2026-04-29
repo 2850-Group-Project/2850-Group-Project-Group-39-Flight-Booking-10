@@ -9,15 +9,15 @@ import io.ktor.server.pebble.*
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.sessions.*
 
-import com.flightbooking.access.FlightTableAccess
-import com.flightbooking.access.AirportTableAccess
+import com.flightbooking.access.UserTableAccess
 
 import com.flightbooking.tables.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insert
+
 import com.flightbooking.models.UserSession
-import com.flightbooking.models.BookingSession
 import com.flightbooking.models.Complaint
 
 import com.flightbooking.routes.authRoutes
@@ -34,15 +34,19 @@ fun Route.complaintsRoutes() {
             return@get
         }
 
-        println("at complaints page")
+        val success = call.request.queryParameters["success"] == "true"
+        val error   = call.request.queryParameters["error"]
 
         call.respond(PebbleContent("complaints.peb", mapOf(
             "userSession" to userSession,
+            "success" to if (success) "true" else "false",
+            "error" to (error ?: "")
         )))
     }
 
     post("/complaints/submit") {
         val userSession = call.sessions.get<UserSession>()
+        println(userSession)
         
         if (userSession == null) {
             call.respondRedirect("/login")
@@ -51,11 +55,32 @@ fun Route.complaintsRoutes() {
 
         val params = call.receiveParameters()
         val complaintText = params["message"] ?: ""
-        if (complaintText == null || complaintText == "" || complaintText.length < 2) {
-            // return an error?
+        val type = params["type"] ?: ""
+        if (complaintText == null || complaintText == "") {
+            call.respondRedirect("/complaints?error=server_error")
+            return@post
+        }
+        if (complaintText.length < 2) {
+            call.respondRedirect("/complaints?error=missing_fields")
             return@post
         }
 
+        val user = UserTableAccess().findByEmail(userSession.userEmail)
+        if (user == null) {
+            call.respondRedirect("/login")
+            return@post
+        }
+
+        val userId = user.id
         
+        transaction {
+            ComplaintTable.insert {
+                it[ComplaintTable.userId] = userId
+                it[ComplaintTable.type] = type
+                it[ComplaintTable.message] = complaintText
+            }
+        }
+        
+        call.respondRedirect("/complaints?success=true")
     }
 }
