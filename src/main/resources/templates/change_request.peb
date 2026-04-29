@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Change Request - SkyFlow</title>
+  <title>Change Request</title>
   <link rel="stylesheet" href="/static/css/Change_Request.css">
   <link rel="stylesheet" href="/static/css/Home.css">
 </head>
 <body>
+  <!-- MAIN BODY -->
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
@@ -22,7 +23,7 @@
     </div>
 
     <div class="grid">
-      <!-- LEFT: Current Booking Info -->
+      <!-- LEFT: CURRENT BOOKING INFO -->
       <div class="card">
         <h1>Change Request</h1>
         <p class="sub">Submit a request to change your flight/seat. A staff member will review and update the request status.</p >
@@ -92,7 +93,7 @@
         </form>
       </div>
 
-      <!-- RIGHT: Search flights + select -->
+      <!-- RIGHT: SEARCH FLIGHTS + SELECT -->
       <div class="card">
         <h1>Flight Search</h1>
         <p class="sub">Search by flight number and pick a new flight. Seats shown on the left update after selecting a flight.</p >
@@ -147,7 +148,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <span>© 2026 SkyBook. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -155,5 +156,6 @@
       <a href="/complaints">Complaints</a>
     </div>
   </footer>
+  
 </body>
 </html>

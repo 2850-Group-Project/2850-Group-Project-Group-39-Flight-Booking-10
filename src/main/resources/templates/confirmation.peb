@@ -8,7 +8,6 @@
   <title>Booking Confirmed</title>
 </head>
 <body>
-
   <!-- NAV -->
   <nav>
     <a href="/" class="brand">
@@ -93,7 +92,7 @@
         </div>
       </div>
 
-      <!-- RETURN (only if exists) -->
+      <!-- RETURN: ONLY IF IT EXISTS -->
       {% if bookingSession.returnFlightId != null %}
       <div class="confirm-section">
         <div class="section-title">Return Flight</div>
@@ -134,7 +133,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <span>© 2026 SkyBook. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

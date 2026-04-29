@@ -3,19 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My Bookings - SkyFlow</title>
+  <title>My Bookings</title>
   <link rel="stylesheet" href="/static/css/My_Bookings.css">
   <link rel="stylesheet" href="/static/css/Home.css">
 </head>
-
 <body>
-
+  <!-- NAV -->
   <nav>
     <a href=" " class="brand">
       <div class="brand-badge">✈️</div>
       <span class="brand-title">SkyFlow</span>
     </a >
-
     <div class="nav-right">
       <a href="/home" class="btn-ghost">Search</a >
       <a href="/profile" class="btn-primary">My Profile</a >
@@ -23,8 +21,8 @@
     </div>
   </nav>
 
+  <!-- MAIN BOOKINGS -->
   <div class="wrap">
-
     <div class="page-top">
       <div>
         <h1>My Bookings</h1>
@@ -53,6 +51,7 @@
       </form>
     </div>
 
+    <!-- BOOKINGS LIST -->
     {% if bookings is empty %}
       <div class="empty">No bookings found.</div>
     {% else %}
@@ -139,6 +138,7 @@
 
   </div>
 
+  <!-- CANCEL CONFIRMATION POPUP -->
   <div class="modal-backdrop" id="cancelModal">
     <div class="modal">
       <div class="modal-title">Cancel Booking?</div>
@@ -153,6 +153,7 @@
     </div>
   </div>
 
+  <!-- DELETE CONFIRMATION POPUP -->
   <div class="modal-backdrop" id="deleteModal">
     <div class="modal">
       <div class="modal-title">Delete Booking?</div>
@@ -169,7 +170,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <span>© 2026 SkyBook. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -179,5 +180,6 @@
   </footer>
 
   <script src="/static/javascript/My_Bookings.js"></script>
+  
 </body>
 </html>

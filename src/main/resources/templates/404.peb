@@ -20,7 +20,7 @@
     </div>
   </nav>
 
-  <!-- 404 MAIN BODY -->
+  <!-- MAIN BODY -->
   <div class="error-page">
     <div class="error-code">404</div>
     <h1 class="error-title">This page doesn't exist</h1>
@@ -33,7 +33,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <span>© 2026 SkyBook. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

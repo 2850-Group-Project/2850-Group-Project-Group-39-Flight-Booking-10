@@ -3,18 +3,16 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>My Profile - SkyFlow</title>
+  <title>My Profile</title>
   <link rel="stylesheet" href="/static/css/My_Profile.css">
   <link rel="stylesheet" href="/static/css/Home.css">
 </head>
-
 <body>
   <nav>
     <a href=" " class="brand">
       <div class="brand-badge">✈️</div>
       <span class="brand-title">SkyFlow</span>
     </a >
-
     <div class="nav-right">
       <span class="pill">{{ userSession.firstName }} • {{ userSession.userEmail }}</span>
       <a href="/home" class="btn-ghost">Search</a >
@@ -26,6 +24,7 @@
   <div class="wrap">
     <div class="shell">
 
+      <!-- NAV SIDEBAR OPTIONS -->
       <aside class="side">
         <h3>Navigation</h3>
         <div class="snav">
@@ -40,6 +39,7 @@
         <h1>My Profile</h1>
         <p class="sub">View your account information and quickly access bookings and account actions.</p >
 
+        <!-- USER INFO -->
         <div class="grid">
           <section class="card">
             <h2>Profile information</h2>
@@ -83,7 +83,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved lol</span>
+    <span>© 2026 SkyBook. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
