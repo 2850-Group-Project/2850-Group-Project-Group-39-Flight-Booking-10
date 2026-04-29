@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.SortOrder
 import java.time.Instant
 
 class StaffTableAccess {
@@ -59,5 +60,14 @@ class StaffTableAccess {
             .limit(1)
             .firstOrNull()
             ?.let { it.toStaff() }
+    }
+
+    fun findByStaffId(staffId: Int): List<Staff> {
+        return transaction {
+            StaffTable
+                .select { StaffTable.id eq staffId }
+                .orderBy(StaffTable.createdAt, SortOrder.DESC)
+                .map { it.toStaff() }
+        }
     }
 }
