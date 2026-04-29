@@ -169,6 +169,7 @@ fun Route.staffPagesRoutes() {
                     else FlightTable.flightNumber.castTo<String>(VarCharColumnType()).like("%$q%")
                 }
                 .orderBy(FlightTable.id, SortOrder.DESC)
+                .limit(50)
                 .map { row ->
                     mapOf(
                         "id" to row[FlightTable.id],
