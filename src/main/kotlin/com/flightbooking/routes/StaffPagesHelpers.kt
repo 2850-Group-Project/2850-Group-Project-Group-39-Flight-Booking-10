@@ -27,6 +27,7 @@ private const val MIN_TIMESTAMP_LENGTH = 16
 private const val ISO_TIME_START_INDEX = 11
 private const val ISO_TIME_END_INDEX = 16
 private const val DEFAULT_CAPACITY = 180
+private const val STAFF_FLIGHTS_PAGE_LIMIT = 50
 
 fun queryAirports(): List<Map<String, Any>> =
     AirportTable
@@ -71,7 +72,7 @@ fun queryFlightList(q: String): List<Map<String, Any>> {
             }
         }
         .orderBy(FlightTable.id, SortOrder.DESC)
-        .limit(50)
+        .limit(STAFF_FLIGHTS_PAGE_LIMIT)
         .map { row ->
             mapOf(
                 "id" to row[FlightTable.id],
