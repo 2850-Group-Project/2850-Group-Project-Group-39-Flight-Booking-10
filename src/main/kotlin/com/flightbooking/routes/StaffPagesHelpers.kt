@@ -71,6 +71,7 @@ fun queryFlightList(q: String): List<Map<String, Any>> {
             }
         }
         .orderBy(FlightTable.id, SortOrder.DESC)
+        .limit(50)
         .map { row ->
             mapOf(
                 "id" to row[FlightTable.id],
