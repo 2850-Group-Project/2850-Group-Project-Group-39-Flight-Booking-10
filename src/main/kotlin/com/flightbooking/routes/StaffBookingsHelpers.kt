@@ -25,8 +25,8 @@ import java.time.Instant
 import java.util.UUID
 
 private const val BOOKING_REF_LENGTH = 10
-private const val BOOKING_LIST_LIMIT = 300
-private const val FLIGHT_LIST_LIMIT = 300
+private const val BOOKING_LIST_LIMIT = 50
+private const val FLIGHT_LIST_LIMIT = 50
 
 data class FullBookingInput(
     val passengerEmail: String,
