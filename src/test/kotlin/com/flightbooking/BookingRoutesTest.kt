@@ -91,7 +91,7 @@ class BookingRoutesTest : IntegrationTestSupport() {
                             append("passengers[0][documentCountry]", "GB")
                             append("passengers[0][documentExpiry]", "2030-01-01")
                         },
-            )
+                )
 
             assertEquals(HttpStatusCode.Found, response.status)
             assertEquals("/flights/seats", response.headers[HttpHeaders.Location])
@@ -136,7 +136,7 @@ class BookingRoutesTest : IntegrationTestSupport() {
                             append("passengers[1][documentCountry]", "IE")
                             append("passengers[1][documentExpiry]", "2032-07-22")
                         },
-            )
+                )
 
             assertEquals(HttpStatusCode.Found, response.status)
             assertEquals("/flights/seats", response.headers[HttpHeaders.Location])
