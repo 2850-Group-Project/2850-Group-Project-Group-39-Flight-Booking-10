@@ -79,31 +79,25 @@
         </div>
 
         <section class="points-card card">
-          <h2>Points Spending</h2>
-  
           {% set hasSpending = false %}
-  
           {% for tx in pointsTransactions %}
-            {% if tx.type == "redeem" %}
               {% set hasSpending = true %}
-  
+
               <div class="row">
-                <div class="v">
+                <div class="v" style="color: {% if tx.type == 'redeem' %}#ef4444{% elseif tx.type == 'earn' %}#22c55e{% endif %};">
                   {{ tx.points }}
                 </div>
-  
-                <div class="v"> 
-                  <span style="opacity:0.7;">({{ tx.description }})</span>
+
+                <div class="v-description"> 
+                  <span style="opacity:0.7;">{{ tx.description }}</span>
                 </div>
               </div>
-  
-            {% endif %}
+
           {% endfor %}
-  
+
           {% if not hasSpending %}
             <p class="sub">No points spent yet.</p>
           {% endif %}
-        </section>
       </main>
     </div>
   </div>
