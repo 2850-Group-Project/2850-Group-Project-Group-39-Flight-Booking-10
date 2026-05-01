@@ -122,7 +122,7 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
                     currency = "GBP",
                 ),
             )
-    
+
     val updatedBookingSession = bookingSession.copy(totalPrice = finalTotal)
     call.sessions.set(updatedBookingSession)
 

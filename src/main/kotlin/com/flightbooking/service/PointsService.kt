@@ -46,9 +46,12 @@ object PointsService {
      * Calculates number of points earned based on the amount of money
      * that the user has spent.
      *
-     * @return Int 
+     * @return Int
      */
-    fun calculatePointsEarned(amountPaid: Double, milesEarnRate: Double = 1.0): Int {
+    fun calculatePointsEarned(
+        amountPaid: Double,
+        milesEarnRate: Double = 1.0,
+    ): Int {
         return (amountPaid * POINTS_PER_POUND * milesEarnRate).toInt()
     }
 
