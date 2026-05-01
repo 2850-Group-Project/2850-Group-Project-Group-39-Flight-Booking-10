@@ -5,8 +5,9 @@ import com.flightbooking.access.PaymentTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
 import com.flightbooking.service.PointsService
-import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FareClassTable
+import com.flightbooking.tables.FlightFareTable
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.request.receiveParameters
@@ -18,119 +19,105 @@ import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.Locale
 
 private const val RETURN_FARE_DISCOUNT = 0.5
 private const val PROVIDER_REFERENCE_DIGITS = 4
 
 fun Route.paymentRoutes() {
-    get("/payment") {
-        val userSession = call.sessions.get<UserSession>()
-        val bookingSession = call.sessions.get<BookingSession>()
-        println("bookingSession = $bookingSession")
-        println("bookingSession.search = ${bookingSession?.search}")
+    get("/payment") { handleGetPayment(call) }
+    post("/payment") { handlePostPayment(call) }
+}
 
-        if (userSession == null) {
-            call.respondRedirect("/login")
-            return@get
-        }
-        if (bookingSession == null) {
-            call.respondRedirect("/home")
-            return@get
-        }
+private suspend fun handleGetPayment(call: ApplicationCall) {
+    val userSession = call.sessions.get<UserSession>()
+    val bookingSession = call.sessions.get<BookingSession>()
+    val userId = userSession?.let { fetchUserId(it) }
 
-        val userId = fetchUserId(userSession) ?: run {
-            call.respondRedirect("/login")
-            return@get
-        }
-
-        var bookingTotal = calculateTotal(bookingSession)
-        val (pointsAvailable, maxDiscount) = PointsService.calculateRedemption(userId, calculateTotal(bookingSession))
-
-        call.respond(
-            PebbleContent(
-                "payment.peb",
-                mapOf(
-                    "userSession" to userSession,
-                    "bookingSession" to bookingSession,
-                    "pointsAvailable" to pointsAvailable,
-                    "maxDiscount" to String.format("%.2f", maxDiscount),
-                    "bookingTotal" to bookingTotal,
-                ),
-            ),
-        )
+    if (userSession == null || bookingSession == null || userId == null) {
+        call.respondRedirect(if (bookingSession == null) "/home" else "/login")
+        return
     }
 
-    post("/payment") {
-        val userSession = call.sessions.get<UserSession>()
-        val bookingSession = call.sessions.get<BookingSession>()
+    val bookingTotal = calculateTotal(bookingSession)
+    val (pointsAvailable, maxDiscount) = PointsService.calculateRedemption(userId, bookingTotal)
 
-        if (userSession == null) {
-            call.respondRedirect("/login")
-            return@post
-        }
+    call.respond(
+        PebbleContent(
+            "payment.peb",
+            mapOf(
+                "userSession" to userSession,
+                "bookingSession" to bookingSession,
+                "pointsAvailable" to pointsAvailable,
+                "maxDiscount" to String.format(Locale.UK, "%.2f", maxDiscount),
+                "bookingTotal" to bookingTotal,
+            ),
+        ),
+    )
+}
 
-        val userId = fetchUserId(userSession) ?: run {
-            call.respondRedirect("/login")
-            return@post
-        }
+private suspend fun handlePostPayment(call: ApplicationCall) {
+    val userSession = call.sessions.get<UserSession>()
+    val bookingSession = call.sessions.get<BookingSession>()
+    val userId = userSession?.let { fetchUserId(it) }
 
-        if (bookingSession == null) {
-            call.respondRedirect("/home")
-            return@post
-        }
+    if (userSession == null || bookingSession == null || userId == null) {
+        call.respondRedirect(if (bookingSession == null) "/home" else "/login")
+        return
+    }
 
-        val params = call.receiveParameters()
-        val cardNumber = params["cardNumber"]?.trim()
-        val expiry = params["expiry"]?.trim()
-        val cvv = params["cvv"]?.trim()
-        var finalTotal = calculateTotal(bookingSession)
-        println("Payment submitted: Card: $cardNumber, Expiry: $expiry, CVV: $cvv")
+    val params = call.receiveParameters()
+    val cardNumber = params["cardNumber"]?.trim()
+    val expiry = params["expiry"]?.trim()
+    val cvv = params["cvv"]?.trim()
+    var finalTotal = calculateTotal(bookingSession)
+    println("Payment submitted: Card: $cardNumber, Expiry: $expiry, CVV: $cvv")
 
-        val pointsToRedeem = params["pointsToRedeem"]?.toIntOrNull() ?: 0
+    val pointsToRedeem = params["pointsToRedeem"]?.toIntOrNull() ?: 0
 
-        if (pointsToRedeem > 0) {
-            val discount = PointsService.redeemPoints(
+    if (pointsToRedeem > 0) {
+        val discount =
+            PointsService.redeemPoints(
                 userId = userId,
                 bookingId = bookingSession.bookingId,
                 pointsToRedeem = pointsToRedeem,
                 bookingTotal = finalTotal,
             )
-            finalTotal -= discount
-        }
-
-        val paymentTableAccess = PaymentTableAccess()
-        val paymentId =
-            paymentTableAccess
-                .createPayment(
-                    bookingId = bookingSession.bookingId,
-                    amount = finalTotal,
-                    paymentMethod = "card",
-                    paymentStatus = "paid",
-                    paidAt = java.time.LocalDateTime.now().toString(),
-                    providerReference = cardNumber?.takeLast(PROVIDER_REFERENCE_DIGITS) ?: "0000",
-                    currency = "GBP",
-                )
-        
-        val bookingTableAccess = BookingTableAccess()
-        bookingTableAccess.createBookingWithPaymentUpdate(bookingSession, paymentId, userSession.userEmail)
-
-        val milesEarnRate = fetchMilesEarnRate(bookingSession.outboundFareId)
-
-        PointsService.awardPointsForBooking(
-            userId = userId,
-            bookingId = bookingSession.bookingId,
-            amountPaid = finalTotal,
-            milesEarnRate = milesEarnRate,
-        )
-
-        call.respondRedirect("/confirmation")
+        finalTotal -= discount
     }
+
+    val paymentTableAccess = PaymentTableAccess()
+    val paymentId =
+        paymentTableAccess
+            .createPayment(
+                bookingId = bookingSession.bookingId,
+                amount = finalTotal,
+                paymentMethod = "card",
+                paymentStatus = "paid",
+                paidAt = java.time.LocalDateTime.now().toString(),
+                providerReference = cardNumber?.takeLast(PROVIDER_REFERENCE_DIGITS) ?: "0000",
+                currency = "GBP",
+            )
+
+    val bookingTableAccess = BookingTableAccess()
+    bookingTableAccess.createBookingWithPaymentUpdate(bookingSession, paymentId, userSession.userEmail)
+
+    val milesEarnRate = fetchMilesEarnRate(bookingSession.outboundFareId)
+
+    PointsService.awardPointsForBooking(
+        userId = userId,
+        bookingId = bookingSession.bookingId,
+        amountPaid = finalTotal,
+        milesEarnRate = milesEarnRate,
+    )
+
+    call.respondRedirect("/confirmation")
 }
 
-private fun calculateTotal(bookingSession: BookingSession): Double = 
+private fun calculateTotal(bookingSession: BookingSession): Double =
     transaction {
         val outboundFarePrice =
             bookingSession.outboundFareId?.let { fareId ->

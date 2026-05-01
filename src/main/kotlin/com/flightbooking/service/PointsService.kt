@@ -14,9 +14,8 @@ object PointsService {
 
     private val pointsTable = PointsTableAccess()
 
-    fun getBalance(userId: Int): Int =
-        pointsTable.getBalance(userId)?.balance ?: 0
-    
+    fun getBalance(userId: Int): Int = pointsTable.getBalance(userId)?.balance ?: 0
+
     /**
      * Call when booking is confirmed/paid.
      *
@@ -40,7 +39,7 @@ object PointsService {
             bookingId = bookingId,
             type = "earn",
             description = "Points earned for booking #$bookingId",
-        ) 
+        )
     }
 
     /**
@@ -49,10 +48,13 @@ object PointsService {
      *
      * @return Pair(pointsNeeded, discountAmount)
      */
-    fun calculateRedemption(userId: Int, bookingTotal: Double): Pair<Int, Double> {
+    fun calculateRedemption(
+        userId: Int,
+        bookingTotal: Double,
+    ): Pair<Int, Double> {
         val balance = getBalance(userId)
         val balanceAsGBP = balance * POUNDS_PER_POINT
-        val discount= minOf(balanceAsGBP, bookingTotal)
+        val discount = minOf(balanceAsGBP, bookingTotal)
         return Pair(balance, discount)
     }
 
@@ -70,14 +72,14 @@ object PointsService {
         bookingTotal: Double,
     ): Double {
         require(pointsToRedeem > 0) { "Must redeem at least 1 point" }
-        
+
         val discountValue = (pointsToRedeem * POUNDS_PER_POINT).coerceAtMost(bookingTotal)
-        
+
         pointsTable.deductPoints(
             userId = userId,
             points = pointsToRedeem,
             bookingId = bookingId,
-            description = "Points redeemed for booking #$bookingId (£%.2f discount)".format(discountValue)
+            description = "Points redeemed for booking #$bookingId (£%.2f discount)".format(discountValue),
         )
         return discountValue
     }

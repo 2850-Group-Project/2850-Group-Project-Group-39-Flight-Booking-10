@@ -263,8 +263,10 @@ data class PointsTransaction(
     val id: Int,
     val userId: Int,
     val bookingId: Int?,
-    val type: String, // earn redeem expire adjust
-    val points: Int, // positive for earn, negative for redeem
+    // earn redeem expire adjust
+    val type: String,
+    // positive for earn, negative for redeem
+    val points: Int,
     val balanceAfter: Int,
     val description: String?,
     val createdAt: String,

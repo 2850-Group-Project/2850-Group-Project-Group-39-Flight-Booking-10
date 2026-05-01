@@ -233,10 +233,11 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
         return
     }
 
-    val userId = fetchUserId(userSession) ?: run {
-        call.respondRedirect("/login")
-        return
-    }
+    val userId =
+        fetchUserId(userSession) ?: run {
+            call.respondRedirect("/login")
+            return
+        }
 
     val pointsBalance = PointsService.getBalance(userId)
 
