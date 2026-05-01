@@ -1,23 +1,25 @@
 package com.flightbooking
 
+import com.flightbooking.tables.PassengerTable
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.cookies.HttpCookies
-import io.ktor.client.plugins.cookies.cookies
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.Url
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
 import io.ktor.http.parameters
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class BookingRoutesTest : IntegrationTestSupport() {
@@ -92,13 +94,8 @@ class BookingRoutesTest : IntegrationTestSupport() {
                 )
 
             assertEquals(HttpStatusCode.Found, response.status)
-            assertEquals("/flights/seat_selection", response.headers[HttpHeaders.Location])
-
-            val bookingCookie = client.cookies(Url("http://localhost/")).firstOrNull { it.name == "BOOKING_SESSION" }
-            assertNotNull(bookingCookie)
-            assertTrue(bookingCookie.value.contains("Alex"))
-            assertTrue(bookingCookie.value.contains("Student"))
-            assertTrue(bookingCookie.value.contains("A1234567"))
+            assertEquals("/flights/seats", response.headers[HttpHeaders.Location])
+            assertTrue(passengerExists("Alex", "Student", "A1234567"))
         }
 
     // Check that submitting multiple passengers saves all of their details in the booking session.
@@ -142,14 +139,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
                 )
 
             assertEquals(HttpStatusCode.Found, response.status)
-            assertEquals("/flights/seat_selection", response.headers[HttpHeaders.Location])
-
-            val bookingCookie = client.cookies(Url("http://localhost/")).firstOrNull { it.name == "BOOKING_SESSION" }
-            assertNotNull(bookingCookie)
-            assertTrue(bookingCookie.value.contains("Alice"))
-            assertTrue(bookingCookie.value.contains("Brown"))
-            assertTrue(bookingCookie.value.contains("Ben"))
-            assertTrue(bookingCookie.value.contains("Taylor"))
+            assertEquals("/flights/seats", response.headers[HttpHeaders.Location])
+            assertTrue(passengerExists("Alice", "Brown", "P1111111"))
+            assertTrue(passengerExists("Ben", "Taylor", "P2222222"))
         }
 
     // Create a logged-in user client for booking route tests.
@@ -210,4 +202,20 @@ class BookingRoutesTest : IntegrationTestSupport() {
 
         assertEquals(HttpStatusCode.OK, response.status)
     }
+
+    // Check whether a submitted passenger row was persisted to the database.
+    private fun passengerExists(
+        firstName: String,
+        lastName: String,
+        documentNumber: String,
+    ): Boolean =
+        transaction {
+            PassengerTable
+                .select {
+                    (PassengerTable.firstName eq firstName) and
+                        (PassengerTable.lastName eq lastName) and
+                        (PassengerTable.documentNumber eq documentNumber)
+                }
+                .any()
+        }
 }

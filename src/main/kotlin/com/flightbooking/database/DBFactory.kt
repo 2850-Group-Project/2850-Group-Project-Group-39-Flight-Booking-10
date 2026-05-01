@@ -3,6 +3,7 @@ package com.flightbooking.database
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
+import com.flightbooking.tables.ChangeRequestTable
 import com.flightbooking.tables.ComplaintTable
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
@@ -10,9 +11,11 @@ import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.NotificationTable
 import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.PaymentTable
+import com.flightbooking.tables.PointsTransactionTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.StaffTable
+import com.flightbooking.tables.UserPointsTable
 import com.flightbooking.tables.UserTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -59,6 +62,9 @@ object DBFactory {
                 StaffTable,
                 ComplaintTable,
                 NotificationTable,
+                ChangeRequestTable,
+                UserPointsTable,
+                PointsTransactionTable,
             )
         }
         println("All tables present")
