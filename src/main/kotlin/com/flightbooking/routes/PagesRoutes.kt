@@ -2,6 +2,7 @@ package com.flightbooking.routes
 
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
+import com.flightbooking.access.PointsTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
@@ -10,7 +11,9 @@ import com.flightbooking.service.PointsService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
+import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.SeatAssignmentTable
+import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.UserTable
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -25,6 +28,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
@@ -254,6 +258,9 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
         }
 
     val pointsBalance = PointsService.getBalance(userId)
+    val pointsTable = PointsTableAccess()
+    val pointsTransactions = pointsTable.getTransactions(userId)
+    println(pointsTransactions)
 
     call.respond(
         PebbleContent(
@@ -261,6 +268,7 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
             mapOf(
                 "userSession" to userSession,
                 "pointsBalance" to pointsBalance,
+                "pointsTransactions" to pointsTransactions,
             ),
         ),
     )
@@ -378,6 +386,26 @@ private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
                     .any()
 
             if (!owned) return@transaction false
+
+            val passengers =
+                PassengerTable
+                    .select { PassengerTable.bookingId eq bookingId }
+                    .map { it[PassengerTable.id] }
+
+            val seatIdsToFree =
+                SeatAssignmentTable
+                    .select { SeatAssignmentTable.passengerId inList passengers }
+                    .mapNotNull { it[SeatAssignmentTable.seatId] }
+
+            SeatTable.update({ SeatTable.id inList seatIdsToFree }) {
+                it[status] = "available"
+            }
+
+            if (passengers.isNotEmpty()) {
+                SeatAssignmentTable.deleteWhere {
+                    SeatAssignmentTable.passengerId inList passengers
+                }
+            }
 
             BookingTable.update({ (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }) {
                 it[bookingStatus] = "cancelled"

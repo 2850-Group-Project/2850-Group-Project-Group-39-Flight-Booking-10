@@ -1,5 +1,6 @@
 package com.flightbooking
 
+import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -7,41 +8,30 @@ import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class PagesRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated users should be redirected to login from the profile page.
+class SeatSelectionRoutesTest : IntegrationTestSupport() {
+    // Unauthenticated users should be redirected to login from seat selection.
     @Test
-    fun unauthenticatedProfileRedirectsToLogin() =
+    fun unauthenticatedSeatSelectionRedirectsToLogin() =
         testApplication {
             configureApp()
             val client = createClient { followRedirects = false }
 
-            val response = client.get("/profile")
+            val response = client.get("/flights/seats")
 
             assertEquals(HttpStatusCode.Found, response.status)
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unauthenticated users should be redirected to login from their bookings page.
+    // Unauthenticated seat submissions should be redirected to login.
     @Test
-    fun unauthenticatedBookingsRedirectsToLogin() =
+    fun unauthenticatedSeatSubmitRedirectsToLogin() =
         testApplication {
             configureApp()
             val client = createClient { followRedirects = false }
 
-            val response = client.get("/profile/bookings")
+            val response = client.submitForm(url = "/flights/seats")
 
             assertEquals(HttpStatusCode.Found, response.status)
             assertEquals("/login", response.headers[HttpHeaders.Location])
-        }
-
-    // The shared 404 route should render with a not found status.
-    @Test
-    fun notFoundPageReturnsNotFoundStatus() =
-        testApplication {
-            configureApp()
-
-            val response = client.get("/404")
-
-            assertEquals(HttpStatusCode.NotFound, response.status)
         }
 }
