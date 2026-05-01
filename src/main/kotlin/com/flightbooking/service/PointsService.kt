@@ -51,8 +51,7 @@ object PointsService {
      */
     fun calculateRedemption(userId: Int, bookingTotal: Double): Pair<Int, Double> {
         val balance = getBalance(userId)
-        println("points balance: $balance")
-        val balanceAsGBP = balance * POINTS_PER_POUND
+        val balanceAsGBP = balance * POUNDS_PER_POINT
         val discount= minOf(balanceAsGBP, bookingTotal)
         return Pair(balance, discount)
     }
@@ -72,8 +71,7 @@ object PointsService {
     ): Double {
         require(pointsToRedeem > 0) { "Must redeem at least 1 point" }
         
-        val maxDiscount = bookingTotal * MAX_REDEEM_PERCENT
-        val discountValue = (pointsToRedeem * POUNDS_PER_POINT).coerceAtMost(maxDiscount)
+        val discountValue = (pointsToRedeem * POUNDS_PER_POINT).coerceAtMost(bookingTotal)
         
         pointsTable.deductPoints(
             userId = userId,
