@@ -12,8 +12,8 @@ import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.PassengerTable
-import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.SeatAssignmentTable
+import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.UserTable
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
