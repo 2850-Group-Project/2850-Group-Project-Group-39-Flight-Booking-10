@@ -37,7 +37,6 @@ const val HOURS_DENOMINATOR: Int = 60
  * Provides database access operations for the [FlightTable].
  */
 class FlightTableAccess {
-
     /**
      * Returns all flights in the database.
      * @return list of flights
@@ -141,7 +140,12 @@ class FlightTableAccess {
             addLogger(StdOutSqlLogger)
             FlightTable
                 .join(originAirport, JoinType.INNER, FlightTable.originAirport, originAirport[AirportTable.id])
-                .join(destinationAirport, JoinType.INNER, FlightTable.destinationAirport, destinationAirport[AirportTable.id])
+                .join(
+                    destinationAirport,
+                    JoinType.INNER,
+                    FlightTable.destinationAirport,
+                    destinationAirport[AirportTable.id],
+                )
                 .join(FlightFareTable, JoinType.LEFT, FlightTable.id, FlightFareTable.flightId)
                 .join(FareClassTable, JoinType.LEFT, FlightFareTable.fareClassId, FareClassTable.id)
                 .select {

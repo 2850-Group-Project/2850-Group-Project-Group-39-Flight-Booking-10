@@ -41,7 +41,7 @@ data class FullBookingInput(
 )
 
 /**
- * Function to create a whole booking, creating and inserting into 
+ * Function to create a whole booking, creating and inserting into
  * booking table, passenger table, booking segment table, seat assignment table
  * and updating it so that foreign keys match
  * @param input booking input

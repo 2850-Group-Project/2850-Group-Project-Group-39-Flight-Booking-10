@@ -16,7 +16,6 @@ import org.jetbrains.exposed.sql.update
  * Class instance for using payment table
  */
 class PaymentTableAccess {
-
     /**
      * Gets list of all payments
      * @return list of payments

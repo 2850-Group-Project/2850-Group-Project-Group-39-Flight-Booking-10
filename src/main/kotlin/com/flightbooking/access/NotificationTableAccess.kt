@@ -17,7 +17,6 @@ import java.time.Instant
  * Class instance for using notificaiton table
  */
 class NotificationTableAccess {
-
     /**
      * Gets list of all notifications
      * @return list of notifications

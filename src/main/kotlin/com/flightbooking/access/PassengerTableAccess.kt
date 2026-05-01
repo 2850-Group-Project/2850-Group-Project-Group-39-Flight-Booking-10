@@ -16,7 +16,6 @@ import org.jetbrains.exposed.sql.update
  * Class instance for using passengers table
  */
 class PassengerTableAccess {
-
     /**
      * Gets list of all passengers
      * @return list of passengers

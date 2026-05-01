@@ -22,7 +22,6 @@ import java.time.Instant
  * Class instance for using user table
  */
 class UserTableAccess {
-
     /**
      * Gets list of all users
      * @return list of users

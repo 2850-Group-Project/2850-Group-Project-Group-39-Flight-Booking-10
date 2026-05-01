@@ -388,3 +388,43 @@ private suspend fun submitBookingChange(
     }
     return err
 }
+
+/**
+ * Class for passing parameters into the function BookingChangeModel
+ */
+private data class BookingChangeModelParams(
+    val session: UserSession,
+    val bookingId: Int,
+    val flightQ: String,
+    val selectedFlightId: Int?,
+    val error: String,
+    val ok: String,
+)
+
+/**
+ * Class for passing parameters out of the function fetchCurrentFlightInfo
+ */
+private data class CurrentFlightInfo(
+    val flightId: Int?,
+    val flightNumber: String,
+    val dep: String,
+    val arr: String,
+    val status: String,
+    val originIata: String,
+    val originName: String,
+    val destIata: String,
+    val destName: String,
+    val seatCode: String,
+    val segmentId: Int,
+)
+
+/**
+ * Class for parameters passed into submitBookingChange
+ */
+private data class BookingChangeParams(
+    val bookingId: Int,
+    val segmentId: Int,
+    val requestedFlightId: Int,
+    val requestedSeatId: Int?,
+    val reason: String?,
+)

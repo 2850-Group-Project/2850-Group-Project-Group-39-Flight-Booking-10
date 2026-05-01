@@ -16,7 +16,6 @@ import org.jetbrains.exposed.sql.update
  * Class instance for using flight fare table
  */
 class FlightFareTableAccess {
-
     /**
      * Gets list of all flight fares
      * @return list of flight fares

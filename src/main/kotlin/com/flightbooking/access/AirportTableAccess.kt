@@ -20,7 +20,6 @@ private const val AIRPORT_SEARCH_LIMIT: Int = 8
  * Class instance for using airport table
  */
 class AirportTableAccess {
-
     /**
      * Gets list of all Airports
      * @return list of airports

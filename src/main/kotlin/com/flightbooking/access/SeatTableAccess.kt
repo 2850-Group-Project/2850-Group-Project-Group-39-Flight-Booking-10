@@ -24,7 +24,6 @@ const val EXIT_ROW_OFFSET_2: Int = 5
  * Class instance for using seat table
  */
 class SeatTableAccess {
-
     /**
      * Gets list of all seats
      * @return list of seats

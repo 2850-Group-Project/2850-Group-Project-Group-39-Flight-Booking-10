@@ -18,7 +18,6 @@ import org.jetbrains.exposed.sql.update
  * Class instance for using seat assignment table
  */
 class SeatAssignmentTableAccess {
-
     /**
      * Gets list of all seat assignments
      * @return list of seat assignments

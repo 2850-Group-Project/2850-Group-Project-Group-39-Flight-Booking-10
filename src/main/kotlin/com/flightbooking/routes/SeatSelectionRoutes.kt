@@ -29,11 +29,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
  * Seat selection routes (booking flow).
  *
  * This version allows users to select seats for multiple passengers without page reloads:
- * - GET  /flights/seats -> renders `seat_selection.peb` for the **selected outbound flight** stored in [BookingSession].
+ * - GET  /flights/seats ->
+ *   renders `seat_selection.peb` for the **selected outbound flight** stored in [BookingSession].
  *   Seat map is generated from flight capacity (3 aircraft categories).
  *   If seat rows exist in DB for that flight, their status is used.
  *
- * - POST /flights/seats -> Accepts a JSON payload with all seat selections at once (selectedSeats: { passengerId: seatCode })
+ * - POST /flights/seats ->
+ *   Accepts a JSON payload with all seat selections at once (selectedSeats: { passengerId: seatCode })
  *   Validates all seats are available, creates booking segment + seat assignments,
  *   then redirects to the next step (typically payment).
  */

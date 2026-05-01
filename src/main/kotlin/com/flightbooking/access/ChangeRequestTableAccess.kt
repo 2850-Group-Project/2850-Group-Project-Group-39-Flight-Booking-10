@@ -17,7 +17,6 @@ import java.time.Instant
  * Class instance for using change request table
  */
 class ChangeRequestTableAccess {
-
     /**
      * Gets list of all change requests
      * @return list of change requests

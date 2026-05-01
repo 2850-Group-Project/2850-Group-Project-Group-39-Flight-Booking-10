@@ -22,7 +22,6 @@ private const val BOOKING_REFERENCE_LENGTH = 8
  * Class instance for using Booking table
  */
 class BookingTableAccess {
-
     /**
      * Gets list of all Bookings
      * @return list of bookings

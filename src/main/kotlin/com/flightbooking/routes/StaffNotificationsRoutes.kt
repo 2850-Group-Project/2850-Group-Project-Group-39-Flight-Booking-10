@@ -252,7 +252,7 @@ private fun handleStatusUpdate(
 }
 
 /**
- * Handles deleting ChangeRequest record, 
+ * Handles deleting ChangeRequest record,
  * returns url with success or fail
  * @param params request params
  * @param access table access

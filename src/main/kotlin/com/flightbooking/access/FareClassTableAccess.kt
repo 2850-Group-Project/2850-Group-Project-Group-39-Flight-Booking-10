@@ -18,7 +18,6 @@ import java.time.Instant
  * Class instance for using FareClass table
  */
 class FareClassTableAccess {
-
     /**
      * Gets list of all fare classes
      * @return list of fare classes

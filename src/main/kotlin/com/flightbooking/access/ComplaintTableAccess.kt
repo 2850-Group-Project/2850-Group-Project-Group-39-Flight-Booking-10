@@ -18,7 +18,6 @@ import java.time.Instant
  * Class instance for using complaint table
  */
 class ComplaintTableAccess {
-
     /**
      * Gets list of all complaints
      * @return list of complaints

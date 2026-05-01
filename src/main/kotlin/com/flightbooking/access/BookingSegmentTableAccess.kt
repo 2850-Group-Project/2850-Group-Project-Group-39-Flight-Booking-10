@@ -20,7 +20,6 @@ const val RAND_CABIN_PREMIUM_ECONOMY_UPPER: Int = 20
  * Class instance for using BookingSegment table
  */
 class BookingSegmentTableAccess {
-
     /**
      * Gets list of all BookingSegments
      * @return list of booking segments

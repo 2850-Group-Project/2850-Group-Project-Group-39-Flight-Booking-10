@@ -97,6 +97,7 @@ fun queryFlightList(q: String): List<Map<String, Any>> {
                 "capacity" to (row[FlightTable.capacity]?.toString() ?: ""),
             )
         }
+}
 
 /**
  * Builds the flights model for the staff flights page to display
@@ -174,6 +175,7 @@ fun queryActiveFlightList(): List<Map<String, String>> {
                 "capacity" to (row[FlightTable.capacity]?.toString() ?: ""),
             )
         }
+}
 
 /**
  * Function builds the model for staff dashboard to display

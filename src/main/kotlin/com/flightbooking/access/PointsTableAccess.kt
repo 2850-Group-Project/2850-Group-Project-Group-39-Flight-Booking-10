@@ -13,7 +13,6 @@ import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
 class PointsTableAccess {
-
     /**
      * Returns the current points balance row for a user, or null if none exists yet.
      * @param userId user id
