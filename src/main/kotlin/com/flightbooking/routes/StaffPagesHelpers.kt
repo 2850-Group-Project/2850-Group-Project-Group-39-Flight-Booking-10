@@ -27,7 +27,7 @@ private const val MIN_TIMESTAMP_LENGTH = 16
 private const val ISO_TIME_START_INDEX = 11
 private const val ISO_TIME_END_INDEX = 16
 private const val DEFAULT_CAPACITY = 180
-private const val STAFF_FLIGHTS_PAGE_LIMIT = 50
+private const val STAFF_FLIGHTS_PAGE_LIMIT = 10
 
 /**
  * Helper function that searches and returns a list of Airports mapping:
