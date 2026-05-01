@@ -12,7 +12,7 @@
       <div class="brand">
         <div class="brand-badge">✈</div>
         <div>SkyFlow</div>
-        <button class="btn" type="button" data-large-font-toggle style="margin-left:auto;padding:8px 12px;">Large Font</button>
+        <button class="btn" type="button" data-large-font-toggle style="margin-left:auto;padding:8px 12px;" aria-label="Toggle large font">Large Font</button>
       </div>
 
       <div class="pill">New Destination: Santorini</div>
@@ -48,8 +48,8 @@
         {% endif %}
 
         <div class="row">
-          <button class="btn" type="button">Google</button>
-          <button class="btn" type="button">Apple</button>
+          <button class="btn" type="button" aria-label="Continue with Google">Google</button>
+          <button class="btn" type="button" aria-label="Continue with Apple">Apple</button>
         </div>
 
         <div class="divider">OR CONTINUE WITH EMAIL</div>
@@ -73,7 +73,7 @@
             <a href=" " onclick="return false;">Forgot password?</a >
           </div>
 
-          <button class="primary" type="submit">Sign In →</button>
+          <button class="primary" type="submit" aria-label="Sign in to SkyFlow">Sign In →</button>
         </form>
 
         <!-- LOGIN / SIGN IN -->

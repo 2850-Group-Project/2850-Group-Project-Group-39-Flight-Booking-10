@@ -286,7 +286,7 @@
         {% endfor %}
 
         <div class="passengers-submit">
-          <button type="submit" class="btn-primary passengers-submit-btn">
+          <button type="submit" class="btn-primary passengers-submit-btn" aria-label="Continue to seat selection">
             Continue to seat selection →
           </button>
         </div>

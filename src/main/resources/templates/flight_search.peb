@@ -81,8 +81,8 @@
             <p class="flights-subtitle">Flights around {{ search.departureDate }}</p>
           </div>
           <div class="carousel-controls">
-            <button class="carousel-btn" onclick="scrollCarousel('outbound', -1)">‹</button>
-            <button class="carousel-btn" onclick="scrollCarousel('outbound', 1)">›</button>
+            <button class="carousel-btn" onclick="scrollCarousel('outbound', -1)" aria-label="Show previous outbound flights">‹</button>
+            <button class="carousel-btn" onclick="scrollCarousel('outbound', 1)" aria-label="Show next outbound flights">›</button>
           </div>
         </div>
 
@@ -132,7 +132,7 @@
                     <input type="hidden" name="adults" value="{{ search.adults }}" />
                     <input type="hidden" name="children" value="{{ search.children }}" />
                     <input type="hidden" name="infants" value="{{ search.infants }}" />
-                    <button type="submit" class="btn-select">Select →</button>
+                    <button type="submit" class="btn-select" aria-label="Select outbound flight {{ flight.flightNumber }}">Select →</button>
                   </form>
                 </div>
               </div>
@@ -160,8 +160,8 @@
             <p class="flights-subtitle">Flights around {{ search.returnDate }}</p>
           </div>
           <div class="carousel-controls">
-            <button class="carousel-btn" onclick="scrollCarousel('return', -1)">‹</button>
-            <button class="carousel-btn" onclick="scrollCarousel('return', 1)">›</button>
+            <button class="carousel-btn" onclick="scrollCarousel('return', -1)" aria-label="Show previous return flights">‹</button>
+            <button class="carousel-btn" onclick="scrollCarousel('return', 1)" aria-label="Show next return flights">›</button>
           </div>
         </div>
 
@@ -212,7 +212,7 @@
                     <input type="hidden" name="adults" value="{{ search.adults }}" />
                     <input type="hidden" name="children" value="{{ search.children }}" />
                     <input type="hidden" name="infants" value="{{ search.infants }}" />
-                    <button type="submit" class="btn-select">Select →</button>
+                    <button type="submit" class="btn-select" aria-label="Select return flight {{ flight.flightNumber }}">Select →</button>
                   </form>
                 </div>
               </div>

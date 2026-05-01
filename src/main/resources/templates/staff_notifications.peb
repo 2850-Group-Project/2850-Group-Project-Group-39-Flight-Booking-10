@@ -44,7 +44,7 @@
           </label>
           <input class="input" name="q" value="{{ q }}" placeholder="e.g. 12" />
         </div>
-        <button class="btn" type="submit" style="width:120px;">Search</button>
+        <button class="btn" type="submit" style="width:120px;" aria-label="Search change requests">Search</button>
         <a class="btn" href="/staff/notifications">Clear</a >
       </form>
     </div>
@@ -125,12 +125,12 @@
                       <option value="cancelled" {% if r.status == "cancelled" %}selected{% endif %}>cancelled</option>
                       <option value="complete" {% if r.status == "complete" %}selected{% endif %}>complete</option>
                     </select>
-                    <button class="btn primary" type="submit">Update</button>
+                    <button class="btn primary" type="submit" aria-label="Update change request {{ r.requestId }}">Update</button>
                   </form>
 
                   <form action="/staff/notifications/delete" method="post" style="margin:0;">
                     <input type="hidden" name="requestId" value="{{ r.requestId }}" />
-                    <button class="btn red" type="submit">Delete</button>
+                    <button class="btn red" type="submit" aria-label="Delete change request {{ r.requestId }}">Delete</button>
                   </form>
                 </div>
               </td>

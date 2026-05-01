@@ -74,7 +74,7 @@
             <div class="sub" style="margin-top:8px;">After creating, edit the booking to assign a seat for its flight.</div>
           </div>
           <div>
-            <button class="btn primary" type="submit">Create Booking →</button>
+            <button class="btn primary" type="submit" aria-label="Create booking">Create Booking →</button>
           </div>
         </div>
       </form>
@@ -92,7 +92,7 @@
             <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Search Booking ID</label>
             <input class="input" name="q" value="{{ q }}" placeholder="e.g. 4" />
           </div>
-          <button class="btn" type="submit" style="width:120px;">Search</button>
+          <button class="btn" type="submit" style="width:120px;" aria-label="Search bookings">Search</button>
         </form>
       </div>
 
@@ -189,7 +189,7 @@
                       <div class="muted" style="font-size:12px; align-self:center;">
                         Saving seat only works if it belongs to the selected flight.
                       </div>
-                      <button class="btn primary" type="submit">Save</button>
+                      <button class="btn primary" type="submit" aria-label="Save booking {{ b.bookingReference }}">Save</button>
                     </div>
                   </form>
                 </td>
