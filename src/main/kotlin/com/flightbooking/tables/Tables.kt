@@ -267,3 +267,32 @@ object ChangeRequestTable : Table("change_request") {
     val createdAt = varchar("created_at", STANDARD_FIELD_LENGTH).nullable()
     val updatedAt = varchar("updated_at", STANDARD_FIELD_LENGTH).nullable()
 }
+
+/**
+ * Exposed table definition for the `user_points` table.
+ * Holds the current points balance for each user.
+ */
+object UserPointsTable : Table("user_points") {
+    val id = integer("user_points_id").autoIncrement()
+    val userId = integer("user_id").references(UserTable.id).uniqueIndex()
+    val balance = integer("balance").default(0)
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+/**
+ * Exposed table definition for the `points_transaction` table.
+ * Records all points earning and redemption transactions for users.
+ */
+object PointsTransactionTable : Table("points_transaction") {
+    val id = integer("points_transaction_id").autoIncrement()
+    val userId = integer("user_id").references(UserTable.id)
+    val bookingId = integer("booking_id").references(BookingTable.id).nullable()
+    val type = varchar("type", SHORT_FIELD_LENGTH) // earn redeem  expire  adjust
+    val points = integer("points") // positive = earned, negative = redeemed
+    val balanceAfter = integer("balance_after")
+    val description = varchar("description", STANDARD_FIELD_LENGTH).nullable()
+    val createdAt = varchar("created_at", STANDARD_FIELD_LENGTH)
+
+    override val primaryKey = PrimaryKey(id)
+}

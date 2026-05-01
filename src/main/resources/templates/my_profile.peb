@@ -61,8 +61,8 @@
             </div>
 
             <div class="row">
-              <div class="k">Loyalty</div>
-              <div class="v">SkyFlow Loyalty</div>
+              <div class="k">Loyalty Points</div>
+              <div class="v">{{ pointsBalance }}</div>
             </div>
           </section>
 

@@ -71,9 +71,20 @@
     <!-- PAYMENT -->
     <section class="passengers-section">
       <div class="passengers-header">
-        <h2 class="passengers-title">Payment Details</h2>
-        <p class="passengers-subtitle">Enter your card details to complete your booking.</p>
+        <div>
+          <h2 class="passengers-title">Payment Details</h2>
+          <p class="passengers-subtitle">Enter your card details to complete your booking.</p>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 13px; color: rgba(255,255,255,.55);">Total</span>
+          <div id="totalDisplay" style="font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">£{{ bookingTotal }}</div>
+          <div id="pointsMsg" style="display:none; margin-top: 6px;">
+            <span style="font-size: 13px; color: var(--good);">-£{{ maxDiscount }} discount applied</span><br/>
+            <span style="font-size: 12px; color: rgba(255,255,255,.45);">{{ pointsAvailable }} pts redeemed</span>
+          </div>
+        </div>
       </div>
+
 
       <form method="POST" action="/payment" class="payment-form">
 
@@ -103,6 +114,26 @@
           </div>
         </div>
 
+        <!-- USE POINTS -->
+        <div class="passenger-card">
+          <div class="passenger-card-header">
+            <span class="passenger-type-badge passenger-type-badge--adult">Points</span>
+            <span class="passenger-card-title">Redeem Points</span>
+          </div>
+
+          <div class="passenger-fields">
+            <div class="field-group">
+              <label style="font-size: 13px; color: rgba(255,255,255,.70); text-transform: none; letter-spacing: 0;">
+                You have <span style="color: white; font-weight: 700;">{{ pointsAvailable }} points</span> 
+                worth up to <span style="color: var(--good); font-weight: 700;">£{{ maxDiscount }}</span>
+              </label>
+              <input type="hidden" name="pointsToRedeem" id="pointsToRedeem" value="0" />
+              <button type="button" id="usePointsBtn" class="btn-primary" onclick="togglePoints()" style="margin-top: 10px; width: fit-content;">Use Points</button>
+            </div>
+          </div>
+        </div>
+
+
         <div class="passengers-submit">
           <button type="submit" class="btn-primary passengers-submit-btn" aria-label="Pay and continue">
             Pay and continue →
@@ -125,6 +156,19 @@
     </div>
   </footer>
 
+  <script>
+    let pointsActive = false;
+    const total = {{ bookingTotal }};
+    function togglePoints() {
+      pointsActive = !pointsActive;
+      document.getElementById('pointsToRedeem').value = pointsActive ? {{ pointsAvailable }} : 0;
+      document.getElementById('usePointsBtn').textContent = pointsActive ? '✓ Remove Points' : 'Use Points';
+      document.getElementById('pointsMsg').style.display = pointsActive ? 'block' : 'none';
+      document.getElementById('totalDisplay').textContent = pointsActive
+        ? '£' + (total - {{ maxDiscount }}).toFixed(2)
+        : '£{{ bookingTotal }}';
+    }
+  </script>
   <script src="/static/javascript/Large_Font.js"></script>
 </body>
 </html>
