@@ -23,6 +23,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun resolveGetFlightRedirects(
     call: ApplicationCall,
@@ -36,11 +37,13 @@ fun resolveGetFlightRedirects(
     }
 
 fun fetchUserId(session: UserSession): Int? =
-    UserTable
-        .select { UserTable.email eq session.userEmail }
-        .limit(1)
-        .firstOrNull()
-        ?.get(UserTable.id)
+    transaction {
+        UserTable
+            .select { UserTable.email eq session.userEmail }
+            .limit(1)
+            .firstOrNull()
+            ?.get(UserTable.id)
+    }
 
 fun fetchBookingRows(
     cond: Op<Boolean>,

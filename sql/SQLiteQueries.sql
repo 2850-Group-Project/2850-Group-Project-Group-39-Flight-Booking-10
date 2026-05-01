@@ -3,7 +3,25 @@
 --      RUN WITH CTRL+SHIFT+Q         --
 ----------------------------------------
 
-select * from complaint;
+-- CREATE TABLE IF NOT EXISTS user_points (
+--     user_points_id INTEGER PRIMARY KEY AUTOINCREMENT,
+--     user_id INTEGER NOT NULL UNIQUE REFERENCES user(user_id),
+--     balance INTEGER NOT NULL DEFAULT 0
+-- );
+
+-- CREATE TABLE IF NOT EXISTS points_transaction (
+--     points_transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+--     user_id INTEGER NOT NULL REFERENCES user(user_id),
+--     booking_id INTEGER REFERENCES booking(booking_id),
+--     type VARCHAR(20) NOT NULL, -- earn redeem expire adjust
+--     points INTEGER NOT NULL,
+--     balance_after INTEGER NOT NULL,
+--     description VARCHAR(255),
+--     created_at VARCHAR(50) NOT NULL
+-- );
+
+select * from user_points;
+select * from points_transaction;
 
 
 -- select * from passenger where passenger_id = 1234;
