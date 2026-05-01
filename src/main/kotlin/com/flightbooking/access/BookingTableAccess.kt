@@ -14,18 +14,17 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.UUID
 
-private const val RAND_CANCELLED_UPPER: Int = 10
-private const val RAND_CANCELLED_AT_UPPER: Int = 300
-private const val RAND_BOOKING_MAX: Int = 2
-private const val RAND_LETTER_COUNT: Int = 3
-private const val RAND_NUMBER_MIN: Int = 100
-private const val RAND_NUMBER_MAX: Int = 999
 private const val BOOKING_REFERENCE_LENGTH = 8
 
+/**
+ * Class instance for using Booking table
+ */
 class BookingTableAccess {
+    /**
+     * Gets list of all Bookings
+     */
     fun getAll(): List<Booking> =
         transaction {
             BookingTable.selectAll().map {
@@ -33,6 +32,9 @@ class BookingTableAccess {
             }
         }
 
+    /**
+     * Gets list of Bookings from DB, filtering by attribute and value you want it to be
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
@@ -42,28 +44,26 @@ class BookingTableAccess {
                 .map { it.toBooking() }
         }
 
-    @Suppress("LongParameterList")
-    fun createBooking(
-        userId: Int?,
-        bookingReference: String,
-        paymentId: Int?,
-        bookingStatus: String,
-        cancelledAt: String?,
-        amendable: Int,
-    ): Boolean =
+    /**
+     * Creates a booking object
+     */
+    fun createBooking(booking: Booking): Boolean =
         transaction {
             BookingTable.insert {
-                it[BookingTable.userId] = userId
-                it[BookingTable.bookingReference] = bookingReference
-                it[BookingTable.paymentId] = paymentId
+                it[BookingTable.userId] = booking.userId
+                it[BookingTable.bookingReference] = booking.bookingReference
+                it[BookingTable.paymentId] = booking.paymentId
                 it[BookingTable.createdAt] = java.time.Instant.now().toString()
-                it[BookingTable.bookingStatus] = bookingStatus
-                it[BookingTable.cancelledAt] = cancelledAt
-                it[BookingTable.amendable] = amendable
+                it[BookingTable.bookingStatus] = booking.bookingStatus
+                it[BookingTable.cancelledAt] = booking.cancelledAt
+                it[BookingTable.amendable] = booking.amendable
             }
             true
         }
 
+    /**
+     * Creates a booking object with payment id
+     */
     fun createBookingWithPaymentUpdate(
         bookingSession: BookingSession,
         paymentId: Int,
@@ -90,11 +90,17 @@ class BookingTableAccess {
         }
     }
 
+    /**
+     * Deletes a booking by searching with it's ID
+     */
     fun deleteByID(id: Int) =
         transaction {
             BookingTable.deleteWhere { BookingTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -109,41 +115,4 @@ class BookingTableAccess {
                 }
             rows > 0
         }
-
-    fun generateBookings() =
-        transaction {
-            println("generating bookings")
-            val users = UserTable.selectAll().toList()
-            users.forEach { row ->
-                val userId = row[UserTable.id]
-                val numberOfBookings = (1..RAND_BOOKING_MAX).random()
-                repeat(numberOfBookings) {
-                    val bookingRef = generateBookingReference()
-                    val isCancelled = (1..RAND_CANCELLED_UPPER).random() == 1
-                    val cancelledAt =
-                        if (isCancelled) {
-                            java.time.LocalDateTime.now()
-                                .minusDays((1..RAND_CANCELLED_AT_UPPER).random().toLong())
-                                .toString()
-                        } else {
-                            null
-                        }
-                    BookingTable.insert {
-                        it[BookingTable.userId] = userId
-                        it[BookingTable.bookingReference] = bookingRef
-                        it[BookingTable.paymentId] = null
-                        it[BookingTable.bookingStatus] = if (isCancelled) "cancelled" else "confirmed"
-                        it[BookingTable.cancelledAt] = cancelledAt
-                        it[BookingTable.amendable] = if (isCancelled) 0 else 1
-                    }
-                }
-            }
-            println("done generating")
-        }
-
-    fun generateBookingReference(): String {
-        val letters = ('A'..'Z').shuffled().take(RAND_LETTER_COUNT).joinToString("")
-        val numbers = (RAND_NUMBER_MIN..RAND_NUMBER_MAX).random()
-        return "$letters$numbers"
-    }
 }

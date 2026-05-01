@@ -4,17 +4,24 @@ import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.api.ApiFlight
 import com.flightbooking.api.AviationStackClient
+import com.flightbooking.models.Flight
 import com.flightbooking.tables.FlightTable
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 const val FLIGHT_IMPORT_LIMIT: Int = 100
 
+/**
+ * Service object for flight importing and other functions used
+ */
 class FlightImportService(
     private val client: AviationStackClient,
     private val airportAccess: AirportTableAccess,
     private val flightAccess: FlightTableAccess,
 ) {
+    /**
+     * Imports all flights from the AviationStack API and saves them to the database.
+     */
     suspend fun importAllFlights() {
         println("importAllFlights running")
         val airports = airportAccess.getAll()
@@ -39,6 +46,10 @@ class FlightImportService(
         println("importAllFlights done")
     }
 
+    /**
+     * Fetches all flights from AviationStack API, handles pagination
+     * Returns: list of ApiFlight objects
+     */
     private suspend fun fetchAllFlights(): List<ApiFlight> {
         val results = mutableListOf<ApiFlight>()
         var offset = 0
@@ -55,6 +66,11 @@ class FlightImportService(
         return results
     }
 
+    /**
+     * Validates ApiFlight data against database
+     * Parameters: apiFlight - the flight data, iataToID - map of IATAcodes to databases airport IDs
+     * Returns: ValidatedFlight if valid, null if missing Iata or unknown airport
+     */
     private fun validateFlight(
         apiFlight: ApiFlight,
         iataToID: Map<String, Int>,
@@ -79,20 +95,30 @@ class FlightImportService(
         }
     }
 
+    /**
+     * Inserts a validated flight into the database
+     * Parameters: valid - the flight data (assuming already validated)
+     */
     private fun insertFlight(valid: ValidatedFlight) {
         val api = valid.apiFlight
         flightAccess.createFlight(
-            flightNumber = api.flight.number?.toIntOrNull(),
-            originAirport = valid.originID,
-            destinationAirport = valid.destID,
-            scheduledDepartureTime = api.departure.scheduled,
-            scheduledArrivalTime = api.arrival.scheduled,
-            status = api.flightStatus ?: "scheduled",
-            capacity = null,
+            Flight(
+                id = 0,
+                flightNumber = api.flight.number?.toIntOrNull(),
+                originAirport = valid.originID,
+                destinationAirport = valid.destID,
+                scheduledDepartureTime = api.departure.scheduled,
+                scheduledArrivalTime = api.arrival.scheduled,
+                status = api.flightStatus ?: "scheduled",
+                capacity = null,
+            ),
         )
     }
 }
 
+/**
+ * Class used to pass data into insertFlight function
+ */
 data class ValidatedFlight(
     val apiFlight: ApiFlight,
     val originID: Int,

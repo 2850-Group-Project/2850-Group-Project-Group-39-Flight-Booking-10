@@ -2,13 +2,24 @@ package com.flightbooking.models
 
 import kotlinx.serialization.Serializable
 
-// data class for storing user session data (ie, if they are logged in)
+/**
+ * Class for storing user session data (ie, if they are logged in)
+ */
 data class UserSession(
     val userEmail: String,
     val firstName: String?,
 )
 
-// data class for flight searches, contains data about the flight search (from home page)
+/**
+ * Class for storing staff session data
+ */
+data class StaffSession(
+    val staffEmail: String,
+)
+
+/**
+ * Class for flight searches, contains data about the flight search (from home page)
+ */
 data class FlightSearch(
     val tripType: String?,
     val origin: String?,
@@ -20,7 +31,9 @@ data class FlightSearch(
     val infants: String?,
 )
 
-// fare option for a specific flight
+/**
+ * Class definitions for fare option for a specific flight
+ */
 data class FareOption(
     val fareId: Int,
     val fareClassId: Int,
@@ -31,7 +44,9 @@ data class FareOption(
     val seatsAvailable: Int,
 )
 
-// flight connection to fare options
+/**
+ * Class definition for flight including fare options
+ */
 data class FlightWithFares(
     val flightId: Int,
     val flightNumber: Int?,
@@ -48,8 +63,10 @@ data class FlightWithFares(
     val cheapestFare: FareOption? get() = fares.minByOrNull { it.price }
 }
 
-// raw passenger data from the form, before it's saved to the DB
-// type can be adult child or infant
+/**
+ * Class for raw passenger data inputted from the form, before it's saved to the DB
+ * - type can be adult child or infant
+ */
 data class PassengerInput(
     val type: String,
     val title: String?,
@@ -65,7 +82,9 @@ data class PassengerInput(
     val documentExpiry: String?,
 )
 
-// booking session data class that is used to keep track of all data about a booking in progress
+/**
+ * Booking session data class that is used to keep track of all data about a booking in progress
+ */
 data class BookingSession(
     val bookingId: Int = 0,
     val outboundFlightId: Int? = null,
@@ -75,6 +94,9 @@ data class BookingSession(
     val search: FlightSearch? = null,
 )
 
+/**
+ * Class definition for user table
+ */
 data class User(
     val id: Int,
     val email: String,
@@ -87,6 +109,9 @@ data class User(
     val accountStatus: String,
 )
 
+/**
+ * Class definition for airport table
+ */
 @Serializable
 data class Airport(
     val id: Int,
@@ -96,6 +121,9 @@ data class Airport(
     val country: String?,
 )
 
+/**
+ * Class definition for flight table
+ */
 data class Flight(
     val id: Int,
     val flightNumber: Int?,
@@ -107,6 +135,9 @@ data class Flight(
     val capacity: Int?,
 )
 
+/**
+ * Class definition for fare class table
+ */
 data class FareClass(
     val id: Int,
     val classCode: String,
@@ -129,6 +160,9 @@ data class FareClass(
     val updatedAt: String,
 )
 
+/**
+ * Class definition for change request table
+ */
 data class ChangeRequest(
     val id: Int,
     val userId: Int,
@@ -143,6 +177,9 @@ data class ChangeRequest(
     val updatedAt: String?,
 )
 
+/**
+ * Class definition for flight fare table
+ */
 data class FlightFare(
     val id: Int,
     val flightId: Int,
@@ -154,6 +191,9 @@ data class FlightFare(
     val saleEnd: String?,
 )
 
+/**
+ * Class definition for booking table
+ */
 data class Booking(
     val id: Int,
     val userId: Int?,
@@ -165,8 +205,11 @@ data class Booking(
     val amendable: Int,
 )
 
+/**
+ * Class definition for booking table
+ */
 data class Payment(
-    val id: Int,
+    val id: Int? = null,
     val bookingId: Int,
     val amount: Double?,
     val paymentMethod: String?,
@@ -176,6 +219,9 @@ data class Payment(
     val currency: String,
 )
 
+/**
+ * Class definition for passenger table
+ */
 data class Passenger(
     val id: Int,
     val bookingId: Int?,
@@ -193,6 +239,9 @@ data class Passenger(
     val documentExpiry: String?,
 )
 
+/**
+ * Class definition for booking segment table
+ */
 data class BookingSegment(
     val id: Int,
     val bookingId: Int,
@@ -200,6 +249,9 @@ data class BookingSegment(
     val flightFareId: Int,
 )
 
+/**
+ * Class definition for seat table
+ */
 data class Seat(
     val id: Int,
     val flightId: Int,
@@ -212,6 +264,9 @@ data class Seat(
     val status: String,
 )
 
+/**
+ * Class definition for seat assignment table
+ */
 data class SeatAssignment(
     val id: Int,
     val passengerId: Int,
@@ -219,6 +274,9 @@ data class SeatAssignment(
     val seatId: Int?,
 )
 
+/**
+ * Class definition for staff table
+ */
 data class Staff(
     val id: Int,
     val email: String,
@@ -230,6 +288,9 @@ data class Staff(
     val createdAt: String,
 )
 
+/**
+ * Class definition for complaint table
+ */
 data class Complaint(
     val id: Int,
     val userId: Int?,
@@ -240,6 +301,9 @@ data class Complaint(
     val handledByStaffId: Int?,
 )
 
+/**
+ * Class definition for notification table
+ */
 data class Notification(
     val id: Int,
     val userId: Int?,
@@ -247,8 +311,4 @@ data class Notification(
     val message: String?,
     val createdAt: String,
     val readAt: String?,
-)
-
-data class StaffSession(
-    val staffEmail: String,
 )

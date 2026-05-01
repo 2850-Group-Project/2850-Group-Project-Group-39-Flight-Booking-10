@@ -1,4 +1,4 @@
-package com.flightbooking.access // we want to be able to access all access files from a single package "access"
+package com.flightbooking.access
 
 import com.flightbooking.mappers.toAirport
 import com.flightbooking.models.Airport
@@ -16,9 +16,13 @@ import org.jetbrains.exposed.sql.update
 
 private const val AIRPORT_SEARCH_LIMIT: Int = 8
 
-// class instance/reference of the airport table
+/**
+ * Class instance for using airport table
+ */
 class AirportTableAccess {
-    // specific search functions for each table (pretty much copy and pasted for most)
+    /**
+     * Gets list of all Airports
+     */
     fun getAll(): List<Airport> =
         transaction {
             AirportTable.selectAll().map {
@@ -26,16 +30,21 @@ class AirportTableAccess {
             }
         }
 
+    /**
+     * Gets list of Airport from DB, filtering by attribute and value you want it to be
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
     ): List<Airport> =
         transaction {
-            // accepts attribute you're searching by and the value you want it to be
             AirportTable.select { attribute eq value }
                 .map { it.toAirport() }
         }
 
+    /**
+     * Gets iata code of airport from origin
+     */
     fun getAirportCodeByOrigin(origin: String): String? =
         transaction {
             AirportTable.select {
@@ -45,6 +54,9 @@ class AirportTableAccess {
             }.firstOrNull()?.get(AirportTable.iataCode)
         }
 
+    /**
+     * Gets city name of airport from origin
+     */
     fun getCityByOrigin(origin: String): String? =
         transaction {
             AirportTable.select {
@@ -54,6 +66,9 @@ class AirportTableAccess {
             }.firstOrNull()?.get(AirportTable.city)
         }
 
+    /**
+     * Searches table with query and returns list of Airports that are similar
+     */
     fun searchAirports(query: String): List<Airport> =
         transaction {
             val pattern = "%$query%"
@@ -74,6 +89,9 @@ class AirportTableAccess {
                 }
         }
 
+    /**
+     * Creates an airport object
+     */
     fun createAirport(
         iataCode: String,
         name: String?,
@@ -91,12 +109,18 @@ class AirportTableAccess {
             true
         }
 
+    /**
+     * Deletes an Airport by searching with it's ID
+     */
     fun deleteByID(id: Int) =
         transaction {
             // deletes record by id
             AirportTable.deleteWhere { AirportTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -112,6 +136,9 @@ class AirportTableAccess {
             rows > 0
         }
 
+    /**
+     * Updates Airport if it exists, otherwise inserts it
+     */
     fun upsertByIata(airport: Airport) =
         transaction {
             // used for the db import

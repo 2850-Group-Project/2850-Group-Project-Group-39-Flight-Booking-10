@@ -48,9 +48,7 @@ class FlightTableAccess {
         }
 
     /**
-     * Returns flights matching a specific column value.
-     * @param attribute the column to filter by
-     * @param value the value to match
+     * Gets list of flights from DB, filtering by attribute and value you want it to be
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -61,6 +59,9 @@ class FlightTableAccess {
                 .map { it.toFlight() }
         }
 
+    /**
+     * Calculate duration based on departure and arrival time
+     */
     private fun calculateDuration(
         dep: LocalDateTime?,
         arr: LocalDateTime?,
@@ -75,6 +76,9 @@ class FlightTableAccess {
         }
     }
 
+    /**
+     * Maps exposed to FareOption
+     */
     private fun mapFares(rows: List<ResultRow>): List<FareOption> {
         return rows.map { row ->
             FareOption(
@@ -149,6 +153,9 @@ class FlightTableAccess {
         }
     }
 
+    /**
+     * Maps list of flights and fares to return flight with fares
+     */
     private fun mapFlightWithFares(
         rows: List<ResultRow>,
         originAirport: Alias<AirportTable>,
@@ -183,32 +190,22 @@ class FlightTableAccess {
      * @return true if the insert succeeded
      * @throws ExposedSQLException if the insert fails
      */
-    @Suppress("LongParameterList")
-    fun createFlight(
-        flightNumber: Int?,
-        originAirport: Int,
-        destinationAirport: Int,
-        scheduledDepartureTime: String?,
-        scheduledArrivalTime: String?,
-        status: String,
-        capacity: Int?,
-    ): Boolean =
+    fun createFlight(flight: Flight): Boolean =
         transaction {
             FlightTable.insert {
-                it[FlightTable.flightNumber] = flightNumber
-                it[FlightTable.originAirport] = originAirport
-                it[FlightTable.destinationAirport] = destinationAirport
-                it[FlightTable.scheduledDepartureTime] = scheduledDepartureTime
-                it[FlightTable.scheduledArrivalTime] = scheduledArrivalTime
-                it[FlightTable.status] = status
-                it[FlightTable.capacity] = capacity
+                it[FlightTable.flightNumber] = flight.flightNumber
+                it[FlightTable.originAirport] = flight.originAirport
+                it[FlightTable.destinationAirport] = flight.destinationAirport
+                it[FlightTable.scheduledDepartureTime] = flight.scheduledDepartureTime
+                it[FlightTable.scheduledArrivalTime] = flight.scheduledArrivalTime
+                it[FlightTable.status] = flight.status
+                it[FlightTable.capacity] = flight.capacity
             }
             true
         }
 
     /**
-     * Deletes a flight by its primary key.
-     * @param id the flight ID to delete
+     * Deletes a flight by searching with it's ID
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -216,11 +213,7 @@ class FlightTableAccess {
         }
 
     /**
-     * Updates a single column on a flight record.
-     * @param id the flight ID to update
-     * @param column the column to update
-     * @param value the new value
-     * @return true if at least one row was updated
+     * Updates a record's attribute with a value passed in
      */
     fun <T> updateRecordByAttribute(
         id: Int,

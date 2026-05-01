@@ -18,7 +18,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
+/**
+ * Class instance for using user table
+ */
 class UserTableAccess {
+    /**
+     * Gets list of all users
+     */
     fun getAll(): List<User> =
         transaction {
             UserTable.selectAll().map {
@@ -26,6 +32,9 @@ class UserTableAccess {
             }
         }
 
+    /**
+     * Gets list of users from DB, filtering by attribute and value you want it to be
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
@@ -35,6 +44,9 @@ class UserTableAccess {
                 .map { it.toUser() }
         }
 
+    /**
+     * Creates a user object
+     */
     fun createUser(
         email: String,
         passwordHash: String,
@@ -58,11 +70,17 @@ class UserTableAccess {
             true
         }
 
+    /**
+     * Deletes a users record by searching with it's ID
+     */
     fun deleteByID(id: Int) =
         transaction {
             UserTable.deleteWhere { UserTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -78,6 +96,9 @@ class UserTableAccess {
             rows > 0
         }
 
+    /**
+     * Finds user record by searching with email
+     */
     fun findByEmail(email: String): User? =
         transaction {
             UserTable.select { UserTable.email eq email }
@@ -86,6 +107,9 @@ class UserTableAccess {
                 ?.let { it.toUser() }
         }
 
+    /**
+     * Generates users to fill db with random names, defaults 200
+     */
     fun generateUsers(count: Int = 200) {
         val firstNames =
             listOf(
@@ -136,6 +160,9 @@ class UserTableAccess {
         }
     }
 
+    /**
+     * Fills phone numbers of users in DB whose numbers are null, random numbers generated
+     */
     fun fillMissingPhoneNumbers() =
         transaction {
             val users = UserTable.select { UserTable.phoneNumber.isNull() }.toList()

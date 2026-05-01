@@ -1,21 +1,5 @@
 package com.flightbooking.access
 
-import com.flightbooking.constants.BASE_PRICE_FLIGHT_MOD
-import com.flightbooking.constants.BASE_PRICE_MULTIPLIER
-import com.flightbooking.constants.BASE_PRICE_OFFSET
-import com.flightbooking.constants.DEFAULT_CAPACITY
-import com.flightbooking.constants.FARE_CLASS_BUSINESS_ID
-import com.flightbooking.constants.FARE_CLASS_BUSINESS_MULTIPLIER
-import com.flightbooking.constants.FARE_CLASS_ECONOMY_ID
-import com.flightbooking.constants.FARE_CLASS_ECONOMY_MULTIPLIER
-import com.flightbooking.constants.FARE_CLASS_ECONOMY_PLUS_ID
-import com.flightbooking.constants.FARE_CLASS_ECONOMY_PLUS_MULTIPLIER
-import com.flightbooking.constants.FARE_CLASS_FIRST_ID
-import com.flightbooking.constants.FARE_CLASS_FIRST_MULTIPLIER
-import com.flightbooking.constants.FARE_CLASS_PREMIUM_ECONOMY_ID
-import com.flightbooking.constants.FARE_CLASS_PREMIUM_ECONOMY_MULTIPLIER
-import com.flightbooking.constants.MIN_SEATS_AVAILABLE
-import com.flightbooking.constants.SEATS_DIVIDER_OFFSET
 import com.flightbooking.mappers.toFlightFare
 import com.flightbooking.models.FlightFare
 import com.flightbooking.tables.FlightFareTable
@@ -28,7 +12,13 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
+/**
+ * Class instance for using flight fare table
+ */
 class FlightFareTableAccess {
+    /**
+     * Gets list of all flight fares
+     */
     fun getAll(): List<FlightFare> =
         transaction {
             FlightFareTable.selectAll().map {
@@ -36,6 +26,9 @@ class FlightFareTableAccess {
             }
         }
 
+    /**
+     * Gets list of flight fares from DB, filtering by attribute and value you want it to be
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
@@ -45,34 +38,34 @@ class FlightFareTableAccess {
                 .map { it.toFlightFare() }
         }
 
-    @Suppress("LongParameterList")
-    fun createFlightFare(
-        flightId: Int,
-        fareClassId: Int,
-        price: Double,
-        currency: String,
-        seatsAvailable: Int,
-        saleStart: String?,
-        saleEnd: String?,
-    ): Boolean =
+    /**
+     * Creates a flight fare object
+     */
+    fun createFlightFare(flightFare: FlightFare): Boolean =
         transaction {
             FlightFareTable.insert {
-                it[FlightFareTable.flightId] = flightId
-                it[FlightFareTable.fareClassId] = fareClassId
-                it[FlightFareTable.price] = price
-                it[FlightFareTable.currency] = currency
-                it[FlightFareTable.seatsAvailable] = seatsAvailable
-                it[FlightFareTable.saleStart] = saleStart
-                it[FlightFareTable.saleEnd] = saleEnd
+                it[FlightFareTable.flightId] = flightFare.flightId
+                it[FlightFareTable.fareClassId] = flightFare.fareClassId
+                it[FlightFareTable.price] = flightFare.price
+                it[FlightFareTable.currency] = flightFare.currency
+                it[FlightFareTable.seatsAvailable] = flightFare.seatsAvailable
+                it[FlightFareTable.saleStart] = flightFare.saleStart
+                it[FlightFareTable.saleEnd] = flightFare.saleEnd
             }
             true
         }
 
+    /**
+     * Deletes a flight fare by searching with it's ID
+     */
     fun deleteByID(id: Int) =
         transaction {
             FlightFareTable.deleteWhere { FlightFareTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -87,56 +80,4 @@ class FlightFareTableAccess {
                 }
             rows > 0
         }
-
-    fun generateUKDomesticFares(
-        airportAccess: AirportTableAccess = AirportTableAccess(),
-        flightAccess: FlightTableAccess = FlightTableAccess(),
-        fareClassAccess: FareClassTableAccess = FareClassTableAccess(),
-    ) = transaction {
-        println("generating UK fares")
-        val ukAirports = airportAccess.getByAttribute(com.flightbooking.tables.AirportTable.country, "United Kingdom")
-        val ukIDs = ukAirports.map { it.id }
-        val ukDomesticFlights = flightAccess.getDomesticUKFlights(ukIDs)
-
-        val fareClasses = fareClassAccess.getAll()
-
-        for (flight in ukDomesticFlights) {
-            for (fareClass in fareClasses) {
-                val existing =
-                    getByAttribute(
-                        com.flightbooking.tables.FlightFareTable.flightId,
-                        flight.id,
-                    ).any { it.fareClassId == fareClass.id }
-
-                if (existing) continue
-
-                val multiplier =
-                    when (fareClass.id) {
-                        FARE_CLASS_ECONOMY_ID -> FARE_CLASS_ECONOMY_MULTIPLIER
-                        FARE_CLASS_ECONOMY_PLUS_ID -> FARE_CLASS_ECONOMY_PLUS_MULTIPLIER
-                        FARE_CLASS_BUSINESS_ID -> FARE_CLASS_BUSINESS_MULTIPLIER
-                        FARE_CLASS_PREMIUM_ECONOMY_ID -> FARE_CLASS_PREMIUM_ECONOMY_MULTIPLIER
-                        FARE_CLASS_FIRST_ID -> FARE_CLASS_FIRST_MULTIPLIER
-                        else -> FARE_CLASS_ECONOMY_MULTIPLIER
-                    }
-
-                val basePrice = BASE_PRICE_OFFSET + (flight.id % BASE_PRICE_FLIGHT_MOD) * BASE_PRICE_MULTIPLIER
-                val capacity = flight.capacity ?: DEFAULT_CAPACITY
-                val seatsAvailable =
-                    (capacity / (fareClass.id + SEATS_DIVIDER_OFFSET))
-                        .coerceAtLeast(MIN_SEATS_AVAILABLE)
-
-                createFlightFare(
-                    flightId = flight.id,
-                    fareClassId = fareClass.id,
-                    price = basePrice * multiplier,
-                    currency = "GBP",
-                    seatsAvailable = seatsAvailable,
-                    saleStart = null,
-                    saleEnd = null,
-                )
-            }
-        }
-        println("generated")
-    }
 }

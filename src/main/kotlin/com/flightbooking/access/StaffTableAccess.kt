@@ -14,7 +14,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
+/**
+ * Class instance for using complaint table
+ */
 class StaffTableAccess {
+    /**
+     * Gets list of all staff
+     */
     fun getAll(): List<Staff> =
         transaction {
             StaffTable.selectAll().map {
@@ -22,6 +28,9 @@ class StaffTableAccess {
             }
         }
 
+    /**
+     * Gets list of staff from DB, filtering by attribute and value you want it to be
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
@@ -31,6 +40,9 @@ class StaffTableAccess {
                 .map { it.toStaff() }
         }
 
+    /**
+     * Creates a staff object
+     */
     fun createStaff(
         email: String,
         passwordHash: String,
@@ -54,11 +66,17 @@ class StaffTableAccess {
             true
         }
 
+    /**
+     * Deletes a staff members record by searching with it's ID
+     */
     fun deleteByID(id: Int) =
         transaction {
             StaffTable.deleteWhere { StaffTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -74,6 +92,9 @@ class StaffTableAccess {
             rows > 0
         }
 
+    /**
+     * Finds staff record by searching with email
+     */
     fun findByEmail(email: String): Staff? =
         transaction {
             StaffTable.select { StaffTable.email eq email }
@@ -82,6 +103,9 @@ class StaffTableAccess {
                 ?.let { it.toStaff() }
         }
 
+    /**
+     * Finds staff record by searching with staffId
+     */
     fun findByStaffId(staffId: Int): List<Staff> {
         return transaction {
             StaffTable

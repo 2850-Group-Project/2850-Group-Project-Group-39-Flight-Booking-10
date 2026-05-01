@@ -14,7 +14,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
+/**
+ * Class instance for using FareClass table
+ */
 class FareClassTableAccess {
+    /**
+     * Gets list of all fare classes
+     */
     fun getAll(): List<FareClass> =
         transaction {
             FareClassTable.selectAll().map {
@@ -22,6 +28,9 @@ class FareClassTableAccess {
             }
         }
 
+    /**
+     * Gets list of fare classes from DB, filtering by attribute and value you want it to be
+     */
     fun <T : Any> getByAttribute(
         attribute: Column<T?>,
         value: T?,
@@ -38,55 +47,45 @@ class FareClassTableAccess {
                 .map { it.toFareClass() }
         }
 
-    @Suppress("LongParameterList")
-    fun createFareClass(
-        classCode: String,
-        cabinClass: String?,
-        displayName: String?,
-        refundable: Int,
-        cancelProtocol: String,
-        advancedSeatSelection: Int,
-        priorityCheckin: Int,
-        priorityBoarding: Int,
-        loungeAccess: Int,
-        carryOnAllowed: Int,
-        carryOnWeightKg: Int,
-        checkedBaggagePieces: Int,
-        checkedBaggageWeightKg: Int,
-        milesEarnRate: Double,
-        minimumMilesForBooking: Int?,
-        description: String?,
-        updatedAt: String,
-    ): Boolean =
+    /**
+     * Creates a fare class object
+     */
+    fun createFareClass(fareClass: FareClass): Boolean =
         transaction {
             FareClassTable.insert {
-                it[FareClassTable.classCode] = classCode
-                it[FareClassTable.cabinClass] = cabinClass
-                it[FareClassTable.displayName] = displayName
-                it[FareClassTable.refundable] = refundable
-                it[FareClassTable.cancelProtocol] = cancelProtocol
-                it[FareClassTable.advanceSeatSelection] = advancedSeatSelection
-                it[FareClassTable.priorityCheckin] = priorityCheckin
-                it[FareClassTable.priorityBoarding] = priorityBoarding
-                it[FareClassTable.loungeAccess] = loungeAccess
-                it[FareClassTable.carryOnAllowed] = carryOnAllowed
-                it[FareClassTable.carryOnWeightKg] = carryOnWeightKg
-                it[FareClassTable.checkedBaggagePieces] = checkedBaggagePieces
-                it[FareClassTable.checkedBaggageWeightKg] = checkedBaggageWeightKg
-                it[FareClassTable.milesEarnRate] = milesEarnRate
-                it[FareClassTable.minimumMilesForBooking] = minimumMilesForBooking
-                it[FareClassTable.description] = description
+                it[FareClassTable.classCode] = fareClass.classCode
+                it[FareClassTable.cabinClass] = fareClass.cabinClass
+                it[FareClassTable.displayName] = fareClass.displayName
+                it[FareClassTable.refundable] = fareClass.refundable
+                it[FareClassTable.cancelProtocol] = fareClass.cancelProtocol
+                it[FareClassTable.advanceSeatSelection] = fareClass.advanceSeatSelection
+                it[FareClassTable.priorityCheckin] = fareClass.priorityCheckin
+                it[FareClassTable.priorityBoarding] = fareClass.priorityBoarding
+                it[FareClassTable.loungeAccess] = fareClass.loungeAccess
+                it[FareClassTable.carryOnAllowed] = fareClass.carryOnAllowed
+                it[FareClassTable.carryOnWeightKg] = fareClass.carryOnWeightKg
+                it[FareClassTable.checkedBaggagePieces] = fareClass.checkedBaggagePieces
+                it[FareClassTable.checkedBaggageWeightKg] = fareClass.checkedBaggageWeightKg
+                it[FareClassTable.milesEarnRate] = fareClass.milesEarnRate
+                it[FareClassTable.minimumMilesForBooking] = fareClass.minimumMilesForBooking
+                it[FareClassTable.description] = fareClass.description
                 it[FareClassTable.createdAt] = java.time.Instant.now().toString()
-                it[FareClassTable.updatedAt] = updatedAt
+                it[FareClassTable.updatedAt] = fareClass.updatedAt
             }
             true
         }
 
+    /**
+     * Deletes a fare class by searching with it's ID
+     */
     fun deleteByID(id: Int) =
         transaction {
             FareClassTable.deleteWhere { FareClassTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,

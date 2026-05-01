@@ -14,7 +14,13 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
+/**
+ * Class instance for using seat assignment table
+ */
 class SeatAssignmentTableAccess {
+    /**
+     * Gets list of all seat assignments
+     */
     fun getAll(): List<SeatAssignment> =
         transaction {
             SeatAssignmentTable.selectAll().map {
@@ -22,6 +28,9 @@ class SeatAssignmentTableAccess {
             }
         }
 
+    /**
+     * Gets list of seat assignments from DB, filtering by attribute and value you want it to be
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
@@ -31,6 +40,9 @@ class SeatAssignmentTableAccess {
                 .map { it.toSeatAssignment() }
         }
 
+    /**
+     * Creates a seat assignment object
+     */
     fun createSeatAssignment(
         passengerId: Int,
         bookingSegmentId: Int,
@@ -45,11 +57,17 @@ class SeatAssignmentTableAccess {
             true
         }
 
+    /**
+     * Deletes a seat assignemnt by searching with it's ID
+     */
     fun deleteByID(id: Int) =
         transaction {
             SeatAssignmentTable.deleteWhere { SeatAssignmentTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -65,26 +83,9 @@ class SeatAssignmentTableAccess {
             rows > 0
         }
 
-    fun generateSeatAssignments(
-        passengersByBooking: Map<Int, List<Int>>,
-        segmentsByBooking: Map<Int, List<Int>>,
-    ) = transaction {
-        println("generating seat assignments")
-        passengersByBooking.forEach { (bookingId, passengers) ->
-            val segments = segmentsByBooking[bookingId] ?: emptyList()
-            val segmentId = segments.firstOrNull() ?: return@forEach
-
-            for (passengerId in passengers) {
-                SeatAssignmentTable.insert {
-                    it[SeatAssignmentTable.passengerId] = passengerId
-                    it[SeatAssignmentTable.bookingSegmentId] = segmentId
-                    it[SeatAssignmentTable.seatId] = null
-                }
-            }
-        }
-        println("done generating seat assignments")
-    }
-
+    /**
+     * Used by seat selection to assign seat to booking segment
+     */
     fun assignSeats() =
         transaction {
             println("assigning seats")
