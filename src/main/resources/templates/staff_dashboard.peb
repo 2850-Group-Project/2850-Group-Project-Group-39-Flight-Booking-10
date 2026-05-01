@@ -33,7 +33,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <a class="logout" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
+      <a class="logout" href="/staff/logout"><span class="ico">⇐</span> Log Out</a >
     </div>
   </aside>
 
@@ -45,7 +45,7 @@
         <a class="top" href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
         <a class="top" href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
         <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
-        <a class="top" href="/staff/logout"><span class="ico">⎋</span> Log Out</a >
+        <a class="top" href="/staff/logout"><span class="ico">⇐</span> Log Out</a >
         <div class="profile">
           <div class="avatar"></div>
           <div class="name">

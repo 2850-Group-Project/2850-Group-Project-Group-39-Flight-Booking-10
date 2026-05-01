@@ -12,7 +12,20 @@
     --shadow:0 20px 60px rgba(0,0,0,.45);
     --radius:18px;
 }
-*{box-sizing:border-box}
+
+/* -- REMOVE UGLY SCROLL BAR -- */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+*{
+    box-sizing:border-box;
+    scrollbar-width: none;
+}
+html,body{
+    height:100%;
+    overflow: hidden;
+}
 body{
     margin:0;
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
@@ -21,6 +34,9 @@ body{
                 radial-gradient(900px 600px at 90% 10%, rgba(56,189,248,.12), transparent 55%),
                 linear-gradient(180deg, var(--bg0), var(--bg1));
     min-height:100vh;
+    /* for super annoying overscroll */
+    overscroll-behavior: none;
+    overflow-y: auto;
 }
 .wrap{max-width:1200px;margin:0 auto;padding:26px 18px 40px;}
 .topbar{
@@ -208,4 +224,28 @@ tr td:last-child{
 .a.red{
     border-color: rgba(255,77,77,.30);
     background: rgba(255,77,77,.10);
+}
+
+/* -- FOOTER -- */
+footer {
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255,255,255,.40);
+  font-size: 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+footer a { 
+  color: rgba(255,255,255,.50); 
+  text-decoration: none; 
+}
+footer a:hover { 
+  text-decoration: underline;
+}
+.footer-links {
+  display: flex;
+  gap: 16px;
 }
