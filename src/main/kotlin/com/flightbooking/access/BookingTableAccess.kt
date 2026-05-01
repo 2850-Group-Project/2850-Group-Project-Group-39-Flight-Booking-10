@@ -22,8 +22,10 @@ private const val BOOKING_REFERENCE_LENGTH = 8
  * Class instance for using Booking table
  */
 class BookingTableAccess {
+
     /**
      * Gets list of all Bookings
+     * @return list of bookings
      */
     fun getAll(): List<Booking> =
         transaction {
@@ -34,6 +36,9 @@ class BookingTableAccess {
 
     /**
      * Gets list of Bookings from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of bookings
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -46,6 +51,8 @@ class BookingTableAccess {
 
     /**
      * Creates a booking object
+     * @param booking booking model
+     * @return true if created
      */
     fun createBooking(booking: Booking): Boolean =
         transaction {
@@ -53,7 +60,7 @@ class BookingTableAccess {
                 it[BookingTable.userId] = booking.userId
                 it[BookingTable.bookingReference] = booking.bookingReference
                 it[BookingTable.paymentId] = booking.paymentId
-                it[BookingTable.createdAt] = java.time.Instant.now().toString()
+                it[BookingTable.createdAt] = Instant.now().toString()
                 it[BookingTable.bookingStatus] = booking.bookingStatus
                 it[BookingTable.cancelledAt] = booking.cancelledAt
                 it[BookingTable.amendable] = booking.amendable
@@ -63,6 +70,9 @@ class BookingTableAccess {
 
     /**
      * Creates a booking object with payment id
+     * @param bookingSession booking session
+     * @param paymentId payment id
+     * @param userEmail user email
      */
     fun createBookingWithPaymentUpdate(
         bookingSession: BookingSession,
@@ -92,6 +102,7 @@ class BookingTableAccess {
 
     /**
      * Deletes a booking by searching with it's ID
+     * @param id booking id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -100,6 +111,10 @@ class BookingTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id booking id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,

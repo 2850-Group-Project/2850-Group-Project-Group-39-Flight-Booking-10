@@ -29,6 +29,11 @@ private const val ISO_TIME_END_INDEX = 16
 private const val DEFAULT_CAPACITY = 180
 private const val STAFF_FLIGHTS_PAGE_LIMIT = 50
 
+/**
+ * Helper function that searches and returns a list of Airports mapping:
+ * id, iataCode and name (defaults to "")
+ * @return list of airports
+ */
 fun queryAirports(): List<Map<String, Any>> =
     AirportTable
         .selectAll()
@@ -41,6 +46,11 @@ fun queryAirports(): List<Map<String, Any>> =
             )
         }
 
+/**
+ * Queries flight list for staff dashboard to display
+ * @param q search text
+ * @return flights list
+ */
 fun queryFlightList(q: String): List<Map<String, Any>> {
     val origin = AirportTable.alias("origin")
     val dest = AirportTable.alias("dest")
@@ -87,8 +97,15 @@ fun queryFlightList(q: String): List<Map<String, Any>> {
                 "capacity" to (row[FlightTable.capacity]?.toString() ?: ""),
             )
         }
-}
 
+/**
+ * Builds the flights model for the staff flights page to display
+ * @param q search text
+ * @param editId id to edit
+ * @param urlError error text
+ * @param urlOk ok text
+ * @return flights model
+ */
 fun buildStaffFlightsModel(
     q: String,
     editId: Int?,
@@ -111,6 +128,10 @@ fun buildStaffFlightsModel(
         )
     }
 
+/**
+ * Queries and returns a list of active flights
+ * @return active flights list
+ */
 fun queryActiveFlightList(): List<Map<String, String>> {
     val origin = AirportTable.alias("origin")
     val dest = AirportTable.alias("dest")
@@ -153,8 +174,12 @@ fun queryActiveFlightList(): List<Map<String, String>> {
                 "capacity" to (row[FlightTable.capacity]?.toString() ?: ""),
             )
         }
-}
 
+/**
+ * Function builds the model for staff dashboard to display
+ * @param staffEmail staff email
+ * @return dashboard model
+ */
 fun buildStaffDashboardModel(staffEmail: String): Map<String, Any> =
     transaction {
         val staffRow =
@@ -202,6 +227,11 @@ fun buildStaffDashboardModel(staffEmail: String): Map<String, Any> =
         )
     }
 
+/**
+ * Generates the full set of seats for a flight if none exist yet
+ * @param flightId flight id
+ * @param capacity seat capacity
+ */
 fun createSeatsForFlight(
     flightId: Int,
     capacity: Int?,

@@ -16,8 +16,10 @@ import org.jetbrains.exposed.sql.update
  * Class instance for using payment table
  */
 class PaymentTableAccess {
+
     /**
      * Gets list of all payments
+     * @return list of payments
      */
     fun getAll(): List<Payment> =
         transaction {
@@ -28,6 +30,9 @@ class PaymentTableAccess {
 
     /**
      * Gets list of payments from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of payments
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -40,6 +45,8 @@ class PaymentTableAccess {
 
     /**
      * Creates a payment object
+     * @param payment payment model
+     * @return created payment id
      */
     fun createPayment(payment: Payment): Int =
         transaction {
@@ -56,6 +63,7 @@ class PaymentTableAccess {
 
     /**
      * Deletes a payment by searching with it's ID
+     * @param id payment id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -64,6 +72,10 @@ class PaymentTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id payment id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,

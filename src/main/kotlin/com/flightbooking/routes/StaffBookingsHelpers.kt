@@ -28,6 +28,9 @@ private const val BOOKING_REF_LENGTH = 10
 private const val BOOKING_LIST_LIMIT = 50
 private const val FLIGHT_LIST_LIMIT = 50
 
+/**
+ * Data class to pass parameters into createFullBooking
+ */
 data class FullBookingInput(
     val passengerEmail: String,
     val passengerFirstName: String?,
@@ -37,6 +40,13 @@ data class FullBookingInput(
     val seatId: Int?,
 )
 
+/**
+ * Function to create a whole booking, creating and inserting into 
+ * booking table, passenger table, booking segment table, seat assignment table
+ * and updating it so that foreign keys match
+ * @param input booking input
+ * @return error message or null
+ */
 fun createFullBooking(input: FullBookingInput): String? {
     var errMsg: String? = null
     transaction {
@@ -93,6 +103,12 @@ fun createFullBooking(input: FullBookingInput): String? {
     return errMsg
 }
 
+/**
+ * Assigns a seat to an existing seat‑assignment record if the seat is valid
+ * and still currently available.
+ * @param seatAssignmentId assignment id
+ * @param input booking input
+ */
 private fun assignSeatIfAvailable(
     seatAssignmentId: Int,
     input: FullBookingInput,
@@ -113,6 +129,12 @@ private fun assignSeatIfAvailable(
     }
 }
 
+/**
+ * Builds the model used for the staff dashboard page.
+ * @param session staff session
+ * @param q search text
+ * @return dashboard model
+ */
 fun fetchStaffModel(
     session: StaffSession,
     q: String,
@@ -141,6 +163,10 @@ fun fetchStaffModel(
         )
     }
 
+/**
+ * Searches for and returns a list of flights, based on origin and destination
+ * @return flights list
+ */
 private fun fetchFlights(): List<Map<String, Any>> {
     val origin = AirportTable.alias("origin")
     val dest = AirportTable.alias("dest")
@@ -172,6 +198,11 @@ private fun fetchFlights(): List<Map<String, Any>> {
         }
 }
 
+/**
+ * Searches for and returns a list of bookings for the staff dashboard
+ * @param q search text
+ * @return bookings list
+ */
 private fun fetchBookings(q: String): List<Map<String, Any?>> =
     BookingTable
         .join(
@@ -217,6 +248,11 @@ private fun fetchBookings(q: String): List<Map<String, Any?>> =
         .limit(BOOKING_LIST_LIMIT)
         .map { r -> mapBookingRow(r) }
 
+/**
+ * Searches for and returns a list of bookings for the staff dashboard
+ * @param r result row
+ * @return mapped booking
+ */
 private fun mapBookingRow(r: ResultRow): Map<String, Any?> {
     val passengerName =
         listOfNotNull(
@@ -240,6 +276,11 @@ private fun mapBookingRow(r: ResultRow): Map<String, Any?> {
     )
 }
 
+/**
+ * Searches for and returns seats for bookings, grouping by flight ID
+ * @param bookingsList list of bookings
+ * @return seats grouped by flight
+ */
 private fun fetchSeatsByFlight(bookingsList: List<Map<String, Any?>>): Map<Int, List<Map<String, Any>>> {
     val flightIds = bookingsList.mapNotNull { it["flightId"] as? Int }.distinct()
     if (flightIds.isEmpty()) return emptyMap()
@@ -255,6 +296,14 @@ private fun fetchSeatsByFlight(bookingsList: List<Map<String, Any?>>): Map<Int, 
         .groupBy({ it.first }, { it.second })
 }
 
+/**
+ * Updates the corresponding booking segment with new flight id and new seat id,
+ * searches with inputted segId and segRow
+ * @param segId segment id
+ * @param segRow segment row
+ * @param newFlightId new flight id
+ * @param newSeatId new seat id
+ */
 fun updateBookingSegment(
     segId: Int,
     segRow: org.jetbrains.exposed.sql.ResultRow,
@@ -270,6 +319,10 @@ fun updateBookingSegment(
     }
 }
 
+/**
+ * Clears the seat assignment for the given booking segment, making it available
+ * @param segId segment id
+ */
 private fun clearSeatAssignment(segId: Int) {
     val saRow =
         SeatAssignmentTable
@@ -293,6 +346,12 @@ private fun clearSeatAssignment(segId: Int) {
     }
 }
 
+/**
+ * Updates a seat assignment with new SeatId and status
+ * @param segId segment id
+ * @param currentFlightId flight id
+ * @param newSeatId new seat id
+ */
 private fun updateSeatAssignment(
     segId: Int,
     currentFlightId: Int,

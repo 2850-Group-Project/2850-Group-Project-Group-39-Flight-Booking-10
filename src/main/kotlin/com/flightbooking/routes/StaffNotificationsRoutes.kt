@@ -36,23 +36,23 @@ import org.jetbrains.exposed.sql.transactions.transaction
  * Staff notifications routes (Change Requests inbox).
  *
  * Routes:
- * - GET  /staff/notifications:
+ * - GET  /staff/notifications ->
  *   - Requires [StaffSession]; redirects to `/staff/login` if missing.
  *   - Loads staff display info and lists change requests.
  *   - Supports optional query param `q` (numeric) to search by change_request_id.
  *   - Renders `staff_notifications.peb`.
  *
- * - POST /staff/notifications/status:
+ * - POST /staff/notifications/status ->
  *   - Requires [StaffSession].
  *   - Updates change request status (supports `complete`).
  *   - Redirects back to `/staff/notifications`.
  *
- * - POST /staff/notifications/delete:
+ * - POST /staff/notifications/delete ->
  *   - Requires [StaffSession].
  *   - Deletes a change request row.
  *   - Redirects back to `/staff/notifications`.
  *
- * Status rules:
+ * Status rules ->
  * - `complete` means processed but not deleted (record remains visible).
  * - `delete` is a separate action and removes the record.
  */
@@ -96,6 +96,13 @@ fun Route.staffNotificationsRoutes() {
     }
 }
 
+/**
+ * Function that creates model for notifications dashboard for staff
+ * @param session staff session
+ * @param q search text
+ * @param call request call
+ * @return notifications model
+ */
 private fun loadNotificationsModel(
     session: StaffSession,
     q: String,
@@ -118,6 +125,9 @@ private fun loadNotificationsModel(
         )
     }
 
+/**
+ * Data class to hold Alias which joins ChangeRequest with other tables
+ */
 private data class ChangeRequestAliases(
     val origin: Alias<AirportTable>,
     val dest: Alias<AirportTable>,
@@ -126,6 +136,12 @@ private data class ChangeRequestAliases(
     val requestedSeat: Alias<SeatTable>,
 )
 
+/**
+ * Fetches change‑request records for the staff dashboard, optionally filtered
+ * by a numeric query string
+ * @param q search text
+ * @return list of change requests
+ */
 private fun fetchChangeRequests(q: String): List<Map<String, Any?>> =
     transaction {
         val qId = q.toIntOrNull()
@@ -171,6 +187,13 @@ private fun fetchChangeRequests(q: String): List<Map<String, Any?>> =
             .map { r -> mapChangeRequestRow(r, aliases) }
     }
 
+/**
+ * Maps single ChangeRequest to a template‑friendly structure
+ * extracts from multiple tables with ChangeRequestAliases preventing collisions
+ * @param r result row
+ * @param aliases alias set
+ * @return mapped change request
+ */
 private fun mapChangeRequestRow(
     r: ResultRow,
     aliases: ChangeRequestAliases,
@@ -196,6 +219,13 @@ private fun mapChangeRequestRow(
     )
 }
 
+/**
+ * Updates the status of a ChangeRequest record, using id to search,
+ * returns url with success or fail
+ * @param params request params
+ * @param access table access
+ * @return redirect URL
+ */
 private fun handleStatusUpdate(
     params: Parameters,
     access: ChangeRequestTableAccess,
@@ -221,6 +251,13 @@ private fun handleStatusUpdate(
     }
 }
 
+/**
+ * Handles deleting ChangeRequest record, 
+ * returns url with success or fail
+ * @param params request params
+ * @param access table access
+ * @return redirect URL
+ */
 private fun handleDelete(
     params: Parameters,
     access: ChangeRequestTableAccess,

@@ -24,8 +24,10 @@ const val EXIT_ROW_OFFSET_2: Int = 5
  * Class instance for using seat table
  */
 class SeatTableAccess {
+
     /**
      * Gets list of all seats
+     * @return list of seats
      */
     fun getAll(): List<Seat> =
         transaction {
@@ -36,6 +38,9 @@ class SeatTableAccess {
 
     /**
      * Gets list of seats from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of seats
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -47,7 +52,9 @@ class SeatTableAccess {
         }
 
     /**
-     * Gets list of complains by UserId
+     * Creates a seat record
+     * @param seat seat model
+     * @return true if created
      */
     fun createSeat(seat: Seat): Boolean =
         transaction {
@@ -66,6 +73,7 @@ class SeatTableAccess {
 
     /**
      * Deletes a seat by searching with it's ID
+     * @param id seat id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -74,6 +82,10 @@ class SeatTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id seat id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,

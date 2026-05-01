@@ -36,7 +36,19 @@ import java.time.LocalDate
 
 /**
  * Page routes for user-facing pages (home, profile, profile sub-pages, bookings) and a shared 404 page.
- * Pages that are not implemented yet redirect to `/404`.
+ *
+ * Routes:
+ *  - GET /home
+ *  - GET /flight/search
+ *  - GET /flights/passengers
+ *  - GET /profile
+ *  - GET /profile/notifications
+ *  - GET /404
+ *  - GET /profile/bookings
+ *  - POST /profile/bookings/cancel
+ *  - POST /profile/bookings/delete
+ *
+ * @receiver Route Ktor route builder
  */
 fun Route.pagesRoutes() {
     get("/home") { handleGetHome(call) }
@@ -71,7 +83,10 @@ fun Route.pagesRoutes() {
     }
 }
 
-// need to add check to make sure user is logged in before loading the home page
+/**
+ * Handler function for rendering the home page
+ * @param call application call
+ */
 private suspend fun handleGetHome(call: ApplicationCall) {
     val session = call.sessions.get<UserSession>()
 
@@ -93,8 +108,10 @@ private suspend fun handleGetHome(call: ApplicationCall) {
     )
 }
 
-// need to add check to make sure user is logged in before loading the flight search page
-// we also need to check that all the required data is provided
+/**
+ * Handler function to render flight search page, displaying available flights based on inputted parameters
+ * @param call application call
+ */
 private suspend fun handleGetFlightSearch(call: ApplicationCall) {
     val session = call.sessions.get<UserSession>()
 
@@ -138,7 +155,6 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
     // println(search)
     // println("FLIGHT SEARCH DATA ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
-    // get outbound flight data
     val flightTable = FlightTableAccess()
     val outboundFlights =
         flightTable.getFlightsAroundDate(
@@ -147,7 +163,6 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
             LocalDate.parse(search.departureDate),
         )
 
-    // get inbound flight data (for trip type = return)
     var inboundFlights: List<FlightWithFares> = emptyList()
     if (search.tripType == "return") {
         inboundFlights =
@@ -172,7 +187,10 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
     )
 }
 
-// need to add check to a booking/user session exists before loading the page
+/**
+ * GET handler function to display page where passengers info are inputted
+ * @param call application call
+ */
 private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
     val userSession = call.sessions.get<UserSession>()
     val bookingSession = call.sessions.get<BookingSession>()
@@ -220,11 +238,7 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
 
 /**
  * Renders the user's profile dashboard page (left navigation + profile info panel).
- *
- * GET /profile
- * - Requires UserSession.
- * - On success: renders "my_profile.peb" with userSession in the model.
- * - On failure: redirects to /login.
+ * @param call application call
  */
 private suspend fun handleGetProfile(call: ApplicationCall) {
     val userSession = call.sessions.get<UserSession>()
@@ -257,6 +271,8 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
  *
  * GET /profile/notifications
  * - Always redirects to /404 (until implemented).
+ *
+ * @param call application call
  */
 private suspend fun handleGetNotifications(call: ApplicationCall) {
     // Placeholder for notifications page (not implemented yet)
@@ -266,8 +282,7 @@ private suspend fun handleGetNotifications(call: ApplicationCall) {
 /**
  * Central 404 route used by pages that are not implemented yet.
  *
- * GET /404
- * - Renders "404.peb" with HTTP 404 status.
+ * @param call application call
  */
 private suspend fun handleNotFound(call: ApplicationCall) {
     call.respond(
@@ -278,17 +293,7 @@ private suspend fun handleNotFound(call: ApplicationCall) {
 
 /**
  * Renders the "My Bookings" page for the logged-in user.
- *
- * GET "/profile/bookings"
- * Query params:
- * - q (optional): booking id filter (numeric)
- * - status (optional): booking status filter (pending/confirmed/cancelled)
- *
- * Behaviour:
- * - Requires UserSession. If missing -> redirect /login
- * - If user cannot be resolved -> redirect /404
- * - Loads bookings belonging to the user, including segment flight + airport + seat info
- * - Renders my_bookings.peb
+ * @param call application call
  */
 private suspend fun handleGetBookings(call: ApplicationCall) {
     val session = call.sessions.get<UserSession>()
@@ -341,16 +346,9 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
 }
 
 /**
- * Cancels a booking for the logged-in user.
+ * Cancels a booking for the logged-in user
  *
- * POST "/profile/bookings/cancel"
- * - Requires an existing [UserSession].
- * - Reads `bookingId` from form parameters.
- * - Verifies the booking belongs to the current user.
- * - Updates `booking_status` to "cancelled" and sets `cancelled_at` to now.
- * - Redirects back to `/profile/bookings`.
- * - If session is missing -> redirect to `/login`.
- * - If user or booking cannot be resolved -> redirect to `/404`.
+ * @param call application call
  */
 private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
     val session = call.sessions.get<UserSession>()
@@ -383,7 +381,7 @@ private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
 
             BookingTable.update({ (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }) {
                 it[bookingStatus] = "cancelled"
-                it[cancelledAt] = java.time.Instant.now().toString()
+                it[cancelledAt] = Instant.now().toString()
             }
 
             true
@@ -397,6 +395,11 @@ private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
     call.respondRedirect("/profile/bookings")
 }
 
+/**
+ * Deletes a booking for the logged-in user
+ *
+ * @param call application call
+ */
 private suspend fun handlePostBookingsDelete(call: ApplicationCall) {
     val session = call.sessions.get<UserSession>()
     checkNotNull(session)

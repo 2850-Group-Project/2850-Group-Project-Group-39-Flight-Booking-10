@@ -18,8 +18,10 @@ import java.time.Instant
  * Class instance for using FareClass table
  */
 class FareClassTableAccess {
+
     /**
      * Gets list of all fare classes
+     * @return list of fare classes
      */
     fun getAll(): List<FareClass> =
         transaction {
@@ -30,6 +32,9 @@ class FareClassTableAccess {
 
     /**
      * Gets list of fare classes from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of fare classes
      */
     fun <T : Any> getByAttribute(
         attribute: Column<T?>,
@@ -49,6 +54,8 @@ class FareClassTableAccess {
 
     /**
      * Creates a fare class object
+     * @param fareClass fare class model
+     * @return true if created
      */
     fun createFareClass(fareClass: FareClass): Boolean =
         transaction {
@@ -69,7 +76,7 @@ class FareClassTableAccess {
                 it[FareClassTable.milesEarnRate] = fareClass.milesEarnRate
                 it[FareClassTable.minimumMilesForBooking] = fareClass.minimumMilesForBooking
                 it[FareClassTable.description] = fareClass.description
-                it[FareClassTable.createdAt] = java.time.Instant.now().toString()
+                it[FareClassTable.createdAt] = Instant.now().toString()
                 it[FareClassTable.updatedAt] = fareClass.updatedAt
             }
             true
@@ -77,6 +84,7 @@ class FareClassTableAccess {
 
     /**
      * Deletes a fare class by searching with it's ID
+     * @param id fare class id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -85,6 +93,10 @@ class FareClassTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id fare class id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,
@@ -93,8 +105,7 @@ class FareClassTableAccess {
     ): Boolean =
         transaction {
             val rows =
-                FareClassTable.update({ FareClassTable.id eq id }) {
-                        stmt ->
+                FareClassTable.update({ FareClassTable.id eq id }) { stmt ->
                     stmt[column] = value
                 }
             rows > 0

@@ -20,8 +20,10 @@ private const val AIRPORT_SEARCH_LIMIT: Int = 8
  * Class instance for using airport table
  */
 class AirportTableAccess {
+
     /**
      * Gets list of all Airports
+     * @return list of airports
      */
     fun getAll(): List<Airport> =
         transaction {
@@ -32,6 +34,9 @@ class AirportTableAccess {
 
     /**
      * Gets list of Airport from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of airports
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -44,6 +49,8 @@ class AirportTableAccess {
 
     /**
      * Gets iata code of airport from origin
+     * @param origin search text
+     * @return iata code or null
      */
     fun getAirportCodeByOrigin(origin: String): String? =
         transaction {
@@ -56,6 +63,8 @@ class AirportTableAccess {
 
     /**
      * Gets city name of airport from origin
+     * @param origin search text
+     * @return city or null
      */
     fun getCityByOrigin(origin: String): String? =
         transaction {
@@ -68,6 +77,8 @@ class AirportTableAccess {
 
     /**
      * Searches table with query and returns list of Airports that are similar
+     * @param query search text
+     * @return list of airports
      */
     fun searchAirports(query: String): List<Airport> =
         transaction {
@@ -91,6 +102,11 @@ class AirportTableAccess {
 
     /**
      * Creates an airport object
+     * @param iataCode airport code
+     * @param name airport name
+     * @param city airport city
+     * @param country airport country
+     * @return true if created
      */
     fun createAirport(
         iataCode: String,
@@ -111,6 +127,7 @@ class AirportTableAccess {
 
     /**
      * Deletes an Airport by searching with it's ID
+     * @param id airport id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -120,6 +137,10 @@ class AirportTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id airport id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,
@@ -129,8 +150,7 @@ class AirportTableAccess {
         transaction {
             // updates the record with given id, given column and value
             val rows =
-                AirportTable.update({ AirportTable.id eq id }) {
-                        stmt ->
+                AirportTable.update({ AirportTable.id eq id }) { stmt ->
                     stmt[column] = value
                 }
             rows > 0
@@ -138,6 +158,7 @@ class AirportTableAccess {
 
     /**
      * Updates Airport if it exists, otherwise inserts it
+     * @param airport airport model
      */
     fun upsertByIata(airport: Airport) =
         transaction {
@@ -146,6 +167,7 @@ class AirportTableAccess {
                 AirportTable
                     .select { AirportTable.iataCode eq airport.iataCode }
                     .singleOrNull()
+
             if (existing == null) {
                 AirportTable.insert {
                     it[iataCode] = airport.iataCode

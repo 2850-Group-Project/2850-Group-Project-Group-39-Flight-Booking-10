@@ -18,8 +18,10 @@ import java.time.Instant
  * Class instance for using complaint table
  */
 class StaffTableAccess {
+
     /**
      * Gets list of all staff
+     * @return list of staff
      */
     fun getAll(): List<Staff> =
         transaction {
@@ -30,6 +32,9 @@ class StaffTableAccess {
 
     /**
      * Gets list of staff from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of staff
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -42,6 +47,12 @@ class StaffTableAccess {
 
     /**
      * Creates a staff object
+     * @param email staff email
+     * @param passwordHash hashed password
+     * @param firstName first name
+     * @param lastName last name
+     * @param role staff role
+     * @return true if created
      */
     fun createStaff(
         email: String,
@@ -61,13 +72,14 @@ class StaffTableAccess {
                 it[StaffTable.lastName] = lastName
                 it[StaffTable.phoneNumber] = null
                 it[StaffTable.role] = role
-                it[StaffTable.createdAt] = java.time.Instant.now().toString()
+                it[StaffTable.createdAt] = Instant.now().toString()
             }
             true
         }
 
     /**
      * Deletes a staff members record by searching with it's ID
+     * @param id staff id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -76,6 +88,10 @@ class StaffTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id staff id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,
@@ -94,6 +110,8 @@ class StaffTableAccess {
 
     /**
      * Finds staff record by searching with email
+     * @param email staff email
+     * @return staff or null
      */
     fun findByEmail(email: String): Staff? =
         transaction {
@@ -105,6 +123,8 @@ class StaffTableAccess {
 
     /**
      * Finds staff record by searching with staffId
+     * @param staffId staff id
+     * @return list of staff
      */
     fun findByStaffId(staffId: Int): List<Staff> {
         return transaction {

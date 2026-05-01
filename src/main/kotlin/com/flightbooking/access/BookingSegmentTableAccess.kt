@@ -20,8 +20,10 @@ const val RAND_CABIN_PREMIUM_ECONOMY_UPPER: Int = 20
  * Class instance for using BookingSegment table
  */
 class BookingSegmentTableAccess {
+
     /**
      * Gets list of all BookingSegments
+     * @return list of booking segments
      */
     fun getAll(): List<BookingSegment> =
         transaction {
@@ -31,7 +33,10 @@ class BookingSegmentTableAccess {
         }
 
     /**
-     * Gets list of BookigSegment from DB, filtering by attribute and value you want it to be
+     * Gets list of BookingSegment from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of booking segments
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -43,7 +48,11 @@ class BookingSegmentTableAccess {
         }
 
     /**
-     * Creates an BookignSegment object
+     * Creates a BookingSegment object
+     * @param bookingId booking id
+     * @param flightId flight id
+     * @param flightFareId fare id
+     * @return true if created
      */
     fun createBookingSegment(
         bookingId: Int,
@@ -61,6 +70,7 @@ class BookingSegmentTableAccess {
 
     /**
      * Deletes a BookingSegment by searching with it's ID
+     * @param id segment id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -69,6 +79,10 @@ class BookingSegmentTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id segment id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,

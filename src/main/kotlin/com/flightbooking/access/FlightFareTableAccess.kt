@@ -16,8 +16,10 @@ import org.jetbrains.exposed.sql.update
  * Class instance for using flight fare table
  */
 class FlightFareTableAccess {
+
     /**
      * Gets list of all flight fares
+     * @return list of flight fares
      */
     fun getAll(): List<FlightFare> =
         transaction {
@@ -28,6 +30,9 @@ class FlightFareTableAccess {
 
     /**
      * Gets list of flight fares from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of flight fares
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -40,6 +45,8 @@ class FlightFareTableAccess {
 
     /**
      * Creates a flight fare object
+     * @param flightFare flight fare model
+     * @return true if created
      */
     fun createFlightFare(flightFare: FlightFare): Boolean =
         transaction {
@@ -57,6 +64,7 @@ class FlightFareTableAccess {
 
     /**
      * Deletes a flight fare by searching with it's ID
+     * @param id flight fare id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -65,6 +73,10 @@ class FlightFareTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id flight fare id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,

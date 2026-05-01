@@ -37,8 +37,10 @@ const val HOURS_DENOMINATOR: Int = 60
  * Provides database access operations for the [FlightTable].
  */
 class FlightTableAccess {
+
     /**
      * Returns all flights in the database.
+     * @return list of flights
      */
     fun getAll(): List<Flight> =
         transaction {
@@ -49,6 +51,9 @@ class FlightTableAccess {
 
     /**
      * Gets list of flights from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of flights
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -61,6 +66,9 @@ class FlightTableAccess {
 
     /**
      * Calculate duration based on departure and arrival time
+     * @param dep departure time
+     * @param arr arrival time
+     * @return formatted duration
      */
     private fun calculateDuration(
         dep: LocalDateTime?,
@@ -78,6 +86,8 @@ class FlightTableAccess {
 
     /**
      * Maps exposed to FareOption
+     * @param rows result rows
+     * @return list of fare options
      */
     private fun mapFares(rows: List<ResultRow>): List<FareOption> {
         return rows.map { row ->
@@ -97,10 +107,10 @@ class FlightTableAccess {
      * Returns flights within ±5 days of [date] between [originCode] and [destinationCode],
      * grouped by flight with all available fares attached.
      *
-     * @param originCode IATA code of the origin airport (e.g. "LHR")
-     * @param destinationCode IATA code of the destination airport (e.g. "DXB")
-     * @param date the target departure date
-     * @return list of [FlightWithFares], each containing flight info and available fare options
+     * @param originCode origin IATA code
+     * @param destinationCode destination IATA code
+     * @param date target date
+     * @return list of flights with fares
      */
     fun getFlightsAroundDate(
         originCode: String,
@@ -110,13 +120,12 @@ class FlightTableAccess {
         // clamp to today so we don't show flights that have already departed (previous days)
         val dateFrom =
             maxOf(
-                date
-                    .minusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW),
+                date.minusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW),
                 LocalDate.now(),
             ).toString() + "T00:00:00+00:00"
+
         val dateTo =
-            date
-                .plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW)
+            date.plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW)
                 .toString() + "T23:59:59+00:00"
 
         // debugging
@@ -132,12 +141,7 @@ class FlightTableAccess {
             addLogger(StdOutSqlLogger)
             FlightTable
                 .join(originAirport, JoinType.INNER, FlightTable.originAirport, originAirport[AirportTable.id])
-                .join(
-                    destinationAirport,
-                    JoinType.INNER,
-                    FlightTable.destinationAirport,
-                    destinationAirport[AirportTable.id],
-                )
+                .join(destinationAirport, JoinType.INNER, FlightTable.destinationAirport, destinationAirport[AirportTable.id])
                 .join(FlightFareTable, JoinType.LEFT, FlightTable.id, FlightFareTable.flightId)
                 .join(FareClassTable, JoinType.LEFT, FlightFareTable.fareClassId, FareClassTable.id)
                 .select {
@@ -155,6 +159,10 @@ class FlightTableAccess {
 
     /**
      * Maps list of flights and fares to return flight with fares
+     * @param rows result rows
+     * @param originAirport origin alias
+     * @param destinationAirport destination alias
+     * @return flight with fares
      */
     private fun mapFlightWithFares(
         rows: List<ResultRow>,
@@ -187,8 +195,8 @@ class FlightTableAccess {
 
     /**
      * Inserts a new flight record into the database.
-     * @return true if the insert succeeded
-     * @throws ExposedSQLException if the insert fails
+     * @param flight flight model
+     * @return true if created
      */
     fun createFlight(flight: Flight): Boolean =
         transaction {
@@ -206,6 +214,7 @@ class FlightTableAccess {
 
     /**
      * Deletes a flight by searching with it's ID
+     * @param id flight id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -214,6 +223,10 @@ class FlightTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id flight id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,
@@ -227,7 +240,8 @@ class FlightTableAccess {
 
     /**
      * Returns flights where both origin and destination are UK airports.
-     * @param ukAirportIDs list of airport IDs in the UK
+     * @param ukAirportIDs list of UK airport IDs
+     * @return list of domestic flights
      */
     fun getDomesticUKFlights(ukAirportIDs: List<Int>): List<Flight> =
         transaction {

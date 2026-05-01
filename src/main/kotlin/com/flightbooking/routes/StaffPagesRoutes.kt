@@ -27,22 +27,28 @@ import org.jetbrains.exposed.sql.update
 /**
  * Registers the staff page routes (dashboard + flight management UI).
  *
- * Routes included:
- * - **GET `/staff/dashboard`**: Requires [StaffSession]. :
- *      Loads staff info + flight/complaint metrics and renders `staff_dashboard.peb`.
- * - **GET `/staff/flights`**: Requires [StaffSession]. Supports optional query params:
- *   - `edit` (Int): loads a flight into the edit form
- *   - `q` (String): filters flights by flight number
- *   Renders `staff_flights.peb`.
- * - **POST `/staff/flights/create`**: Requires [StaffSession]. :
- * Creates a new flight and initialises seats for that flight, then redirects back to `/staff/flights`.
- * - **POST `/staff/flights/update`**: Requires [StaffSession]. :
- *      Updates an existing flight and ensures seats exist, then redirects back to `/staff/flights`.
- * - **POST `/staff/flights/delete`**: Requires [StaffSession]. :
- *      Deletes a flight, then redirects back to `/staff/flights`.
- * - **GET `/staff/logout`**: Clears [StaffSession] and redirects to `/staff/login`.
+ * Routes:
+ * - GET /staff/dashboard ->
+ *      Requires [StaffSession]
+ *      Loads staff info + flight/complaint metrics and renders `staff_dashboard.peb`
+ * - GET /staff/flights -> 
+ *      Requires [StaffSession]
+ *      Supports optional query params:
+ *   - edit (Int): loads a flight into the edit form
+ *   - q (String): filters flights by flight number
+ *   Renders `staff_flights.peb`
+ * - POST /staff/flights/create -> 
+ *      Requires [StaffSession]
+ *      Creates a new flight and initialises seats for that flight, then redirects back to /staff/flights
+ * - POST /staff/flights/update ->
+ *      Requires [StaffSession]
+ *      Updates an existing flight and ensures seats exist, then redirects back to /staff/flights
+ * - POST /staff/flights/delete -> 
+ *      Requires [StaffSession]
+ *      Deletes a flight, then redirects back to /staff/flights
+ * - GET /staff/logout ->
+ *      Clears [StaffSession] and redirects to /staff/login
  */
-
 fun Route.staffPagesRoutes() {
     get("/staff/dashboard") {
         val session = call.sessions.get<StaffSession>()
@@ -112,6 +118,10 @@ fun Route.staffPagesRoutes() {
     }
 }
 
+/**
+ * Function that handles getting/displaying staff dashboard
+ * @param call request call
+ */
 private suspend fun handleGetStaffDashboard(call: ApplicationCall) {
     val session = call.sessions.get<StaffSession>()
     checkNotNull(session)
@@ -126,6 +136,10 @@ private suspend fun handleGetStaffDashboard(call: ApplicationCall) {
     call.respond(PebbleContent("staff_dashboard.peb", model))
 }
 
+/**
+ * Function that handles getting/displaying staff flights page
+ * @param call request call
+ */
 private suspend fun handleGetStaffFlights(call: ApplicationCall) {
     val session = call.sessions.get<StaffSession>()
     if (session == null) {
@@ -144,6 +158,10 @@ private suspend fun handleGetStaffFlights(call: ApplicationCall) {
     call.respond(PebbleContent("staff_flights.peb", model))
 }
 
+/**
+ * Function that handles submitting staff's flight deletion
+ * @param call request call
+ */
 private suspend fun handlePostStaffFlightsDelete(call: ApplicationCall) {
     val session = call.sessions.get<StaffSession>()
     if (session == null) {
@@ -165,6 +183,10 @@ private suspend fun handlePostStaffFlightsDelete(call: ApplicationCall) {
     call.respondRedirect("/staff/flights?ok=Flight deleted")
 }
 
+/**
+ * Function that handles submitting and processing staff flight update information
+ * @param call request call
+ */
 private suspend fun handlePostStaffFlightsUpdate(call: ApplicationCall) {
     val session = call.sessions.get<StaffSession>()
     if (session == null) {

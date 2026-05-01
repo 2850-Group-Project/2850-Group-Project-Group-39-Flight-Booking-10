@@ -29,17 +29,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
  * Seat selection routes (booking flow).
  *
  * This version allows users to select seats for multiple passengers without page reloads:
- * - GET  /flights/seats
- *   Renders `seat_selection.peb` for the **selected outbound flight** stored in [BookingSession].
+ * - GET  /flights/seats -> renders `seat_selection.peb` for the **selected outbound flight** stored in [BookingSession].
  *   Seat map is generated from flight capacity (3 aircraft categories).
  *   If seat rows exist in DB for that flight, their status is used.
  *
- * - POST /flights/seats
- *   Accepts a JSON payload with all seat selections at once (selectedSeats: { passengerId: seatCode })
+ * - POST /flights/seats -> Accepts a JSON payload with all seat selections at once (selectedSeats: { passengerId: seatCode })
  *   Validates all seats are available, creates booking segment + seat assignments,
  *   then redirects to the next step (typically payment).
  */
-
 fun Route.seatSelectionRoutes() {
     get("/flights/seats") {
         val bookingSession = call.sessions.get<BookingSession>()
@@ -65,6 +62,7 @@ fun Route.seatSelectionRoutes() {
  * Renders the seat selection page for the current booking session.
  *
  * GET /flights/seats
+ * @param call request call
  */
 private suspend fun handleGetSeats(call: ApplicationCall) {
     val bookingSession = call.sessions.get<BookingSession>()
@@ -118,13 +116,7 @@ private suspend fun handleGetSeats(call: ApplicationCall) {
  * POST /flights/seats
  * Form params:
  * - selectedSeats (JSON string): { passengerId: seatCode, ... }
- *
- * Behaviour:
- * - Validates all seats are available
- * - Creates booking segment (if not exists)
- * - Creates seat assignments for all passengers
- * - Updates seat table status to "occupied"
- * - Redirects to payment
+ * @param call request call
  */
 private suspend fun handlePostSeats(call: ApplicationCall) {
     val bookingSession = call.sessions.get<BookingSession>()
@@ -150,6 +142,13 @@ private suspend fun handlePostSeats(call: ApplicationCall) {
     call.respondRedirect("/payment?ok=Seats assigned successfully")
 }
 
+/**
+ * Resolves potential initial redirects from invalid UserSession or BookingSession
+ * Redirects back to /login or /home or /flights/search
+ * @param call request call
+ * @param bookingSession booking session
+ * @return redirect URL or null
+ */
 private fun resolvePostSessionRedirects(
     call: ApplicationCall,
     bookingSession: BookingSession?,
@@ -161,6 +160,11 @@ private fun resolvePostSessionRedirects(
         else -> null
     }
 
+/**
+ * Mapper function for Exposed's result row to kotlin usable format
+ * @param row result row
+ * @return mapped passenger
+ */
 private fun passengersMapper(row: ResultRow) =
     mapOf(
         "id" to row[PassengerTable.id],

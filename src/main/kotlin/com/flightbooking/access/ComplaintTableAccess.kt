@@ -1,4 +1,5 @@
 package com.flightbooking.access
+
 import com.flightbooking.mappers.toComplaint
 import com.flightbooking.models.Complaint
 import com.flightbooking.tables.ComplaintTable
@@ -17,8 +18,10 @@ import java.time.Instant
  * Class instance for using complaint table
  */
 class ComplaintTableAccess {
+
     /**
      * Gets list of all complaints
+     * @return list of complaints
      */
     fun getAll(): List<Complaint> =
         transaction {
@@ -29,6 +32,9 @@ class ComplaintTableAccess {
 
     /**
      * Gets list of complaints from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of complaints
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -40,7 +46,9 @@ class ComplaintTableAccess {
         }
 
     /**
-     * Gets list of complains by UserId
+     * Gets list of complaints by UserId
+     * @param userId user id
+     * @return list of complaints
      */
     fun findByUserId(userId: Int): List<Complaint> {
         return transaction {
@@ -53,6 +61,12 @@ class ComplaintTableAccess {
 
     /**
      * Creates a complaint object
+     * @param userId user id
+     * @param type complaint type
+     * @param message complaint message
+     * @param status complaint status
+     * @param handledByStaffId staff id
+     * @return true if created
      */
     fun createComplaint(
         userId: Int?,
@@ -66,7 +80,7 @@ class ComplaintTableAccess {
                 it[ComplaintTable.userId] = userId
                 it[ComplaintTable.type] = type
                 it[ComplaintTable.message] = message
-                it[ComplaintTable.createdAt] = java.time.Instant.now().toString()
+                it[ComplaintTable.createdAt] = Instant.now().toString()
                 it[ComplaintTable.status] = status
                 it[ComplaintTable.handledByStaffId] = handledByStaffId
             }
@@ -75,6 +89,7 @@ class ComplaintTableAccess {
 
     /**
      * Deletes a complaint by searching with it's ID
+     * @param id complaint id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -83,6 +98,10 @@ class ComplaintTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id complaint id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,

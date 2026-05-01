@@ -22,8 +22,10 @@ import java.time.Instant
  * Class instance for using user table
  */
 class UserTableAccess {
+
     /**
      * Gets list of all users
+     * @return list of users
      */
     fun getAll(): List<User> =
         transaction {
@@ -34,6 +36,9 @@ class UserTableAccess {
 
     /**
      * Gets list of users from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of users
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -46,6 +51,11 @@ class UserTableAccess {
 
     /**
      * Creates a user object
+     * @param email user email
+     * @param passwordHash hashed password
+     * @param firstName first name
+     * @param lastName last name
+     * @return true if created
      */
     fun createUser(
         email: String,
@@ -64,7 +74,7 @@ class UserTableAccess {
                 it[UserTable.lastName] = lastName
                 it[UserTable.phoneNumber] = null
                 it[UserTable.dateOfBirth] = null
-                it[UserTable.createdAt] = java.time.Instant.now().toString()
+                it[UserTable.createdAt] = Instant.now().toString()
                 it[UserTable.accountStatus] = "active"
             }
             true
@@ -72,6 +82,7 @@ class UserTableAccess {
 
     /**
      * Deletes a users record by searching with it's ID
+     * @param id user id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -80,6 +91,10 @@ class UserTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id user id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,
@@ -98,6 +113,8 @@ class UserTableAccess {
 
     /**
      * Finds user record by searching with email
+     * @param email user email
+     * @return user or null
      */
     fun findByEmail(email: String): User? =
         transaction {
@@ -109,6 +126,7 @@ class UserTableAccess {
 
     /**
      * Generates users to fill db with random names, defaults 200
+     * @param count number of users
      */
     fun generateUsers(count: Int = 200) {
         val firstNames =

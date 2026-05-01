@@ -17,8 +17,10 @@ import java.time.Instant
  * Class instance for using change request table
  */
 class ChangeRequestTableAccess {
+
     /**
      * Gets list of all change requests
+     * @return list of change requests
      */
     fun getAll(): List<ChangeRequest> =
         transaction {
@@ -27,6 +29,9 @@ class ChangeRequestTableAccess {
 
     /**
      * Gets list of change requests from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of change requests
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -40,6 +45,8 @@ class ChangeRequestTableAccess {
 
     /**
      * Gets change request with corresponding id
+     * @param id request id
+     * @return change request or null
      */
     fun findById(id: Int): ChangeRequest? =
         transaction {
@@ -52,6 +59,8 @@ class ChangeRequestTableAccess {
 
     /**
      * Creates a change request object
+     * @param request change request model
+     * @return created request id
      */
     fun createRequest(request: ChangeRequest): Int =
         transaction {
@@ -71,6 +80,10 @@ class ChangeRequestTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id request id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,
@@ -88,6 +101,9 @@ class ChangeRequestTableAccess {
 
     /**
      * Updates change request with the id's status
+     * @param id request id
+     * @param status new status
+     * @return true if updated
      */
     fun updateStatus(
         id: Int,
@@ -103,7 +119,9 @@ class ChangeRequestTableAccess {
         }
 
     /**
-     * Deletes an Airport by searching with it's ID
+     * Deletes a change request by searching with it's ID
+     * @param id request id
+     * @return true if deleted
      */
     fun deleteById(id: Int): Boolean =
         transaction {

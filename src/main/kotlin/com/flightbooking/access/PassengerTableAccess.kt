@@ -16,8 +16,10 @@ import org.jetbrains.exposed.sql.update
  * Class instance for using passengers table
  */
 class PassengerTableAccess {
+
     /**
      * Gets list of all passengers
+     * @return list of passengers
      */
     fun getAll(): List<Passenger> =
         transaction {
@@ -28,6 +30,9 @@ class PassengerTableAccess {
 
     /**
      * Gets list of passengers from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of passengers
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -40,6 +45,8 @@ class PassengerTableAccess {
 
     /**
      * Creates a passenger
+     * @param passenger passenger model
+     * @return true if created
      */
     fun createPassenger(passenger: Passenger): Boolean =
         transaction {
@@ -63,6 +70,7 @@ class PassengerTableAccess {
 
     /**
      * Deletes a passenger by searching with it's ID
+     * @param id passenger id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -71,6 +79,10 @@ class PassengerTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id passenger id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,

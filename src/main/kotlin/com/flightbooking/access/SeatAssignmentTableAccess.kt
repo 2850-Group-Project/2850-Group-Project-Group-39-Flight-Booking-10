@@ -18,8 +18,10 @@ import org.jetbrains.exposed.sql.update
  * Class instance for using seat assignment table
  */
 class SeatAssignmentTableAccess {
+
     /**
      * Gets list of all seat assignments
+     * @return list of seat assignments
      */
     fun getAll(): List<SeatAssignment> =
         transaction {
@@ -30,6 +32,9 @@ class SeatAssignmentTableAccess {
 
     /**
      * Gets list of seat assignments from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of seat assignments
      */
     fun <T> getByAttribute(
         attribute: Column<T>,
@@ -42,6 +47,10 @@ class SeatAssignmentTableAccess {
 
     /**
      * Creates a seat assignment object
+     * @param passengerId passenger id
+     * @param bookingSegmentId segment id
+     * @param seatId seat id
+     * @return true if created
      */
     fun createSeatAssignment(
         passengerId: Int,
@@ -58,7 +67,8 @@ class SeatAssignmentTableAccess {
         }
 
     /**
-     * Deletes a seat assignemnt by searching with it's ID
+     * Deletes a seat assignment by searching with it's ID
+     * @param id assignment id
      */
     fun deleteByID(id: Int) =
         transaction {
@@ -67,6 +77,10 @@ class SeatAssignmentTableAccess {
 
     /**
      * Updates a record's attribute with a value passed in
+     * @param id assignment id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
      */
     fun <T> updateRecordByAttribute(
         id: Int,
