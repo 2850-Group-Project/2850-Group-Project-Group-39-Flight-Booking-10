@@ -2,6 +2,7 @@ package com.flightbooking.routes
 
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
+import com.flightbooking.access.PointsTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
@@ -240,6 +241,9 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
         }
 
     val pointsBalance = PointsService.getBalance(userId)
+    val pointsTable = PointsTableAccess()
+    val pointsTransactions = pointsTable.getTransactions(userId)
+    println(pointsTransactions)
 
     call.respond(
         PebbleContent(
@@ -247,6 +251,7 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
             mapOf(
                 "userSession" to userSession,
                 "pointsBalance" to pointsBalance,
+                "pointsTransactions" to pointsTransactions,
             ),
         ),
     )
