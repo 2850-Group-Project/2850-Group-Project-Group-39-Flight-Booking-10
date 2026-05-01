@@ -24,6 +24,7 @@ body{
     radial-gradient(900px 600px at 90% 10%, rgba(56,189,248,.12), transparent 55%),
     linear-gradient(180deg, var(--bg0), var(--bg1));
     min-height:100vh;
+    gap: 20px;
 }
 
 nav{
@@ -180,6 +181,9 @@ h1{
     border:1px solid rgba(255,255,255,.10);
     padding:14px;
     min-width:0;
+}
+.points-card {
+    margin-top: 20px;
 }
 .card h2{
     margin:0 0 10px;
