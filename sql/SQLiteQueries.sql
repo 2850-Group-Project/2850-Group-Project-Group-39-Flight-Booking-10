@@ -20,8 +20,10 @@
 --     created_at VARCHAR(50) NOT NULL
 -- );
 
-select * from user_points;
-select * from points_transaction;
+select * from seat;
+
+-- select * from user_points;
+-- select * from points_transaction;
 
 
 -- select * from passenger where passenger_id = 1234;
