@@ -53,11 +53,11 @@ object PointsService {
      */
     fun calculateRedemption(userId: Int, bookingTotal: Double): Pair<Int, Double> {
         val balance = getBalance(userId)
+        println("points balance: $balance")
         val maxDiscount = bookingTotal * MAX_REDEEM_PERCENT
         val balanceAsGBP = balance * POINTS_PER_POUND
         val actualDiscount = minOf(balanceAsGBP, maxDiscount)
-        val pointsNeeded = (actualDiscount / POUNDS_PER_POINT).toInt()
-        return Pair(pointsNeeded, actualDiscount)
+        return Pair(balance, actualDiscount)
     }
 
     /**

@@ -46,6 +46,7 @@ fun Route.paymentRoutes() {
             return@get
         }
 
+        var bookingTotal = calculateTotal(bookingSession)
         val (pointsAvailable, maxDiscount) = PointsService.calculateRedemption(userId, calculateTotal(bookingSession))
 
         call.respond(
@@ -56,6 +57,7 @@ fun Route.paymentRoutes() {
                     "bookingSession" to bookingSession,
                     "pointsAvailable" to pointsAvailable,
                     "maxDiscount" to maxDiscount,
+                    "bookingTotal" to bookingTotal,
                 ),
             ),
         )

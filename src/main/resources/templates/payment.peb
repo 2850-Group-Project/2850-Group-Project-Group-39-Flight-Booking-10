@@ -103,6 +103,26 @@
           </div>
         </div>
 
+        <!-- USE POINTS -->
+        <div class="passenger-card">
+          <div class="passenger-card-header">
+            <span class="passenger-type-badge passenger-type-badge--adult">Points</span>
+            <span class="passenger-card-title">Redeem Points</span>
+          </div>
+
+          <div class="passenger-fields">
+            <div class="field-group">
+              <label>Points Available: {{ pointsAvailable }}</label>
+              <input type="hidden" name="pointsToRedeem" id="pointsToRedeem" value="0" />
+              <button type="button" id="usePointsBtn" class="btn-primary" onclick="togglePoints()">Use Points</button>
+              <p id="pointsMsg" style="display:none; margin-top: 0.5rem;">
+                £{{ maxDiscount }} discount applied — you will pay £<span id="newTotal"></span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+
         <div class="passengers-submit">
           <button type="submit" class="btn-primary passengers-submit-btn">
             Pay and continue →
@@ -125,6 +145,18 @@
     </div>
   </footer>
 
+  <script>
+    let pointsActive = false;
+    const total = {{ bookingTotal }};
+    function togglePoints() {
+      pointsActive = !pointsActive;
+      document.getElementById('pointsToRedeem').value = pointsActive ? {{ pointsAvailable }} : 0;
+      document.getElementById('usePointsBtn').textContent = pointsActive ? '✓ Remove Points' : 'Use Points';
+      const msg = document.getElementById('pointsMsg');
+      msg.style.display = pointsActive ? 'block' : 'none';
+      document.getElementById('newTotal').textContent = (total - {{ maxDiscount }}).toFixed(2);
+    }
+  </script>
   <script src="/static/javascript/Large_Font.js"></script>
 </body>
 </html>
