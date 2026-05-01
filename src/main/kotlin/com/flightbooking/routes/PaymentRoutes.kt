@@ -3,6 +3,7 @@ package com.flightbooking.routes
 import com.flightbooking.access.BookingTableAccess
 import com.flightbooking.access.PaymentTableAccess
 import com.flightbooking.models.BookingSession
+import com.flightbooking.models.Payment
 import com.flightbooking.models.UserSession
 import com.flightbooking.service.PointsService
 import com.flightbooking.tables.FareClassTable
@@ -27,11 +28,23 @@ import java.util.Locale
 private const val RETURN_FARE_DISCOUNT = 0.5
 private const val PROVIDER_REFERENCE_DIGITS = 4
 
+/**
+ * Routes for payment page
+ * Routes:
+ *  - GET /payment -> renders and displays payment page
+ *  - POST /payment -> accepts inputs for payment information,
+ * Calculates the total and creates Payment to store into Payment table
+ * Users membership points also factored into payment calculation
+ */
 fun Route.paymentRoutes() {
     get("/payment") { handleGetPayment(call) }
     post("/payment") { handlePostPayment(call) }
 }
 
+/**
+ * Handler function for displaying payment page, displays points discount
+ * @param call request call
+ */
 private suspend fun handleGetPayment(call: ApplicationCall) {
     val userSession = call.sessions.get<UserSession>()
     val bookingSession = call.sessions.get<BookingSession>()
@@ -59,6 +72,12 @@ private suspend fun handleGetPayment(call: ApplicationCall) {
     )
 }
 
+/**
+ * Accepts payment information from payment page, calculates final total including discount
+ * Adds points to user accounts based on miles earn rate
+ * Creates Payment and inserts it into the payment table
+ * @param call request call
+ */
 private suspend fun handlePostPayment(call: ApplicationCall) {
     val userSession = call.sessions.get<UserSession>()
     val bookingSession = call.sessions.get<BookingSession>()
@@ -93,13 +112,15 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
     val paymentId =
         paymentTableAccess
             .createPayment(
-                bookingId = bookingSession.bookingId,
-                amount = finalTotal,
-                paymentMethod = "card",
-                paymentStatus = "paid",
-                paidAt = java.time.LocalDateTime.now().toString(),
-                providerReference = cardNumber?.takeLast(PROVIDER_REFERENCE_DIGITS) ?: "0000",
-                currency = "GBP",
+                Payment(
+                    bookingId = bookingSession.bookingId,
+                    amount = finalTotal,
+                    paymentMethod = "card",
+                    paymentStatus = "paid",
+                    paidAt = java.time.LocalDateTime.now().toString(),
+                    providerReference = cardNumber?.takeLast(PROVIDER_REFERENCE_DIGITS) ?: "0000",
+                    currency = "GBP",
+                ),
             )
     
     val updatedBookingSession = bookingSession.copy(totalPrice = finalTotal)
@@ -120,7 +141,12 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
     call.respondRedirect("/confirmation")
 }
 
-fun calculateTotal(bookingSession: BookingSession): Double =
+/**
+ * Helper function to calculate total price, based on if it's a return flight, and number of passengers
+ * @param bookingSession booking session
+ * @return total price
+ */
+private fun calculateTotal(bookingSession: BookingSession): Double =
     transaction {
         val outboundFarePrice =
             bookingSession.outboundFareId?.let { fareId ->
@@ -154,6 +180,11 @@ fun calculateTotal(bookingSession: BookingSession): Double =
         (outboundFarePrice + discountedReturnFare) * passengerCount
     }
 
+/**
+ * Gets the miles earn rate for a flight fare
+ * @param outboundFareId fare id
+ * @return miles earn rate
+ */
 private fun fetchMilesEarnRate(outboundFareId: Int?): Double {
     if (outboundFareId == null) return 1.0
     return transaction {

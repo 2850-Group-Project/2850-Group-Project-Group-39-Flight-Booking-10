@@ -25,6 +25,12 @@ import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
+/**
+ * Helper function to handle redirects from invalid UserSession or BookingSession
+ * @param call request call
+ * @param bookingSession booking session
+ * @return redirect URL or null
+ */
 fun resolveGetFlightRedirects(
     call: ApplicationCall,
     bookingSession: BookingSession?,
@@ -36,6 +42,11 @@ fun resolveGetFlightRedirects(
         else -> null
     }
 
+/**
+ * Searches User table for record with email matching UserSession's email and returns it, null if not found
+ * @param session user session
+ * @return user id or null
+ */
 fun fetchUserId(session: UserSession): Int? =
     transaction {
         UserTable
@@ -45,6 +56,14 @@ fun fetchUserId(session: UserSession): Int? =
             ?.get(UserTable.id)
     }
 
+/**
+ * Fetches all booking rows matching the given condition, including joined flight,
+ * airport, and seat information, and returns them as a list of structured maps.
+ * @param cond filter condition
+ * @param origin origin alias
+ * @param dest destination alias
+ * @return list of booking rows
+ */
 fun fetchBookingRows(
     cond: Op<Boolean>,
     origin: Alias<AirportTable>,
@@ -83,6 +102,14 @@ fun fetchBookingRows(
         .map { r -> mapBookingRow(r, origin, dest) }
 }
 
+/**
+ * Maps a single joined booking/segment/flight/airport/seat row into a
+ * structured map used by the bookings page
+ * @param r result row
+ * @param origin origin alias
+ * @param dest destination alias
+ * @return mapped booking row
+ */
 fun mapBookingRow(
     r: ResultRow,
     origin: Alias<AirportTable>,
@@ -105,6 +132,14 @@ fun mapBookingRow(
         "seatCode" to r.getOrNull(SeatTable.seatCode),
     )
 
+/**
+ * Helper function that creates cond, which is a filtered BookingTable
+ * @param userId user id
+ * @param q search text
+ * @param qId parsed search id
+ * @param statusFilter status filter
+ * @return booking condition
+ */
 fun buildBookingCondition(
     userId: Int,
     q: String,
@@ -122,6 +157,11 @@ fun buildBookingCondition(
     return cond
 }
 
+/**
+ * Groups flat booking/segment rows into a hierarchical booking structure
+ * @param rows flat booking rows
+ * @return grouped bookings
+ */
 fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
     rows.groupBy { it["bookingId"] as Int }
         .map { (bid, items) ->

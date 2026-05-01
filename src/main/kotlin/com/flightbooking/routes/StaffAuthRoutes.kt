@@ -17,12 +17,12 @@ import io.ktor.server.sessions.set
  * Staff authentication routes (login + registration).
  *
  * Routes:
- * - GET  /staff/login: Renders the staff login page.
- * - POST /staff/login: Validates credentials via [StaffAuthService.login]. On success, stores [StaffSession]
+ * - GET  /staff/login -> Renders the staff login page.
+ * - POST /staff/login -> Validates credentials via [StaffAuthService.login]. On success, stores [StaffSession]
  *   and redirects to `/staff/dashboard`. On failure, re-renders login with an error.
  *
- * - GET  /staff/register: Renders the staff registration page.
- * - POST /staff/register: Validates an invite code, then registers a staff account via
+ * - GET  /staff/register -> Renders the staff registration page.
+ * - POST /staff/register -> Validates an invite code, then registers a staff account via
  *   [StaffAuthService.register]. On success, redirects to `/staff/login`. On failure, re-renders with an error.
  *
  * Security note:

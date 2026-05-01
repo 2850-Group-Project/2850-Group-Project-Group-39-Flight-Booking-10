@@ -1,4 +1,4 @@
-package com.flightbooking.access // we want to be able to access all access files from a single package "access"
+package com.flightbooking.access
 
 import com.flightbooking.mappers.toAirport
 import com.flightbooking.models.Airport
@@ -16,9 +16,14 @@ import org.jetbrains.exposed.sql.update
 
 private const val AIRPORT_SEARCH_LIMIT: Int = 8
 
-// class instance/reference of the airport table
+/**
+ * Class instance for using airport table
+ */
 class AirportTableAccess {
-    // specific search functions for each table (pretty much copy and pasted for most)
+    /**
+     * Gets list of all Airports
+     * @return list of airports
+     */
     fun getAll(): List<Airport> =
         transaction {
             AirportTable.selectAll().map {
@@ -26,16 +31,26 @@ class AirportTableAccess {
             }
         }
 
+    /**
+     * Gets list of Airport from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of airports
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
     ): List<Airport> =
         transaction {
-            // accepts attribute you're searching by and the value you want it to be
             AirportTable.select { attribute eq value }
                 .map { it.toAirport() }
         }
 
+    /**
+     * Gets iata code of airport from origin
+     * @param origin search text
+     * @return iata code or null
+     */
     fun getAirportCodeByOrigin(origin: String): String? =
         transaction {
             AirportTable.select {
@@ -45,6 +60,11 @@ class AirportTableAccess {
             }.firstOrNull()?.get(AirportTable.iataCode)
         }
 
+    /**
+     * Gets city name of airport from origin
+     * @param origin search text
+     * @return city or null
+     */
     fun getCityByOrigin(origin: String): String? =
         transaction {
             AirportTable.select {
@@ -54,6 +74,11 @@ class AirportTableAccess {
             }.firstOrNull()?.get(AirportTable.city)
         }
 
+    /**
+     * Searches table with query and returns list of Airports that are similar
+     * @param query search text
+     * @return list of airports
+     */
     fun searchAirports(query: String): List<Airport> =
         transaction {
             val pattern = "%$query%"
@@ -74,6 +99,14 @@ class AirportTableAccess {
                 }
         }
 
+    /**
+     * Creates an airport object
+     * @param iataCode airport code
+     * @param name airport name
+     * @param city airport city
+     * @param country airport country
+     * @return true if created
+     */
     fun createAirport(
         iataCode: String,
         name: String?,
@@ -91,12 +124,23 @@ class AirportTableAccess {
             true
         }
 
+    /**
+     * Deletes an Airport by searching with it's ID
+     * @param id airport id
+     */
     fun deleteByID(id: Int) =
         transaction {
             // deletes record by id
             AirportTable.deleteWhere { AirportTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     * @param id airport id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -105,13 +149,16 @@ class AirportTableAccess {
         transaction {
             // updates the record with given id, given column and value
             val rows =
-                AirportTable.update({ AirportTable.id eq id }) {
-                        stmt ->
+                AirportTable.update({ AirportTable.id eq id }) { stmt ->
                     stmt[column] = value
                 }
             rows > 0
         }
 
+    /**
+     * Updates Airport if it exists, otherwise inserts it
+     * @param airport airport model
+     */
     fun upsertByIata(airport: Airport) =
         transaction {
             // used for the db import
@@ -119,6 +166,7 @@ class AirportTableAccess {
                 AirportTable
                     .select { AirportTable.iataCode eq airport.iataCode }
                     .singleOrNull()
+
             if (existing == null) {
                 AirportTable.insert {
                     it[iataCode] = airport.iataCode

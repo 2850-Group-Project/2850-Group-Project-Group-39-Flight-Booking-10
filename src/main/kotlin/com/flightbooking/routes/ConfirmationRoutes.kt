@@ -12,6 +12,13 @@ import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 
+/**
+ * Confirmation page routes
+ *
+ * Routes:
+ * - GET  /confirmation -> renders page for the confirmation page
+ * Checks UserSession and BookingSession
+ */
 fun Route.confirmationRoutes() {
     get("/confirmation") {
         val bookingSession = call.sessions.get<BookingSession>()
