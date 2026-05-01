@@ -2,7 +2,6 @@ package com.flightbooking.access
 
 import com.flightbooking.mappers.toPassenger
 import com.flightbooking.models.Passenger
-import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.PassengerTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -13,17 +12,14 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-const val DOB_LOWER: Int = 1950
-const val DOB_UPPER: Int = 2010
-const val MONTH_LIMIT: Int = 12
-const val DAY_LIMIT: Int = 28
-const val EXPIRY_LOWER: Int = 2026
-const val EXPIRY_UPPER: Int = 2035
-const val PASSPORT_CODE_LOWER: Int = 100000000
-const val PASSPORT_CODE_UPPER: Int = 999999999
-const val RAND_MAX_PASSENGERS: Int = 3
-
+/**
+ * Class instance for using passengers table
+ */
 class PassengerTableAccess {
+    /**
+     * Gets list of all passengers
+     * @return list of passengers
+     */
     fun getAll(): List<Passenger> =
         transaction {
             PassengerTable.selectAll().map {
@@ -31,6 +27,12 @@ class PassengerTableAccess {
             }
         }
 
+    /**
+     * Gets list of passengers from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of passengers
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
@@ -40,46 +42,47 @@ class PassengerTableAccess {
                 .map { it.toPassenger() }
         }
 
-    @Suppress("LongParameterList")
-    fun createPassenger(
-        bookingId: Int?,
-        email: String?,
-        checkedIn: Int,
-        title: String?,
-        firstName: String?,
-        lastName: String?,
-        dateOfBirth: String?,
-        gender: String?,
-        nationality: String?,
-        documentType: String?,
-        documentNumber: String?,
-        documentCountry: String?,
-        documentExpiry: String?,
-    ): Boolean =
+    /**
+     * Creates a passenger
+     * @param passenger passenger model
+     * @return true if created
+     */
+    fun createPassenger(passenger: Passenger): Boolean =
         transaction {
             PassengerTable.insert {
-                it[PassengerTable.bookingId] = bookingId
-                it[PassengerTable.email] = email
-                it[PassengerTable.checkedIn] = checkedIn
-                it[PassengerTable.title] = title
-                it[PassengerTable.firstName] = firstName
-                it[PassengerTable.lastName] = lastName
-                it[PassengerTable.dateOfBirth] = dateOfBirth
-                it[PassengerTable.gender] = gender
-                it[PassengerTable.nationality] = nationality
-                it[PassengerTable.documentType] = documentType
-                it[PassengerTable.documentNumber] = documentNumber
-                it[PassengerTable.documentCountry] = documentCountry
-                it[PassengerTable.documentExpiry] = documentExpiry
+                it[PassengerTable.bookingId] = passenger.bookingId
+                it[PassengerTable.email] = passenger.email
+                it[PassengerTable.checkedIn] = passenger.checkedIn
+                it[PassengerTable.title] = passenger.title
+                it[PassengerTable.firstName] = passenger.firstName
+                it[PassengerTable.lastName] = passenger.lastName
+                it[PassengerTable.dateOfBirth] = passenger.dateOfBirth
+                it[PassengerTable.gender] = passenger.gender
+                it[PassengerTable.nationality] = passenger.nationality
+                it[PassengerTable.documentType] = passenger.documentType
+                it[PassengerTable.documentNumber] = passenger.documentNumber
+                it[PassengerTable.documentCountry] = passenger.documentCountry
+                it[PassengerTable.documentExpiry] = passenger.documentExpiry
             }
             true
         }
 
+    /**
+     * Deletes a passenger by searching with it's ID
+     * @param id passenger id
+     */
     fun deleteByID(id: Int) =
         transaction {
             PassengerTable.deleteWhere { PassengerTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     * @param id passenger id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -93,63 +96,5 @@ class PassengerTableAccess {
                     stmt[column] = value
                 }
             rows > 0
-        }
-
-    fun generatePassengers(): Map<Int, List<Int>> =
-        transaction {
-            println("generating passengers")
-            val passengersByBooking = mutableMapOf<Int, MutableList<Int>>()
-            val bookings = BookingTable.selectAll().toList()
-            val maleNames = listOf("James", "Tom", "Daniel", "Michael", "Ethan", "Liam")
-            val femaleNames = listOf("Priya", "Sarah", "Emily", "Aisha", "Sophie", "Laura")
-            val lastNames = listOf("Walker", "Sharma", "Nguyen", "Smith", "Brown", "Patel")
-
-            fun randomDOB() =
-                "%04d-%02d-%02d".format(
-                    (DOB_LOWER..DOB_UPPER).random(),
-                    (1..MONTH_LIMIT).random(),
-                    (1..DAY_LIMIT).random(),
-                )
-
-            fun randomExpiry() =
-                "%04d-%02d-%02d".format(
-                    (EXPIRY_LOWER..EXPIRY_UPPER).random(),
-                    (1..MONTH_LIMIT).random(),
-                    (1..DAY_LIMIT).random(),
-                )
-
-            fun randomPassport(country: String) = country + (PASSPORT_CODE_LOWER..PASSPORT_CODE_UPPER).random()
-            bookings.forEach { bookingRow ->
-                val bookingId = bookingRow[BookingTable.id]
-                passengersByBooking[bookingId] = mutableListOf()
-                // 1–3 passengers per booking
-                val passengerCount = (1..RAND_MAX_PASSENGERS).random()
-                repeat(passengerCount) {
-                    val isMale = (0..1).random() == 0
-                    val firstName = if (isMale) maleNames.random() else femaleNames.random()
-                    val lastName = lastNames.random()
-                    val email = "${firstName.lowercase()}.${lastName.lowercase()}@email.com"
-                    val nationality = listOf("GB", "IN", "US", "FR", "DE", "CN", "SP", "GE").random()
-                    val id =
-                        PassengerTable.insert { row ->
-                            row[PassengerTable.bookingId] = bookingId
-                            row[PassengerTable.email] = email
-                            row[PassengerTable.checkedIn] = 0
-                            row[PassengerTable.title] = if (isMale) "Mr" else "Ms"
-                            row[PassengerTable.firstName] = firstName
-                            row[PassengerTable.lastName] = lastName
-                            row[PassengerTable.dateOfBirth] = randomDOB()
-                            row[PassengerTable.gender] = if (isMale) "M" else "F"
-                            row[PassengerTable.nationality] = nationality
-                            row[PassengerTable.documentType] = "passport"
-                            row[PassengerTable.documentNumber] = randomPassport(nationality)
-                            row[PassengerTable.documentCountry] = nationality
-                            row[PassengerTable.documentExpiry] = randomExpiry()
-                        }[PassengerTable.id]
-                    passengersByBooking[bookingId]!!.add(id)
-                }
-            }
-            println("done generating passengers")
-            passengersByBooking
         }
 }

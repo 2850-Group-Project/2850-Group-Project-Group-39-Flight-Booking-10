@@ -17,15 +17,25 @@ import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
-// difference between complaints and profile complaints
-// complaints is to make a complaint
-// profile complaints is to see all the complaints you have made and updates to them?
+/**
+ * Complaints page routes
+ *
+ * Routes:
+ * - GET  /complaints -> renders complaints page
+ * - POST /complaints/submit -> processes submitted complaint information and creates complaint
+ * - GET /profile/complains -> renders page for users' complaints,
+ * see all the complaints you have made and updates to them
+ */
 fun Route.complaintsRoutes() {
     get("/complaints") { handleGetComplaints(call) }
     post("/complaints/submit") { handleSubmitComplaint(call) }
     get("/profile/complaints") { handleProfileComplaints(call) }
 }
 
+/**
+ * Get function to render the complaints page
+ * @param call request call
+ */
 private suspend fun handleGetComplaints(call: io.ktor.server.application.ApplicationCall) {
     val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
     call.respond(
@@ -40,6 +50,11 @@ private suspend fun handleGetComplaints(call: io.ktor.server.application.Applica
     )
 }
 
+/**
+ * Post function to accept complaint information, validates complaint length and if user is null redirects to error
+ * Inserts complaint into complaint table
+ * @param call request call
+ */
 private suspend fun handleSubmitComplaint(call: io.ktor.server.application.ApplicationCall) {
     val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
     println(userSession)
@@ -63,7 +78,10 @@ private suspend fun handleSubmitComplaint(call: io.ktor.server.application.Appli
     }
 }
 
-// complaints page to display current complaints that the user has made
+/**
+ * Get function for complaints page to display current complaints that the user has made
+ * @param call request call
+ */
 private suspend fun handleProfileComplaints(call: io.ktor.server.application.ApplicationCall) {
     val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
     val user = UserTableAccess().findByEmail(userSession.userEmail) ?: return call.respondRedirect("/login")

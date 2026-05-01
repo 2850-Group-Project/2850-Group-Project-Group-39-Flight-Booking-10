@@ -18,6 +18,9 @@ import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import org.jetbrains.exposed.sql.ResultRow
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Airport class
+ */
 fun ResultRow.toAirport(): Airport =
     Airport(
         id = this[AirportTable.id],
@@ -27,6 +30,9 @@ fun ResultRow.toAirport(): Airport =
         country = this[AirportTable.country],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Flight class
+ */
 fun ResultRow.toFlight(): Flight =
     Flight(
         id = this[FlightTable.id],
@@ -39,6 +45,9 @@ fun ResultRow.toFlight(): Flight =
         capacity = this[FlightTable.capacity],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin FareClass class
+ */
 fun ResultRow.toFareClass(): FareClass =
     FareClass(
         id = this[FareClassTable.id],
@@ -62,6 +71,9 @@ fun ResultRow.toFareClass(): FareClass =
         updatedAt = this[FareClassTable.updatedAt],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin FlightFare class
+ */
 fun ResultRow.toFlightFare(): FlightFare =
     FlightFare(
         id = this[FlightFareTable.id],
@@ -74,6 +86,9 @@ fun ResultRow.toFlightFare(): FlightFare =
         saleEnd = this[FlightFareTable.saleEnd],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Booking class
+ */
 fun ResultRow.toBooking(): Booking =
     Booking(
         id = this[BookingTable.id],
@@ -86,6 +101,9 @@ fun ResultRow.toBooking(): Booking =
         amendable = this[BookingTable.amendable],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin BookingSegment class
+ */
 fun ResultRow.toBookingSegment(): BookingSegment =
     BookingSegment(
         id = this[BookingSegmentTable.id],
@@ -94,6 +112,9 @@ fun ResultRow.toBookingSegment(): BookingSegment =
         flightFareId = this[BookingSegmentTable.flightFareId],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Seat class
+ */
 fun ResultRow.toSeat(): Seat =
     Seat(
         id = this[SeatTable.id],
@@ -107,6 +128,9 @@ fun ResultRow.toSeat(): Seat =
         status = this[SeatTable.status],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin SeatAssignment class
+ */
 fun ResultRow.toSeatAssignment(): SeatAssignment =
     SeatAssignment(
         id = this[SeatAssignmentTable.id],

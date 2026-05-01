@@ -35,6 +35,9 @@ private const val MEDIUM_SEATS_PER_ROW = 8
 const val SMALL_AIRCRAFT_CAP_THRESHOLD = 180
 private const val MEDIUM_AIRCRAFT_CAP_THRESHOLD = 350
 
+/**
+ * Data class to pass parameters into buildSeatsModel
+ */
 data class SeatsModelParams(
     val flight: Flight,
     val origin: Airport?,
@@ -45,6 +48,10 @@ data class SeatsModelParams(
     val ok: String,
 )
 
+/**
+ * Data class to represent the seat layout
+ * positionFor: returns the type of seat based on the index given
+ */
 data class SeatLayout(
     val seatsPerRow: Int,
     val letters: List<String>,
@@ -70,6 +77,11 @@ data class SeatLayout(
     }
 }
 
+/**
+ * Helper function that returns a SeatLayout of the aircraft based on the capacity
+ * @param capacity seat capacity
+ * @return seat layout
+ */
 fun getLayout(capacity: Int): SeatLayout {
     val layout =
         when {
@@ -105,7 +117,12 @@ fun getLayout(capacity: Int): SeatLayout {
     return layout
 }
 
-// Create booking segment (if not exists)
+/**
+ * Creates a booking segment if it doesn't exist, returning the id and inserting into the table
+ * @param bookingSession booking session
+ * @param flightId flight id
+ * @return booking segment id
+ */
 fun createBookingSegment(
     bookingSession: BookingSession,
     flightId: Int,
@@ -142,8 +159,13 @@ fun createBookingSegment(
     return bookingSegmentId
 }
 
-// puts seat assignment in
-// seat assigment and seat table
+/**
+ * Assigns seats, meaning it creates seat assignments for each selected seat,
+ * and updates the corresponding seat's status to occupied
+ * @param selectedSeats passenger→seat map
+ * @param seatMap seatCode→Seat map
+ * @param bookingSegmentId segment id
+ */
 fun assignSeats(
     selectedSeats: Map<String, String>,
     seatMap: Map<String, Seat>,
@@ -168,7 +190,12 @@ fun assignSeats(
     }
 }
 
-// parsing the JSON: { "1": "3A", "2": "3B", ... }
+/**
+ * Helper function to parse the seat selections from json
+ * @param call request call
+ * @param json json string
+ * @return parsed seat map or null
+ */
 suspend fun parseSelectedSeats(
     call: ApplicationCall,
     json: String,
@@ -186,7 +213,12 @@ suspend fun parseSelectedSeats(
     }
 }
 
-// Validate all seats exist and are available
+/**
+ * Validates the seats, checking that the seat exists against known seat map
+ * @param selectedSeats passenger→seat map
+ * @param seatMap seatCode→Seat map
+ * @return error message or null
+ */
 fun validateSeats(
     selectedSeats: Map<String, String>,
     seatMap: Map<String, Seat>,
@@ -197,6 +229,11 @@ fun validateSeats(
             "Seat $seatCode is already occupied".takeIf { seat.status != "available" }
         }
 
+/**
+ * Helper function which returns the type of aircraft based on capacity
+ * @param capacity seat capacity
+ * @return aircraft type
+ */
 fun aircraftTyper(capacity: Int): String {
     return when {
         capacity <= SMALL_AIRCRAFT_CAP_THRESHOLD -> "Narrow-body"
@@ -205,6 +242,11 @@ fun aircraftTyper(capacity: Int): String {
     }
 }
 
+/**
+ * Builds the seats model, used to render the seat selection page
+ * @param params seats model params
+ * @return seats model
+ */
 fun buildSeatsModel(params: SeatsModelParams): Map<String, Any> {
     val capacity = (params.flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
     val currentPassengerName =
@@ -229,6 +271,13 @@ fun buildSeatsModel(params: SeatsModelParams): Map<String, Any> {
     )
 }
 
+/**
+ * Builds seat rows, a list of SeatRow, based on capacity and layout
+ * @param capacity seat capacity
+ * @param layout seat layout
+ * @param seatStatusByCode seatCode→status map
+ * @return list of seat rows
+ */
 fun buildSeatRows(
     capacity: Int,
     layout: SeatLayout,
@@ -238,6 +287,13 @@ fun buildSeatRows(
     return (1..totalRows).map { buildSeatRow(it, layout, seatStatusByCode) }
 }
 
+/**
+ * Builds a seat row for the seat selection page to use to display
+ * @param rowNum row number
+ * @param layout seat layout
+ * @param seatStatusByCode seatCode→status map
+ * @return seat row model
+ */
 fun buildSeatRow(
     rowNum: Int,
     layout: SeatLayout,
@@ -260,6 +316,15 @@ fun buildSeatRow(
     )
 }
 
+/**
+ * Builds a single seat model for seat selection page
+ * @param rowNum row number
+ * @param letter seat letter
+ * @param idx seat index
+ * @param layout seat layout
+ * @param seatStatusByCode seatCode→status map
+ * @return seat model
+ */
 fun buildSeat(
     rowNum: Int,
     letter: String,

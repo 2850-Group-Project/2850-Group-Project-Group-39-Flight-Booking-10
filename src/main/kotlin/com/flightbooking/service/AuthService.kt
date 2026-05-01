@@ -3,9 +3,17 @@ package com.flightbooking.service
 import com.flightbooking.access.UserTableAccess
 import org.mindrot.jbcrypt.BCrypt
 
+/**
+ * Service object for user authentication
+ */
 object AuthService {
     private val users = UserTableAccess()
 
+    /**
+     * Registers a user with email and password
+     * Parameters: email, password, firstName, lastName
+     * Returns: false if email or password is blank, true if registration successful
+     */
     fun register(
         email: String,
         password: String,
@@ -17,6 +25,11 @@ object AuthService {
         return users.createUser(email, hash, firstName, lastName)
     }
 
+    /**
+     * Logs in user with email and password
+     * Parameters: email, password
+     * Returns: true if login successful, false if not
+     */
     fun login(
         email: String,
         password: String,

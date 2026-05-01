@@ -18,7 +18,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
+/**
+ * Class instance for using user table
+ */
 class UserTableAccess {
+    /**
+     * Gets list of all users
+     * @return list of users
+     */
     fun getAll(): List<User> =
         transaction {
             UserTable.selectAll().map {
@@ -26,6 +33,12 @@ class UserTableAccess {
             }
         }
 
+    /**
+     * Gets list of users from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of users
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
@@ -35,6 +48,14 @@ class UserTableAccess {
                 .map { it.toUser() }
         }
 
+    /**
+     * Creates a user object
+     * @param email user email
+     * @param passwordHash hashed password
+     * @param firstName first name
+     * @param lastName last name
+     * @return true if created
+     */
     fun createUser(
         email: String,
         passwordHash: String,
@@ -52,17 +73,28 @@ class UserTableAccess {
                 it[UserTable.lastName] = lastName
                 it[UserTable.phoneNumber] = null
                 it[UserTable.dateOfBirth] = null
-                it[UserTable.createdAt] = java.time.Instant.now().toString()
+                it[UserTable.createdAt] = Instant.now().toString()
                 it[UserTable.accountStatus] = "active"
             }
             true
         }
 
+    /**
+     * Deletes a users record by searching with it's ID
+     * @param id user id
+     */
     fun deleteByID(id: Int) =
         transaction {
             UserTable.deleteWhere { UserTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     * @param id user id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -78,6 +110,11 @@ class UserTableAccess {
             rows > 0
         }
 
+    /**
+     * Finds user record by searching with email
+     * @param email user email
+     * @return user or null
+     */
     fun findByEmail(email: String): User? =
         transaction {
             UserTable.select { UserTable.email eq email }
@@ -86,6 +123,10 @@ class UserTableAccess {
                 ?.let { it.toUser() }
         }
 
+    /**
+     * Generates users to fill db with random names, defaults 200
+     * @param count number of users
+     */
     fun generateUsers(count: Int = 200) {
         val firstNames =
             listOf(
@@ -136,6 +177,9 @@ class UserTableAccess {
         }
     }
 
+    /**
+     * Fills phone numbers of users in DB whose numbers are null, random numbers generated
+     */
     fun fillMissingPhoneNumbers() =
         transaction {
             val users = UserTable.select { UserTable.phoneNumber.isNull() }.toList()

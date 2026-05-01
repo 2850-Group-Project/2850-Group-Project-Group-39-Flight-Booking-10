@@ -1,13 +1,7 @@
 package com.flightbooking.access
 
-import com.flightbooking.constants.TIMESTAMP_DAYS_UPPER_LIMIT
-import com.flightbooking.constants.TIMESTAMP_HOURS_UPPER_LIMIT
-import com.flightbooking.constants.TIMESTAMP_MINUTES_UPPER_LIMIT
 import com.flightbooking.mappers.toPayment
 import com.flightbooking.models.Payment
-import com.flightbooking.tables.BookingSegmentTable
-import com.flightbooking.tables.BookingTable
-import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.PaymentTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -18,12 +12,14 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-const val RAND_UPPER: Int = 100
-const val STATUS_THRESHOLD: Int = 90
-const val RAND_REF_LOWER: Int = 1000
-const val RAND_REF_UPPER: Int = 9999
-
+/**
+ * Class instance for using payment table
+ */
 class PaymentTableAccess {
+    /**
+     * Gets list of all payments
+     * @return list of payments
+     */
     fun getAll(): List<Payment> =
         transaction {
             PaymentTable.selectAll().map {
@@ -31,6 +27,12 @@ class PaymentTableAccess {
             }
         }
 
+    /**
+     * Gets list of payments from DB, filtering by attribute and value you want it to be
+     * @param attribute column to filter
+     * @param value value to match
+     * @return list of payments
+     */
     fun <T> getByAttribute(
         attribute: Column<T>,
         value: T,
@@ -40,33 +42,40 @@ class PaymentTableAccess {
                 .map { it.toPayment() }
         }
 
-    @Suppress("LongParameterList")
-    fun createPayment(
-        bookingId: Int,
-        amount: Double?,
-        paymentMethod: String?,
-        paymentStatus: String,
-        paidAt: String?,
-        providerReference: String?,
-        currency: String,
-    ): Int =
+    /**
+     * Creates a payment object
+     * @param payment payment model
+     * @return created payment id
+     */
+    fun createPayment(payment: Payment): Int =
         transaction {
             PaymentTable.insert {
-                it[PaymentTable.bookingId] = bookingId
-                it[PaymentTable.amount] = amount
-                it[PaymentTable.paymentMethod] = paymentMethod
-                it[PaymentTable.paymentStatus] = paymentStatus
-                it[PaymentTable.paidAt] = paidAt
-                it[PaymentTable.providerReference] = providerReference
-                it[PaymentTable.currency] = currency
+                it[PaymentTable.bookingId] = payment.bookingId
+                it[PaymentTable.amount] = payment.amount
+                it[PaymentTable.paymentMethod] = payment.paymentMethod
+                it[PaymentTable.paymentStatus] = payment.paymentStatus
+                it[PaymentTable.paidAt] = payment.paidAt
+                it[PaymentTable.providerReference] = payment.providerReference
+                it[PaymentTable.currency] = payment.currency
             }[PaymentTable.id]
         }
 
+    /**
+     * Deletes a payment by searching with it's ID
+     * @param id payment id
+     */
     fun deleteByID(id: Int) =
         transaction {
             PaymentTable.deleteWhere { PaymentTable.id eq id }
         }
 
+    /**
+     * Updates a record's attribute with a value passed in
+     * @param id payment id
+     * @param column column to update
+     * @param value new value
+     * @return true if updated
+     */
     fun <T> updateRecordByAttribute(
         id: Int,
         column: Column<T>,
@@ -80,61 +89,5 @@ class PaymentTableAccess {
                     stmt[column] = value
                 }
             rows > 0
-        }
-
-    fun generatePayments() =
-        transaction {
-            println("genreasting payments")
-            val bookings = BookingTable.selectAll().toList()
-
-            fun randomTimeStamp(): String =
-                java.time.LocalDateTime.now()
-                    .minusDays((0..TIMESTAMP_DAYS_UPPER_LIMIT).random().toLong())
-                    .minusHours((0..TIMESTAMP_HOURS_UPPER_LIMIT).random().toLong())
-                    .minusMinutes((0..TIMESTAMP_MINUTES_UPPER_LIMIT).random().toLong())
-                    .toString()
-
-            fun randomStatus(): String = if ((1..RAND_UPPER).random() <= STATUS_THRESHOLD) "paid" else "refunded"
-
-            fun providerRef(): String =
-                listOf("STR", "PPL", "WDP", "APY")
-                    .random() + "-" +
-                    (RAND_REF_LOWER..RAND_REF_UPPER)
-                        .random()
-
-            bookings.forEach { bookingRow ->
-                val bookingId = bookingRow[BookingTable.id]
-                val segment =
-                    BookingSegmentTable
-                        .select { BookingSegmentTable.bookingId eq bookingId }
-                        .firstOrNull()
-                if (segment == null) {
-                    println("$bookingId has no segment - skip")
-                    return@forEach
-                }
-
-                val fareId = segment[BookingSegmentTable.flightFareId]
-                val fareRow =
-                    FlightFareTable
-                        .select { FlightFareTable.id eq fareId }
-                        .first()
-                val price = fareRow[FlightFareTable.price]
-                val status = randomStatus()
-
-                val paymentId =
-                    PaymentTable.insert {
-                        it[PaymentTable.bookingId] = bookingId
-                        it[PaymentTable.amount] = price
-                        it[PaymentTable.paymentMethod] = listOf("credit", "debit", "paypal", "apple_pay").random()
-                        it[PaymentTable.paymentStatus] = status
-                        it[PaymentTable.paidAt] = if (status == "paid") randomTimeStamp() else null
-                        it[PaymentTable.providerReference] = providerRef()
-                        it[PaymentTable.currency] = "GBP"
-                    } get PaymentTable.id
-                BookingTable.update({ BookingTable.id eq bookingId }) {
-                    it[BookingTable.paymentId] = paymentId
-                }
-            }
-            println("done generating")
         }
 }

@@ -19,6 +19,12 @@ import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import java.util.UUID
 
+/**
+ * Flight selection page routes
+ *
+ * Routes:
+ * - POST /flights/select -> accepts and validates data for flight selection
+ */
 fun Route.flightSelectRoutes() {
     post("/flights/select") {
         val session = call.sessions.get<UserSession>()
@@ -75,11 +81,16 @@ fun Route.flightSelectRoutes() {
             }
 
         call.sessions.set(updated)
-        println(updated)
-        call.respond(HttpStatusCode.OK, "ok") // stops ktor from hanging
+        call.respond(HttpStatusCode.OK, "ok")
     }
 }
 
+/**
+ * Routes for airport search
+ * Routes:
+ * - GET /airports/search -> renders airport search page
+ * Takes search query as input and suggests/autofills airports
+ */
 fun Route.airportSearchRoutes() {
     get("/airports/search") {
         val query = call.request.queryParameters["q"]?.trim() ?: ""
@@ -94,12 +105,15 @@ fun Route.airportSearchRoutes() {
         val airportTable = AirportTableAccess()
         val suggestedAirports = airportTable.searchAirports(query)
 
-        println(suggestedAirports)
-
         call.respond(suggestedAirports)
     }
 }
 
+/**
+ * Constructs a `FlightSearch` model inputted parameters
+ * @param params request parameters
+ * @return flight search model
+ */
 private fun buildFlightSearch(params: Parameters): FlightSearch =
     FlightSearch(
         tripType = params["tripType"],

@@ -13,7 +13,11 @@ import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
 class PointsTableAccess {
-    /** Returns the current points balance row for a user, or null if none exists yet. */
+    /**
+     * Returns the current points balance row for a user, or null if none exists yet.
+     * @param userId user id
+     * @return user points or null
+     */
     fun getBalance(userId: Int): UserPoints? =
         transaction {
             UserPointsTable.select { UserPointsTable.userId eq userId }
@@ -27,7 +31,11 @@ class PointsTableAccess {
                 }
         }
 
-    /** Returns all transaction history for a user, newest first. */
+    /**
+     * Returns all transaction history for a user, newest first.
+     * @param userId user id
+     * @return list of transactions
+     */
     fun getTransactions(userId: Int): List<PointsTransaction> =
         transaction {
             PointsTransactionTable.select { PointsTransactionTable.userId eq userId }
@@ -50,6 +58,12 @@ class PointsTableAccess {
      * Atomically adds [points] to the user's balance and writes a transaction log row.
      * Creates the user_points row if it doesn't exist yet.
      * Returns the new balance.
+     * @param userId user id
+     * @param points points to add
+     * @param bookingId booking id
+     * @param type transaction type
+     * @param description description text
+     * @return new balance
      */
     fun addPoints(
         userId: Int,
@@ -96,6 +110,11 @@ class PointsTableAccess {
      * Deducts [points] from the user's balance.
      * Throws [IllegalStateException] if the balance would go negative.
      * Returns the new balance.
+     * @param userId user id
+     * @param points points to deduct
+     * @param bookingId booking id
+     * @param description description text
+     * @return new balance
      */
     fun deductPoints(
         userId: Int,
@@ -122,7 +141,7 @@ class PointsTableAccess {
                 it[PointsTransactionTable.userId] = userId
                 it[PointsTransactionTable.bookingId] = bookingId
                 it[PointsTransactionTable.type] = "redeem"
-                it[PointsTransactionTable.points] = -points // Redeemed points are stored as negative
+                it[PointsTransactionTable.points] = -points
                 it[PointsTransactionTable.balanceAfter] = newBalance
                 it[PointsTransactionTable.description] = description
                 it[PointsTransactionTable.createdAt] = Instant.now().toString()
