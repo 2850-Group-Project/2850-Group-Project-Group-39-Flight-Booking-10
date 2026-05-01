@@ -7,12 +7,10 @@ import com.flightbooking.access.PointsTableAccess
  *
  *  Earning  : 1 pt per £1 spent × fare class milesEarnRate  (floor to Int)
  *  Redeeming: 100 pts = £1 discount
- *  Cap      : points discount cannot exceed MAX_REDEEM_PERCENT of booking total
  */
 object PointsService {
     private const val POINTS_PER_POUND: Double = 1.0
     private const val POUNDS_PER_POINT: Double = 0.01 // 100 pts = £1
-    private const val MAX_REDEEM_PERCENT: Double = 0.2 // max 20%
 
     private val pointsTable = PointsTableAccess()
 
@@ -54,10 +52,9 @@ object PointsService {
     fun calculateRedemption(userId: Int, bookingTotal: Double): Pair<Int, Double> {
         val balance = getBalance(userId)
         println("points balance: $balance")
-        val maxDiscount = bookingTotal * MAX_REDEEM_PERCENT
         val balanceAsGBP = balance * POINTS_PER_POUND
-        val actualDiscount = minOf(balanceAsGBP, maxDiscount)
-        return Pair(balance, actualDiscount)
+        val discount= minOf(balanceAsGBP, bookingTotal)
+        return Pair(balance, discount)
     }
 
     /**

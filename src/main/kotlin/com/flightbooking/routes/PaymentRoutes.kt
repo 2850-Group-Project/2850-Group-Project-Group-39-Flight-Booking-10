@@ -56,7 +56,7 @@ fun Route.paymentRoutes() {
                     "userSession" to userSession,
                     "bookingSession" to bookingSession,
                     "pointsAvailable" to pointsAvailable,
-                    "maxDiscount" to maxDiscount,
+                    "maxDiscount" to String.format("%.2f", maxDiscount),
                     "bookingTotal" to bookingTotal,
                 ),
             ),
