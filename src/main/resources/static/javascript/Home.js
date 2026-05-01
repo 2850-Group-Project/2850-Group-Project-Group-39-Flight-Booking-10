@@ -140,8 +140,6 @@ function initAirportAutocomplete(inputId, dropdownId, hiddenId) {
             flightIndex = (flightIndex - 1 + items.length) % items.length;
             updateActive(items); 
         } else if (e.key === "Enter") {
-            console.log("CLICKED ENTER");
-            console.log(flightIndex);
             e.preventDefault();
             if (flightIndex >= 0 && items[flightIndex]) {
                 items[flightIndex].dispatchEvent(new MouseEvent("mousedown")); // simulate click when entering
@@ -160,6 +158,23 @@ function initAirportAutocomplete(inputId, dropdownId, hiddenId) {
         items[flightIndex]?.scrollIntoView({ block: "nearest" });
     }
 }
+
+document.querySelector("form").addEventListener("submit", (e) => {
+    const originInput = document.getElementById("origin-input");
+    const destinationInput = document.getElementById("destination-input");
+
+    const originHidden = document.getElementById("origin-value");
+    const destinationHidden = document.getElementById("destination-value");
+
+    // If user does not select anything from dropdown, default to using entered text
+    if (!originHidden.value) {
+        originHidden.value = originInput.value;
+    }
+
+    if (!destinationHidden.value) {
+        destinationHidden.value = destinationInput.value
+    }
+})
 
 initAirportAutocomplete("origin-input", "origin-dropdown", "origin-value");
 initAirportAutocomplete("destination-input", "destination-dropdown", "destination-value");
