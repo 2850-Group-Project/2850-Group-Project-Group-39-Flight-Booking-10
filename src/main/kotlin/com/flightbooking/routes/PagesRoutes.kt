@@ -6,6 +6,7 @@ import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
 import com.flightbooking.models.UserSession
+import com.flightbooking.service.PointsService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
@@ -155,8 +156,6 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
                 originAirportCode,
                 LocalDate.parse(search.returnDate),
             )
-        println("INBOUND FLIGHT DATA VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV")
-        println(inboundFlights)
     }
 
     call.respond(
@@ -228,16 +227,26 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
  * - On failure: redirects to /login.
  */
 private suspend fun handleGetProfile(call: ApplicationCall) {
-    val session = call.sessions.get<UserSession>()
-    if (session == null) {
+    val userSession = call.sessions.get<UserSession>()
+    if (userSession == null) {
         call.respondRedirect("/login")
         return
     }
 
+    val userId = fetchUserId(userSession) ?: run {
+        call.respondRedirect("/login")
+        return
+    }
+
+    val pointsBalance = PointsService.getBalance(userId)
+
     call.respond(
         PebbleContent(
             "my_profile.peb",
-            mapOf("userSession" to session),
+            mapOf(
+                "userSession" to userSession,
+                "pointsBalance" to pointsBalance,
+            ),
         ),
     )
 }
