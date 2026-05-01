@@ -252,3 +252,20 @@ data class Notification(
 data class StaffSession(
     val staffEmail: String,
 )
+
+data class UserPoints(
+    val id: Int,
+    val userId: Int,
+    val balance: Int,
+)
+
+data class PointsTransaction(
+    val id: Int,
+    val userId: Int,
+    val bookingId: Int?,
+    val type: String, // earn redeem expire adjust
+    val points: Int, // positive for earn, negative for redeem
+    val balanceAfter: Int,
+    val description: String?,
+    val createdAt: String,
+)
