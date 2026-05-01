@@ -123,6 +123,9 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
                 ),
             )
 
+    val updatedBookingSession = bookingSession.copy(totalPrice = finalTotal)
+    call.sessions.set(updatedBookingSession)
+
     val bookingTableAccess = BookingTableAccess()
     bookingTableAccess.createBookingWithPaymentUpdate(bookingSession, paymentId, userSession.userEmail)
 

@@ -118,7 +118,7 @@
                     <div class="pax-sub">2-15 years</div>
                   </div>
                   <div class="pax-ctrl">
-                    <button type="button" onclick="changePax('children', -1)" aria-label="Decrease children">−</button>
+                    <button type="button" onclick="changePax('children', -1)" aria-label="Decrease children">-</button>
                     <span class="count" id="childrenCount">0</span>
                     <button type="button" onclick="changePax('children', 1)" aria-label="Increase children">+</button>
                   </div>
