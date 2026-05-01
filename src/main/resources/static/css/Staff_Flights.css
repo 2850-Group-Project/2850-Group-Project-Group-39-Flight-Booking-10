@@ -208,6 +208,9 @@ tr td:last-child{
     font-weight:800;
 }
 .actions{display:flex;gap:8px;flex-wrap:wrap;}
+.actions .a {
+    min-width: 64px;
+}
 .a{
     display:inline-flex;align-items:center;justify-content:center;
     padding:9px 10px;border-radius:12px;
