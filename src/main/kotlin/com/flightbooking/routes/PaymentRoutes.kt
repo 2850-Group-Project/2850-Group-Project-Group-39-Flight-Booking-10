@@ -101,6 +101,9 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
                 providerReference = cardNumber?.takeLast(PROVIDER_REFERENCE_DIGITS) ?: "0000",
                 currency = "GBP",
             )
+    
+    val updatedBookingSession = bookingSession.copy(totalPrice = finalTotal)
+    call.sessions.set(updatedBookingSession)
 
     val bookingTableAccess = BookingTableAccess()
     bookingTableAccess.createBookingWithPaymentUpdate(bookingSession, paymentId, userSession.userEmail)
@@ -117,7 +120,7 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
     call.respondRedirect("/confirmation")
 }
 
-private fun calculateTotal(bookingSession: BookingSession): Double =
+fun calculateTotal(bookingSession: BookingSession): Double =
     transaction {
         val outboundFarePrice =
             bookingSession.outboundFareId?.let { fareId ->

@@ -115,11 +115,6 @@
           <span>Flight ID</span>
           <strong>{{ bookingSession.returnFlightId }}</strong>
         </div>
-
-        <div class="row">
-          <span>Fare</span>
-          <strong>{{ bookingSession.returnFareId }}</strong>
-        </div>
       </div>
       {% endif %}
 
@@ -130,6 +125,21 @@
       </div>
 
     </div>
+
+    <div class="confirm-pebble">
+      <div class="confirm-details">
+        <div class="row price-row">
+          <span>Ticket Price</span>
+          <strong>£{{ bookingSession.totalPrice }}</strong>
+        </div>
+
+        <div class="row">
+          <span>Loyalty Points Earned</span>
+          <strong><span class="points-badge">{{ pointsEarned }}</span></strong>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- FOOTER -->

@@ -30,7 +30,7 @@ object PointsService {
         amountPaid: Double,
         milesEarnRate: Double = 1.0,
     ): Int {
-        val earned = (amountPaid * POINTS_PER_POUND * milesEarnRate).toInt()
+        val earned = calculatePointsEarned(amountPaid, milesEarnRate)
         if (earned <= 0) return getBalance(userId)
 
         return pointsTable.addPoints(
@@ -40,6 +40,16 @@ object PointsService {
             type = "earn",
             description = "Points earned for booking #$bookingId",
         )
+    }
+
+    /**
+     * Calculates number of points earned based on the amount of money
+     * that the user has spent.
+     *
+     * @return Int 
+     */
+    fun calculatePointsEarned(amountPaid: Double, milesEarnRate: Double = 1.0): Int {
+        return (amountPaid * POINTS_PER_POUND * milesEarnRate).toInt()
     }
 
     /**
@@ -63,7 +73,7 @@ object PointsService {
      * Returns the GBP value of the discount applied.
      *
      * @param pointsToRedeem pass in the value from [calculateRedemption] so the
-     *                       caller controls exactly how many to use.
+     * caller controls exactly how many to use.
      */
     fun redeemPoints(
         userId: Int,
