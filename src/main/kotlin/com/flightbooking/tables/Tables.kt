@@ -294,5 +294,5 @@ object PointsTransactionTable : Table("points_transaction") {
     val description = varchar("description", STANDARD_FIELD_LENGTH).nullable()
     val createdAt = varchar("created_at", STANDARD_FIELD_LENGTH)
 
-    val override val primaryKey = PrimaryKey(id)
+    override val primaryKey = PrimaryKey(id)
 }

@@ -29,7 +29,7 @@ class PointsTableAccess {
     /** Returns all transaction history for a user, newest first. */
     fun getTransactions(userId: Int): List<PointsTransaction> = transaction {
         PointsTransactionTable.select { PointsTransactionTable.userId eq userId }
-            .orderBy(PointsTransactionTable.timestamp, SortOrder.DESC)
+            .orderBy(PointsTransactionTable.createdAt, SortOrder.DESC)
             .map { row ->
                 PointsTransaction(
                     id = row[PointsTransactionTable.id],
@@ -97,8 +97,8 @@ class PointsTableAccess {
         points: Int,
         bookingId: Int?,
         description: String?
-    ): Int = {
-        required(points > 0) { "Points to deduct must be positive" }
+    ): Int {
+        require(points > 0) { "Points to deduct must be positive" }
         return transaction {
             val existing = UserPointsTable.select { UserPointsTable.userId eq userId }
                 .singleOrNull()
@@ -106,23 +106,23 @@ class PointsTableAccess {
             
             val current = existing[UserPointsTable.balance]
             check(current >= points) { "Insufficient points balance" }
-        }
 
-        val newBalance = current - points
-        userPointsTable.update({ UserPointsTable.userId eq userId }) {
-            it[balance] = newBalance
-        }
+            val newBalance = current - points
+            UserPointsTable.update({ UserPointsTable.userId eq userId }) {
+                it[balance] = newBalance
+            }
 
-        PointsTransactionTable.insert {
-            it[PointsTransactionTable.userId] = userId
-            it[PointsTransactionTable.bookingId] = bookingId
-            it[PointsTransactionTable.type] = "redeem"
-            it[PointsTransactionTable.points] = -points // Redeemed points are stored as negative
-            it[PointsTransactionTable.balanceAfter] = newBalance
-            it[PointsTransactionTable.description] = description
-            it[PointsTransactionTable.createdAt] = Instant.now().toString()
-        }
+            PointsTransactionTable.insert {
+                it[PointsTransactionTable.userId] = userId
+                it[PointsTransactionTable.bookingId] = bookingId
+                it[PointsTransactionTable.type] = "redeem"
+                it[PointsTransactionTable.points] = -points // Redeemed points are stored as negative
+                it[PointsTransactionTable.balanceAfter] = newBalance
+                it[PointsTransactionTable.description] = description
+                it[PointsTransactionTable.createdAt] = Instant.now().toString()
+            }
 
-        newBalance
+            newBalance
+        }
     }
 }
