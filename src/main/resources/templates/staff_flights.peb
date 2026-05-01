@@ -87,7 +87,7 @@
             </div>
           </div>
 
-          <button class="btn" type="submit">Save Changes</button>
+          <button class="btn" type="submit" aria-label="Save flight changes">Save Changes</button>
           <a class="a" style="margin-top:10px;width:100%;justify-content:center;" href="/staff/flights">Cancel Editing</a >
         </form>
       {% else %}
@@ -138,7 +138,7 @@
             </div>
           </div>
 
-          <button class="btn" type="submit">Create Flight</button>
+          <button class="btn" type="submit" aria-label="Create flight">Create Flight</button>
         </form>
       {% endif %}
     </div>
@@ -152,7 +152,7 @@
                 name="q"
                 value="{{ q }}"
                 placeholder="Search by flight number (e.g. 101)" />
-        <button class="a" type="submit" style="white-space:nowrap;">Search</button>
+        <button class="a" type="submit" style="white-space:nowrap;" aria-label="Search flights">Search</button>
         <a class="a" href=" " style="white-space:nowrap;">Clear</a >
       </form>
       <table>
@@ -183,7 +183,7 @@
                   <a class="a" href="/staff/flights?edit={{ f.id }}">Edit</a >
                   <form action="/staff/flights/delete" method="post" style="margin:0;">
                     <input type="hidden" name="id" value="{{ f.id }}"/>
-                    <button class="a red" type="submit">Delete</button>
+                    <button class="a red" type="submit" aria-label="Delete flight {{ f.flightNumber }}">Delete</button>
                   </form>
                 </div>
               </td>

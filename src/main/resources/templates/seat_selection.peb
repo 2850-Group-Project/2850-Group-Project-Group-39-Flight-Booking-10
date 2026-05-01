@@ -122,7 +122,7 @@
           <!-- Filled by javascript -->
         </div>
         <!-- RESET SEATS -->
-        <button type="button" class="btn-reset" id="reset-btn">
+        <button type="button" class="btn-reset" id="reset-btn" aria-label="Reset all seats">
           Reset all seats
         </button>
       </div>
@@ -168,6 +168,7 @@
                         data-seat-code="{{ s.code }}"
                         data-passenger-id=""
                         data-passenger-name="{{ currentPassenger }}"
+                        aria-label="{{ s.code }}"
                         {% if s.status == "occupied" %}disabled{% endif %}
                         title="{{ s.code }} ({{ s.position }})"
                       >
@@ -183,7 +184,7 @@
 
         <!-- CONTINUE -->
         <div class="seat-actions">
-          <button type="button" class="btn-continue" id="continue-btn" disabled>
+          <button type="button" class="btn-continue" id="continue-btn" disabled aria-label="Continue to next step">
             Continue to next step →
           </button>
           <p class="seat-actions-hint" id="hint-text">Select a seat for {{ currentPassenger }}</p>

@@ -90,7 +90,7 @@
           <label>Reason (optional)</label>
           <textarea name="reason" placeholder="e.g. Need a later flight / prefer an aisle seat / travel plan changed..."></textarea>
 
-          <button class="btn" type="submit">Submit Change Request →</button>
+          <button class="btn" type="submit" aria-label="Submit change request">Submit Change Request →</button>
         </form>
       </div>
 
@@ -102,7 +102,7 @@
         <form action="/profile/bookings/change" method="get" class="row" style="margin-top:10px;">
           <input type="hidden" name="bookingId" value="{{ bookingId }}"/>
           <input class="input" name="flightQ" value="{{ flightQ }}" placeholder="Search flight no. (e.g. 101)"/>
-          <button class="btn2" type="submit">Search</button>
+          <button class="btn2" type="submit" aria-label="Search flights for change request">Search</button>
         </form>
 
         {% if flightResults is empty %}

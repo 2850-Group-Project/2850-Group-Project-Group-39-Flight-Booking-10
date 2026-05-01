@@ -69,8 +69,8 @@
         {% endif %}
 
         <div class="row2">
-          <button class="btn" type="button" onclick="return false;">Google</button>
-          <button class="btn" type="button" onclick="return false;">Apple</button>
+          <button class="btn" type="button" onclick="return false;" aria-label="Continue with Google">Google</button>
+          <button class="btn" type="button" onclick="return false;" aria-label="Continue with Apple">Apple</button>
         </div>
 
         <div class="divider">OR CONTINUE WITH EMAIL</div>
@@ -113,7 +113,7 @@
             </label>
           </div>
 
-          <button class="primary" type="submit">Create Account →</button>
+          <button class="primary" type="submit" aria-label="Create SkyFlow account">Create Account →</button>
         </form>
 
         <div class="secure">

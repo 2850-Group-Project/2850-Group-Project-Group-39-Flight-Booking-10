@@ -69,7 +69,7 @@
           <label for="role">Role</label>
           <input class="input" id="role" name="role" type="text" placeholder="customer_service" />
 
-          <button class="primary" type="submit">Create Account →</button>
+          <button class="primary" type="submit" aria-label="Create staff account">Create Account →</button>
         </form>
 
         <div class="cta">

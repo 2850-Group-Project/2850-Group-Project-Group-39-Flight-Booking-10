@@ -83,7 +83,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-submit">
+        <button type="submit" class="btn-submit" aria-label="Submit complaint">
           Submit complaint →
         </button>
 

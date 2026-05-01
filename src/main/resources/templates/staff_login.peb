@@ -50,8 +50,8 @@
         {% endif %}
 
         <div class="row">
-          <button class="btn" type="button" onclick="return false;">SSO</button>
-          <button class="btn" type="button" onclick="return false;">Security Key</button>
+          <button class="btn" type="button" onclick="return false;" aria-label="Sign in with SSO">SSO</button>
+          <button class="btn" type="button" onclick="return false;" aria-label="Sign in with security key">Security Key</button>
         </div>
 
         <div class="divider">OR CONTINUE WITH EMAIL</div>
@@ -75,7 +75,7 @@
             <a href="#" onclick="return false;">Forgot password?</a >
           </div>
 
-          <button class="primary" type="submit">Sign In →</button>
+          <button class="primary" type="submit" aria-label="Sign in to staff portal">Sign In →</button>
         </form>
 
         <div class="cta">

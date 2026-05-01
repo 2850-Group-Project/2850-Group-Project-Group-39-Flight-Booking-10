@@ -30,8 +30,8 @@
 
         <!-- TRIP TYPES -->
         <div class="trip-tabs">
-          <button class="trip-tab active" onclick="setTripType('return', this)">⇄ Return</button>
-          <button class="trip-tab" onclick="setTripType('oneway', this)">→ One way</button>
+          <button class="trip-tab active" onclick="setTripType('return', this)" aria-label="Select return trip">⇄ Return</button>
+          <button class="trip-tab" onclick="setTripType('oneway', this)" aria-label="Select one way trip">→ One way</button>
         </div>
 
         <!-- SEARCH FORM -->
@@ -58,7 +58,7 @@
 
             <!-- SWAP -->
             <div class="swap-btn">
-              <button type="button" onclick="swapAirports()" title="Swap airports">⇄</button>
+              <button type="button" onclick="swapAirports()" title="Swap airports" aria-label="Swap origin and destination airports">⇄</button>
             </div>
 
             <!-- DESTINATION -->
@@ -107,9 +107,9 @@
                     <div class="pax-sub">16+ years</div>
                   </div>
                   <div class="pax-ctrl">
-                    <button type="button" onclick="changePax('adults', -1)">-</button>
+                    <button type="button" onclick="changePax('adults', -1)" aria-label="Decrease adults">-</button>
                     <span class="count" id="adultsCount">1</span>
-                    <button type="button" onclick="changePax('adults', 1)">+</button>
+                    <button type="button" onclick="changePax('adults', 1)" aria-label="Increase adults">+</button>
                   </div>
                 </div>
                 <div class="pax-row">
@@ -118,9 +118,9 @@
                     <div class="pax-sub">2-15 years</div>
                   </div>
                   <div class="pax-ctrl">
-                    <button type="button" onclick="changePax('children', -1)">−</button>
+                    <button type="button" onclick="changePax('children', -1)" aria-label="Decrease children">−</button>
                     <span class="count" id="childrenCount">0</span>
-                    <button type="button" onclick="changePax('children', 1)">+</button>
+                    <button type="button" onclick="changePax('children', 1)" aria-label="Increase children">+</button>
                   </div>
                 </div>
                 <div class="pax-row">
@@ -129,9 +129,9 @@
                     <div class="pax-sub">Under 2 years</div>
                   </div>
                   <div class="pax-ctrl">
-                    <button type="button" onclick="changePax('infants', -1)">-</button>
+                    <button type="button" onclick="changePax('infants', -1)" aria-label="Decrease infants">-</button>
                     <span class="count" id="infantsCount">0</span>
-                    <button type="button" onclick="changePax('infants', 1)">+</button>
+                    <button type="button" onclick="changePax('infants', 1)" aria-label="Increase infants">+</button>
                   </div>
                 </div>
               </div>
@@ -145,7 +145,7 @@
 
           <!-- SEARCH -->
           <div>
-            <button type="submit" class="btn-search">Search flights</button>
+            <button type="submit" class="btn-search" aria-label="Search flights">Search flights</button>
           </div>
         </form>
       </div>

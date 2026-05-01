@@ -104,7 +104,7 @@
         </div>
 
         <div class="passengers-submit">
-          <button type="submit" class="btn-primary passengers-submit-btn">
+          <button type="submit" class="btn-primary passengers-submit-btn" aria-label="Pay and continue">
             Pay and continue →
           </button>
         </div>

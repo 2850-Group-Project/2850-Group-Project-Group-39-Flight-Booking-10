@@ -47,7 +47,7 @@
           <input class="input" name="q" value="{{ q | default('') }}" placeholder="e.g. 4" />
         </div>
 
-        <button class="btn" type="submit">Apply</button>
+        <button class="btn" type="submit" aria-label="Apply booking filters">Apply</button>
         <a class="btn" href="/profile/bookings">Clear</a >
       </form>
     </div>
@@ -78,13 +78,13 @@
                   <a class="btn" href="/profile/bookings/change?bookingId={{ b.bookingId }}">Change</a >
                   <form action="/profile/bookings/cancel" method="post" style="margin:0;">
                     <input type="hidden" name="bookingId" value="{{ b.bookingId }}" />
-                    <button class="a red" type="button" onclick="openCancel({{ b.bookingId }})">Cancel</button>
+                    <button class="a red" type="button" onclick="openCancel({{ b.bookingId }})" aria-label="Cancel booking {{ b.bookingReference }}">Cancel</button>
                   </form>
                 </div>
               {% else %}
                 <form action="/profile/bookings/delete" method="post" style="margin:0;">
                   <input type="hidden" name="bookingId" value="{{ b.bookingId }}" />
-                  <button class="a red" type="button" onclick="openDelete({{ b.bookingId }})">Delete</button>
+                  <button class="a red" type="button" onclick="openDelete({{ b.bookingId }})" aria-label="Delete booking {{ b.bookingReference }}">Delete</button>
                 </form>
               {% endif %}
             </div>
@@ -145,10 +145,10 @@
       <div class="modal-title">Cancel Booking?</div>
       <p class="modal-sub">This action cannot be undone. Your booking will be permanently cancelled.</p>
       <div class="modal-actions">
-        <button class="btn" type="button" onclick="closeCancel()">Go Back</button>
+        <button class="btn" type="button" onclick="closeCancel()" aria-label="Go back without cancelling booking">Go Back</button>
         <form id="cancelForm" action="/profile/bookings/cancel" method="post" style="margin:0;">
           <input type="hidden" name="bookingId" id="cancelBookingId" />
-          <button class="a red" type="submit">Yes, Cancel</button>
+          <button class="a red" type="submit" aria-label="Confirm cancel booking">Yes, Cancel</button>
         </form>
       </div>
     </div>
@@ -160,10 +160,10 @@
       <div class="modal-title">Delete Booking?</div>
       <p class="modal-sub">This action cannot be undone. Your booking will be permanently deleted.</p>
       <div class="modal-actions">
-        <button class="btn" type="button" onclick="closeDelete()">Go Back</button>
+        <button class="btn" type="button" onclick="closeDelete()" aria-label="Go back without deleting booking">Go Back</button>
         <form id="cancelForm" action="/profile/bookings/delete" method="post" style="margin:0;">
           <input type="hidden" name="bookingId" id="deleteBookingId" />
-          <button class="a red" type="submit">Yes, delete</button>
+          <button class="a red" type="submit" aria-label="Confirm delete booking">Yes, delete</button>
         </form>
       </div>
     </div>
