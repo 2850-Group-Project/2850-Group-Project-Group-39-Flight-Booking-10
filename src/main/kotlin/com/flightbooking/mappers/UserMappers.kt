@@ -16,9 +16,9 @@ import com.flightbooking.tables.StaffTable
 import com.flightbooking.tables.UserTable
 import org.jetbrains.exposed.sql.ResultRow
 
-// following functions transform rows returned from Exposed queries
-// into data objects that we can treat as kotlin classes
-// rather than having to parse the sql query return (which can be funky sometimes)
+/**
+ * Maps row returned from Exposed queries into defined Kotlin User class
+ */
 fun ResultRow.toUser(): User =
     User(
         id = this[UserTable.id],
@@ -32,6 +32,9 @@ fun ResultRow.toUser(): User =
         accountStatus = this[UserTable.accountStatus],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Payment class
+ */
 fun ResultRow.toPayment(): Payment =
     Payment(
         id = this[PaymentTable.id],
@@ -44,6 +47,9 @@ fun ResultRow.toPayment(): Payment =
         currency = this[PaymentTable.currency],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Passenger class
+ */
 fun ResultRow.toPassenger(): Passenger =
     Passenger(
         id = this[PassengerTable.id],
@@ -62,6 +68,9 @@ fun ResultRow.toPassenger(): Passenger =
         documentExpiry = this[PassengerTable.documentExpiry],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Staff class
+ */
 fun ResultRow.toStaff(): Staff =
     Staff(
         id = this[StaffTable.id],
@@ -74,6 +83,9 @@ fun ResultRow.toStaff(): Staff =
         createdAt = this[StaffTable.createdAt],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Complaint class
+ */
 fun ResultRow.toComplaint(): Complaint =
     Complaint(
         id = this[ComplaintTable.id],
@@ -85,6 +97,9 @@ fun ResultRow.toComplaint(): Complaint =
         handledByStaffId = this[ComplaintTable.handledByStaffId],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin Notification class
+ */
 fun ResultRow.toNotification(): Notification =
     Notification(
         id = this[NotificationTable.id],
@@ -95,6 +110,9 @@ fun ResultRow.toNotification(): Notification =
         readAt = this[NotificationTable.readAt],
     )
 
+/**
+ * Maps row returned from Exposed queries into defined Kotlin ChangeRequest class
+ */
 fun ResultRow.toChangeRequest(): ChangeRequest =
     ChangeRequest(
         id = this[ChangeRequestTable.id],

@@ -6,10 +6,16 @@ import com.flightbooking.models.Airport
 
 const val IMPORT_LIMIT: Int = 100
 
+/**
+ * Service object for airport importing using AviationStack API
+ */
 class AirportImportService(
     private val client: AviationStackClient,
     private val access: AirportTableAccess,
 ) {
+    /**
+     * Imports airport data from AviationStack API
+     */
     suspend fun importAllAirports() {
         println("importAllAirports running")
         val limit = IMPORT_LIMIT

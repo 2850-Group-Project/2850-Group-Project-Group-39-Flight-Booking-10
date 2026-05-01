@@ -38,6 +38,9 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 
+private const val MAX_SEAT_RESULTS = 200
+private const val MAX_FLIGHT_SEARCH_RESULTS = 30
+
 /**
  * User change-request routes (amendment workflow).
  *
@@ -51,10 +54,6 @@ import java.time.Instant
  * - POST /profile/bookings/change
  *   Creates a new change request in the database (requires UserSession).
  */
-
-private const val MAX_SEAT_RESULTS = 200
-private const val MAX_FLIGHT_SEARCH_RESULTS = 30
-
 fun Route.changeRequestRoutes() {
     get("/profile/bookings/change") {
         val session = call.sessions.get<UserSession>()
@@ -76,20 +75,8 @@ fun Route.changeRequestRoutes() {
 }
 
 /**
- * Renders the change-request page for a booking.
- *
- * GET "/profile/bookings/change"
- * Query params:
- * - bookingId (required): booking id the user wants to request a change for
- * - flightQ (optional): flight number search input (string)
- * - selectedFlightId (optional): flight id selected from search results (int)
- *
- * Behaviour:
- * - Requires UserSession. If missing -> redirect /login
- * - Verifies the booking belongs to the logged-in user. If not -> redirect /404
- * - Uses existing access logic where available (eg. UserTableAccess)
- * - Uses direct Exposed query in-route for flight number searching (since access does not provide it)
- * - Renders "change_request.peb"
+ * Handles get route for the change bookings page
+ * @param call request call
  */
 private suspend fun handleGetBookingsChange(call: ApplicationCall) {
     val session = call.sessions.get<UserSession>()
@@ -122,29 +109,12 @@ private suspend fun handleGetBookingsChange(call: ApplicationCall) {
     call.respond(PebbleContent("change_request.peb", model))
 }
 
-private data class BookingChangeModelParams(
-    val session: UserSession,
-    val bookingId: Int,
-    val flightQ: String,
-    val selectedFlightId: Int?,
-    val error: String,
-    val ok: String,
-)
-
-private data class CurrentFlightInfo(
-    val flightId: Int?,
-    val flightNumber: String,
-    val dep: String,
-    val arr: String,
-    val status: String,
-    val originIata: String,
-    val originName: String,
-    val destIata: String,
-    val destName: String,
-    val seatCode: String,
-    val segmentId: Int,
-)
-
+/**
+ * Resolves the user, booking, and booking segment associated with the given session and booking ID
+ * @param session user session
+ * @param bookingId booking id
+ * @return user, booking, segment triple or null
+ */
 private fun resolveBookingContext(
     session: UserSession,
     bookingId: Int,
@@ -162,6 +132,11 @@ private fun resolveBookingContext(
         }
 }
 
+/**
+ * Fetches info for current flight, using the booking segment as input
+ * @param segment booking segment
+ * @return current flight info
+ */
 private fun fetchCurrentFlightInfo(segment: BookingSegment): CurrentFlightInfo {
     val flightRow =
         FlightTable
@@ -202,6 +177,11 @@ private fun fetchCurrentFlightInfo(segment: BookingSegment): CurrentFlightInfo {
     )
 }
 
+/**
+ * Searches flight table for flight with flightQ flight number
+ * @param flightQ search text
+ * @return flight results
+ */
 private fun searchFlights(flightQ: String): List<Map<String, Any>> {
     if (flightQ.isBlank()) return emptyList()
     return FlightTable
@@ -219,6 +199,11 @@ private fun searchFlights(flightQ: String): List<Map<String, Any>> {
         }
 }
 
+/**
+ * Searches and returns a list of seats that are available for inputted targetFlightId
+ * @param targetFlightId flight id
+ * @return available seats
+ */
 private fun fetchAvailableSeats(targetFlightId: Int?): List<Map<String, Any>> {
     if (targetFlightId == null) return emptyList()
     return SeatTableAccess()
@@ -234,6 +219,11 @@ private fun fetchAvailableSeats(targetFlightId: Int?): List<Map<String, Any>> {
         }
 }
 
+/**
+ * Builds the view model for the booking‑change page
+ * @param params model params
+ * @return model or null
+ */
 private fun getModel(params: BookingChangeModelParams): Map<String, Any>? =
     transaction {
         val (_, _, segment) =
@@ -283,6 +273,7 @@ private fun getModel(params: BookingChangeModelParams): Map<String, Any>? =
  * - Validates requested seat belongs to requested flight (direct Exposed)
  * - Inserts a new row into change_request (direct Exposed; no access logic added)
  * - Redirects back to /profile/bookings with a success message
+ * @param call request call
  */
 private suspend fun handlePostBookingsChange(call: ApplicationCall) {
     val session = call.sessions.get<UserSession>()
@@ -320,14 +311,12 @@ private suspend fun handlePostBookingsChange(call: ApplicationCall) {
     call.respondRedirect("/profile/bookings?ok=Change+request+submitted")
 }
 
-private data class BookingChangeParams(
-    val bookingId: Int,
-    val segmentId: Int,
-    val requestedFlightId: Int,
-    val requestedSeatId: Int?,
-    val reason: String?,
-)
-
+/**
+ * Verifies and validates data, then inserts a ChangeRequest into the DB
+ * @param session user session
+ * @param params change params
+ * @return error message or null
+ */
 private suspend fun submitBookingChange(
     session: UserSession,
     params: BookingChangeParams,
@@ -384,7 +373,6 @@ private suspend fun submitBookingChange(
             }
         }
 
-        val now = Instant.now().toString()
         ChangeRequestTable.insert {
             it[ChangeRequestTable.userId] = user.id
             it[ChangeRequestTable.bookingId] = params.bookingId
@@ -394,9 +382,49 @@ private suspend fun submitBookingChange(
             it[ChangeRequestTable.requestedSeatId] = params.requestedSeatId
             it[ChangeRequestTable.reason] = params.reason
             it[ChangeRequestTable.status] = "pending"
-            it[ChangeRequestTable.createdAt] = now
-            it[ChangeRequestTable.updatedAt] = now
+            it[ChangeRequestTable.createdAt] = Instant.now().toString()
+            it[ChangeRequestTable.updatedAt] = Instant.now().toString()
         }
     }
     return err
 }
+
+/**
+ * Class for passing parameters into the function BookingChangeModel
+ */
+private data class BookingChangeModelParams(
+    val session: UserSession,
+    val bookingId: Int,
+    val flightQ: String,
+    val selectedFlightId: Int?,
+    val error: String,
+    val ok: String,
+)
+
+/**
+ * Class for passing parameters out of the function fetchCurrentFlightInfo
+ */
+private data class CurrentFlightInfo(
+    val flightId: Int?,
+    val flightNumber: String,
+    val dep: String,
+    val arr: String,
+    val status: String,
+    val originIata: String,
+    val originName: String,
+    val destIata: String,
+    val destName: String,
+    val seatCode: String,
+    val segmentId: Int,
+)
+
+/**
+ * Class for parameters passed into submitBookingChange
+ */
+private data class BookingChangeParams(
+    val bookingId: Int,
+    val segmentId: Int,
+    val requestedFlightId: Int,
+    val requestedSeatId: Int?,
+    val reason: String?,
+)
