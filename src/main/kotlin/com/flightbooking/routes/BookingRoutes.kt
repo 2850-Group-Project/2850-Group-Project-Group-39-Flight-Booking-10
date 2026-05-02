@@ -2,7 +2,7 @@ package com.flightbooking.routes
 
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.PassengerInput
-import com.flightbooking.models.UserSession
+import com.flightbooking.service.AuthService
 import com.flightbooking.tables.PassengerTable
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -31,18 +31,8 @@ fun Route.bookingRoutes() {
  * @param call application call
  */
 private suspend fun handlePostPassengersSubmit(call: ApplicationCall) {
-    val userSession = call.sessions.get<UserSession>()
-    val bookingSession = call.sessions.get<BookingSession>()
-
-    if (userSession == null) {
-        call.respondRedirect("/login")
-        return
-    }
-
-    if (bookingSession == null) {
-        call.respondRedirect("/home")
-        return
-    }
+    val (_, _) = AuthService.requireUser(call)
+    val bookingSession = AuthService.requireBooking(call)
 
     val params = call.receiveParameters()
     val numberOfPassengers = calculatePassengerCount(bookingSession)

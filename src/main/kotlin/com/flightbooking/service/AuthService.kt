@@ -12,12 +12,11 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 
-
 /**
  * Service object for user authentication
  */
 object AuthService {
-    private val NULL_USER_ID: Int = 0
+    private const val NULL_USER_ID: Int = 0
     private val users = UserTableAccess()
 
     /**
@@ -66,7 +65,10 @@ object AuthService {
         return Pair(userSession, userId)
     }
 
-    suspend fun requireBooking(call: ApplicationCall, requireSearch: Boolean): BookingSession {
+    suspend fun requireBooking(
+        call: ApplicationCall,
+        requireSearch: Boolean = false,
+    ): BookingSession {
         val bookingSession = call.sessions.get<BookingSession>()
         val search = bookingSession?.search
 

@@ -4,13 +4,12 @@ import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.models.Airport
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
-import com.flightbooking.models.UserSession
+import com.flightbooking.service.AuthService
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -27,12 +26,7 @@ import java.util.UUID
  */
 fun Route.flightSelectRoutes() {
     post("/flights/select") {
-        val session = call.sessions.get<UserSession>()
-
-        if (session == null) {
-            call.respondRedirect("/login")
-            return@post
-        }
+        val (_, _) = AuthService.requireUser(call)
 
         val params = call.receiveParameters()
         val flightId =
@@ -52,11 +46,6 @@ fun Route.flightSelectRoutes() {
 
         val booking = call.sessions.get<BookingSession>() ?: BookingSession()
         val bookingId = (UUID.randomUUID().mostSignificantBits % Int.MAX_VALUE).toInt()
-        println("this is the booking id")
-        println(bookingId)
-
-        println("====================================")
-        println(flightId)
 
         val updated =
             when (leg) {

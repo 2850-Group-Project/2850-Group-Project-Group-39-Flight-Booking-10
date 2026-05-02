@@ -3,10 +3,8 @@ package com.flightbooking.routes
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.PointsTableAccess
-import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
-import com.flightbooking.models.UserSession
 import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
 import com.flightbooking.tables.AirportTable
@@ -15,7 +13,6 @@ import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
-import com.flightbooking.tables.UserTable
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -27,7 +24,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
-import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.alias

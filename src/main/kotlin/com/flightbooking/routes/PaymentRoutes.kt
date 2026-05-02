@@ -4,7 +4,7 @@ import com.flightbooking.access.BookingTableAccess
 import com.flightbooking.access.PaymentTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.Payment
-import com.flightbooking.models.UserSession
+import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
@@ -46,14 +46,8 @@ fun Route.paymentRoutes() {
  * @param call request call
  */
 private suspend fun handleGetPayment(call: ApplicationCall) {
-    val userSession = call.sessions.get<UserSession>()
-    val bookingSession = call.sessions.get<BookingSession>()
-    val userId = userSession?.let { fetchUserId(it) }
-
-    if (userSession == null || bookingSession == null || userId == null) {
-        call.respondRedirect(if (bookingSession == null) "/home" else "/login")
-        return
-    }
+    val (userSession, userId) = AuthService.requireUser(call)
+    val bookingSession = AuthService.requireBooking(call)
 
     val bookingTotal = calculateTotal(bookingSession)
     val (pointsAvailable, maxDiscount) = PointsService.calculateRedemption(userId, bookingTotal)
@@ -79,21 +73,16 @@ private suspend fun handleGetPayment(call: ApplicationCall) {
  * @param call request call
  */
 private suspend fun handlePostPayment(call: ApplicationCall) {
-    val userSession = call.sessions.get<UserSession>()
-    val bookingSession = call.sessions.get<BookingSession>()
-    val userId = userSession?.let { fetchUserId(it) }
-
-    if (userSession == null || bookingSession == null || userId == null) {
-        call.respondRedirect(if (bookingSession == null) "/home" else "/login")
-        return
-    }
+    val (userSession, userId) = AuthService.requireUser(call)
+    val bookingSession = AuthService.requireBooking(call)
 
     val params = call.receiveParameters()
     val cardNumber = params["cardNumber"]?.trim()
     val expiry = params["expiry"]?.trim()
     val cvv = params["cvv"]?.trim()
     var finalTotal = calculateTotal(bookingSession)
-    println("Payment submitted: Card: $cardNumber, Expiry: $expiry, CVV: $cvv")
+
+    println("Expiry: $expiry\nCVV: $cvv")
 
     val pointsToRedeem = params["pointsToRedeem"]?.toIntOrNull() ?: 0
 

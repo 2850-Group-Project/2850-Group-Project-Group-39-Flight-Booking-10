@@ -9,6 +9,7 @@ import com.flightbooking.models.Booking
 import com.flightbooking.models.BookingSegment
 import com.flightbooking.models.User
 import com.flightbooking.models.UserSession
+import com.flightbooking.service.AuthService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
@@ -26,7 +27,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
-import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -56,20 +56,10 @@ private const val MAX_FLIGHT_SEARCH_RESULTS = 30
  */
 fun Route.changeRequestRoutes() {
     get("/profile/bookings/change") {
-        val session = call.sessions.get<UserSession>()
-        if (session == null) {
-            call.respondRedirect("/login")
-            return@get
-        }
         handleGetBookingsChange(call)
     }
 
     post("/profile/bookings/change") {
-        val session = call.sessions.get<UserSession>()
-        if (session == null) {
-            call.respondRedirect("/login")
-            return@post
-        }
         handlePostBookingsChange(call)
     }
 }
@@ -79,20 +69,20 @@ fun Route.changeRequestRoutes() {
  * @param call request call
  */
 private suspend fun handleGetBookingsChange(call: ApplicationCall) {
-    val session = call.sessions.get<UserSession>()
-    checkNotNull(session)
+    val (userSession, _) = AuthService.requireUser(call)
 
     val bookingId = call.request.queryParameters["bookingId"]?.toIntOrNull()
     if (bookingId == null) {
         call.respondRedirect("/404")
         return
     }
+
     val flightQ = call.request.queryParameters["flightQ"]?.trim().orEmpty()
     val selectedFlightId = call.request.queryParameters["selectedFlightId"]?.toIntOrNull()
     val model =
         getModel(
             BookingChangeModelParams(
-                session = session,
+                session = userSession,
                 bookingId = bookingId,
                 flightQ = flightQ,
                 selectedFlightId = selectedFlightId,
@@ -276,8 +266,7 @@ private fun getModel(params: BookingChangeModelParams): Map<String, Any>? =
  * @param call request call
  */
 private suspend fun handlePostBookingsChange(call: ApplicationCall) {
-    val session = call.sessions.get<UserSession>()
-    checkNotNull(session)
+    val (userSession, _) = AuthService.requireUser(call)
 
     val p = call.receiveParameters()
     val bookingId = p["bookingId"]?.toIntOrNull()
@@ -293,7 +282,7 @@ private suspend fun handlePostBookingsChange(call: ApplicationCall) {
 
     var err =
         submitBookingChange(
-            session,
+            userSession,
             BookingChangeParams(
                 bookingId,
                 segmentId,
