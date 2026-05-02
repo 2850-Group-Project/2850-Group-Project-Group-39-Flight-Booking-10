@@ -1,20 +1,12 @@
 package com.flightbooking
 
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.cookies.cookies
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
-import io.ktor.http.contentType
-import io.ktor.http.formUrlEncode
 import io.ktor.http.parameters
-import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -207,42 +199,4 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertNotNull(bookingCookie)
             assertTrue(bookingCookie.value.isNotBlank())
         }
-
-    // Create a logged-in user client for flight route tests.
-    private suspend fun ApplicationTestBuilder.createAuthenticatedUserClient(): HttpClient {
-        val client =
-            createClient {
-                followRedirects = false
-                install(HttpCookies)
-            }
-
-        val registerResponse =
-            client.post("/register") {
-                contentType(ContentType.Application.FormUrlEncoded)
-                setBody(
-                    listOf(
-                        "email" to "student@example.com",
-                        "password" to "Password123!",
-                        "confirmPassword" to "Password123!",
-                        "firstName" to "Student",
-                        "lastName" to "Alex",
-                    ).formUrlEncode(),
-                )
-            }
-        assertEquals(HttpStatusCode.Found, registerResponse.status)
-
-        val loginResponse =
-            client.post("/login") {
-                contentType(ContentType.Application.FormUrlEncoded)
-                setBody(
-                    listOf(
-                        "email" to "student@example.com",
-                        "password" to "Password123!",
-                    ).formUrlEncode(),
-                )
-            }
-        assertEquals(HttpStatusCode.Found, loginResponse.status)
-
-        return client
-    }
 }
