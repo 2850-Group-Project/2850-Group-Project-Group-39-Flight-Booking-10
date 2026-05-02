@@ -4,7 +4,7 @@ import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
 import com.flightbooking.models.BookingSession
-import com.flightbooking.models.UserSession
+import com.flightbooking.service.AuthService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.PassengerTable
@@ -19,7 +19,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
-import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.select
@@ -41,21 +40,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
  */
 fun Route.seatSelectionRoutes() {
     get("/flights/seats") {
-        val bookingSession = call.sessions.get<BookingSession>()
-        val redirect = resolvePostSessionRedirects(call, bookingSession)
-        if (redirect != null) {
-            call.respondRedirect(redirect)
-            return@get
-        }
         handleGetSeats(call)
     }
     post("/flights/seats") {
-        val bookingSession = call.sessions.get<BookingSession>()
-        val redirect = resolvePostSessionRedirects(call, bookingSession)
-        if (redirect != null) {
-            call.respondRedirect(redirect)
-            return@post
-        }
         handlePostSeats(call)
     }
 }
@@ -67,8 +54,7 @@ fun Route.seatSelectionRoutes() {
  * @param call request call
  */
 private suspend fun handleGetSeats(call: ApplicationCall) {
-    val bookingSession = call.sessions.get<BookingSession>()
-    checkNotNull(bookingSession)
+    val bookingSession = AuthService.requireBooking(call)
     val flightId = checkNotNull(bookingSession.outboundFlightId)
 
     val flightAccess = FlightTableAccess()
@@ -121,9 +107,8 @@ private suspend fun handleGetSeats(call: ApplicationCall) {
  * @param call request call
  */
 private suspend fun handlePostSeats(call: ApplicationCall) {
-    val bookingSession = call.sessions.get<BookingSession>()
+    val bookingSession = AuthService.requireBooking(call)
 
-    checkNotNull(bookingSession)
     val flightId = checkNotNull(bookingSession.outboundFlightId)
 
     val selectedSeatsJson = call.receiveParameters()["selectedSeats"]?.trim().orEmpty()
@@ -143,24 +128,6 @@ private suspend fun handlePostSeats(call: ApplicationCall) {
     assignSeats(selectedSeats, seatMap, bookingSegmentId)
     call.respondRedirect("/payment?ok=Seats assigned successfully")
 }
-
-/**
- * Resolves potential initial redirects from invalid UserSession or BookingSession
- * Redirects back to /login or /home or /flights/search
- * @param call request call
- * @param bookingSession booking session
- * @return redirect URL or null
- */
-private fun resolvePostSessionRedirects(
-    call: ApplicationCall,
-    bookingSession: BookingSession?,
-): String? =
-    when {
-        call.sessions.get<UserSession>() == null -> "/login"
-        bookingSession == null -> "/home"
-        bookingSession.outboundFlightId == null -> "/flights/search"
-        else -> null
-    }
 
 /**
  * Mapper function for Exposed's result row to kotlin usable format

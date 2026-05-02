@@ -2,7 +2,7 @@ package com.flightbooking.routes
 
 import com.flightbooking.access.ComplaintTableAccess
 import com.flightbooking.access.UserTableAccess
-import com.flightbooking.models.UserSession
+import com.flightbooking.service.AuthService
 import com.flightbooking.tables.ComplaintTable
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
@@ -13,7 +13,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
-import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -37,7 +36,7 @@ fun Route.complaintsRoutes() {
  * @param call request call
  */
 private suspend fun handleGetComplaints(call: io.ktor.server.application.ApplicationCall) {
-    val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
+    val userSession = AuthService.requireUser(call)
     call.respond(
         PebbleContent(
             "complaints.peb",
@@ -56,8 +55,8 @@ private suspend fun handleGetComplaints(call: io.ktor.server.application.Applica
  * @param call request call
  */
 private suspend fun handleSubmitComplaint(call: io.ktor.server.application.ApplicationCall) {
-    val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
-    println(userSession)
+    val (userSession, _) = AuthService.requireUser(call)
+
     val params = call.receiveParameters()
     val complaintText = params["message"] ?: ""
     val type = params["type"] ?: ""
@@ -83,8 +82,10 @@ private suspend fun handleSubmitComplaint(call: io.ktor.server.application.Appli
  * @param call request call
  */
 private suspend fun handleProfileComplaints(call: io.ktor.server.application.ApplicationCall) {
-    val userSession = call.sessions.get<UserSession>() ?: return call.respondRedirect("/login")
+    val (userSession, _) = AuthService.requireUser(call)
+
     val user = UserTableAccess().findByEmail(userSession.userEmail) ?: return call.respondRedirect("/login")
+
     call.respond(
         PebbleContent(
             "profile_complaints.peb",
