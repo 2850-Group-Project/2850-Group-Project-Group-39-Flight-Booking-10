@@ -1,18 +1,10 @@
 package com.flightbooking
 
 import com.flightbooking.tables.PassengerTable
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.http.formUrlEncode
 import io.ktor.http.parameters
-import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -143,65 +135,6 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertTrue(passengerExists("Alice", "Brown", "P1111111"))
             assertTrue(passengerExists("Ben", "Taylor", "P2222222"))
         }
-
-    // Create a logged-in user client for booking route tests.
-    private suspend fun ApplicationTestBuilder.createAuthenticatedUserClient(): HttpClient {
-        val client =
-            createClient {
-                followRedirects = false
-                install(HttpCookies)
-            }
-
-        val registerResponse =
-            client.post("/register") {
-                contentType(ContentType.Application.FormUrlEncoded)
-                setBody(
-                    listOf(
-                        "email" to "student@example.com",
-                        "password" to "Password123!",
-                        "confirmPassword" to "Password123!",
-                        "firstName" to "Student",
-                        "lastName" to "Alex",
-                    ).formUrlEncode(),
-                )
-            }
-        assertEquals(HttpStatusCode.Found, registerResponse.status)
-
-        val loginResponse =
-            client.post("/login") {
-                contentType(ContentType.Application.FormUrlEncoded)
-                setBody(
-                    listOf(
-                        "email" to "student@example.com",
-                        "password" to "Password123!",
-                    ).formUrlEncode(),
-                )
-            }
-        assertEquals(HttpStatusCode.Found, loginResponse.status)
-
-        return client
-    }
-
-    // Seed a booking session through the flight selection route before passenger submission.
-    private suspend fun HttpClient.seedBookingSession(adults: String) {
-        val response =
-            submitForm(
-                url = "/flights/select",
-                formParameters =
-                    parameters {
-                        append("flightId", "10")
-                        append("fareId", "20")
-                        append("leg", "outbound")
-                        append("tripType", "oneway")
-                        append("origin", "LHR")
-                        append("destination", "DXB")
-                        append("departureDate", "2026-04-01")
-                        append("adults", adults)
-                    },
-            )
-
-        assertEquals(HttpStatusCode.OK, response.status)
-    }
 
     // Check whether a submitted passenger row was persisted to the database.
     private fun passengerExists(
