@@ -12,10 +12,12 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 
+
 /**
  * Service object for user authentication
  */
 object AuthService {
+    private val NULL_USER_ID: Int = 0
     private val users = UserTableAccess()
 
     /**
@@ -51,25 +53,26 @@ object AuthService {
         return BCrypt.checkpw(password, storedHash)
     }
 
-    suspend fun requireUser(call: ApplicationCall): UserSession? {
+    suspend fun requireUser(call: ApplicationCall): Pair<UserSession, Int> {
         val userSession = call.sessions.get<UserSession>()
 
         val userId = userSession?.let { fetchValidUserId(it.userEmail) }
 
-        if (userId == null || userSession == null) {
+        if (userSession == null || userId == null) {
             call.respondRedirect("/login")
-            return null
+            return Pair(UserSession("", null), NULL_USER_ID)
         }
 
-        return userSession
+        return Pair(userSession, userId)
     }
 
-    suspend fun requireBooking(call: ApplicationCall): BookingSession? {
+    suspend fun requireBooking(call: ApplicationCall, requireSearch: Boolean): BookingSession {
         val bookingSession = call.sessions.get<BookingSession>()
+        val search = bookingSession?.search
 
-        if (bookingSession == null) {
+        if (bookingSession == null || (requireSearch && search == null)) {
             call.respondRedirect("/home")
-            return null
+            return BookingSession()
         }
 
         return bookingSession

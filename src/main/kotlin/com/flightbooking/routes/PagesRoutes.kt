@@ -63,27 +63,12 @@ fun Route.pagesRoutes() {
     get("/profile/notifications") { handleGetNotifications(call) }
     get("/404") { handleNotFound(call) }
     get("/profile/bookings") {
-        val session = call.sessions.get<UserSession>()
-        if (session == null) {
-            call.respondRedirect("/login")
-            return@get
-        }
         handleGetBookings(call)
     }
     post("/profile/bookings/cancel") {
-        val session = call.sessions.get<UserSession>()
-        if (session == null) {
-            call.respondRedirect("/login")
-            return@post
-        }
         handlePostBookingsCancel(call)
     }
     post("/profile/bookings/delete") {
-        val session = call.sessions.get<UserSession>()
-        if (session == null) {
-            call.respondRedirect("/login")
-            return@post
-        }
         handlePostBookingsDelete(call)
     }
 }
@@ -93,9 +78,10 @@ fun Route.pagesRoutes() {
  * @param call application call
  */
 private suspend fun handleGetHome(call: ApplicationCall) {
-    val userSession = AuthService.requireUser(call) ?: return
+    val (userSession, _) = AuthService.requireUser(call)
     val airports = AirportTableAccess().getAll()
 
+    println("------------------------------------")
     println(userSession)
 
     call.respond(
@@ -114,12 +100,7 @@ private suspend fun handleGetHome(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetFlightSearch(call: ApplicationCall) {
-    val session = call.sessions.get<UserSession>()
-
-    if (session == null) {
-        call.respondRedirect("/login")
-        return
-    }
+    val (userSession, _) = AuthService.requireUser(call)
 
     // packaging all search data into one class
     val search =
@@ -178,7 +159,7 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
         PebbleContent(
             "flight_search.peb",
             mapOf(
-                "userSession" to session,
+                "userSession" to userSession,
                 "isLoggedIn" to true,
                 "search" to search,
                 "outboundFlights" to outboundFlights,
@@ -193,21 +174,14 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
-    val userSession = call.sessions.get<UserSession>()
-    val bookingSession = call.sessions.get<BookingSession>()
-    val redirect = resolveGetFlightRedirects(call, bookingSession)
-    if (redirect != null) {
-        call.respondRedirect(redirect)
-        return
-    }
-    checkNotNull(bookingSession)
-    checkNotNull(bookingSession.search)
+    val (userSession, _) = AuthService.requireUser(call)
+    val bookingSession = AuthService.requireBooking(call, requireSearch = true)
 
-    println(bookingSession)
+    val search = bookingSession.search!!
 
-    val adultsCount = bookingSession.search.adults?.toIntOrNull() ?: 0
-    val childrenCount = bookingSession.search.children?.toIntOrNull() ?: 0
-    val infantsCount = bookingSession.search.infants?.toIntOrNull() ?: 0
+    val adultsCount = search.adults?.toIntOrNull() ?: 0
+    val childrenCount = search.children?.toIntOrNull() ?: 0
+    val infantsCount = search.infants?.toIntOrNull() ?: 0
 
     val adultsList =
         (0 until adultsCount).map {
@@ -226,7 +200,7 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
         PebbleContent(
             "flight_passengers.peb",
             mapOf<String, Any>(
-                "userSession" to userSession!!,
+                "userSession" to userSession,
                 "bookingSession" to bookingSession,
                 "search" to bookingSession.search,
                 "adults" to adultsList,
@@ -242,22 +216,11 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetProfile(call: ApplicationCall) {
-    val userSession = call.sessions.get<UserSession>()
-    if (userSession == null) {
-        call.respondRedirect("/login")
-        return
-    }
-
-    val userId =
-        fetchUserId(userSession) ?: run {
-            call.respondRedirect("/login")
-            return
-        }
+    val (userSession, userId) = AuthService.requireUser(call)
 
     val pointsBalance = PointsService.getBalance(userId)
     val pointsTable = PointsTableAccess()
     val pointsTransactions = pointsTable.getTransactions(userId)
-    println(pointsTransactions)
 
     call.respond(
         PebbleContent(
@@ -301,8 +264,8 @@ private suspend fun handleNotFound(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetBookings(call: ApplicationCall) {
-    val session = call.sessions.get<UserSession>()
-    checkNotNull(session)
+    val (userSession, userId) = AuthService.requireUser(call)
+
     val q = call.request.queryParameters["q"]?.trim().orEmpty()
     val qId = q.toIntOrNull()
     val statusFilter = call.request.queryParameters["status"]?.trim()?.lowercase().orEmpty()
@@ -312,7 +275,7 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
             PebbleContent(
                 "my_bookings.peb",
                 mapOf(
-                    "userSession" to session,
+                    "userSession" to userSession,
                     "q" to q,
                     "statusFilter" to statusFilter,
                     "bookings" to emptyList<Map<String, Any>>(),
@@ -327,21 +290,15 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
 
     val bookings =
         transaction {
-            val userId = fetchUserId(session) ?: return@transaction null
             val cond = buildBookingCondition(userId, q, qId, statusFilter)
             groupIntoBookings(fetchBookingRows(cond, origin, dest))
         }
-
-    if (bookings == null) {
-        call.respondRedirect("/404")
-        return
-    }
 
     call.respond(
         PebbleContent(
             "my_bookings.peb",
             mapOf(
-                "userSession" to session,
+                "userSession" to userSession,
                 "q" to q,
                 "statusFilter" to statusFilter,
                 "bookings" to bookings,
@@ -356,8 +313,7 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
-    val session = call.sessions.get<UserSession>()
-    checkNotNull(session)
+    val (_, userId) = AuthService.requireUser(call)
 
     val params = call.receiveParameters()
     val bookingId = params["bookingId"]?.toIntOrNull()
@@ -368,14 +324,6 @@ private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
 
     val ok =
         transaction {
-            val userRow =
-                UserTable
-                    .select { UserTable.email eq session.userEmail }
-                    .limit(1)
-                    .firstOrNull() ?: return@transaction false
-
-            val userId = userRow[UserTable.id]
-
             val owned =
                 BookingTable
                     .select { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
@@ -426,8 +374,7 @@ private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handlePostBookingsDelete(call: ApplicationCall) {
-    val session = call.sessions.get<UserSession>()
-    checkNotNull(session)
+    val (_, userId) = AuthService.requireUser(call)
 
     val params = call.receiveParameters()
     val bookingId = params["bookingId"]?.toIntOrNull()
@@ -438,14 +385,6 @@ private suspend fun handlePostBookingsDelete(call: ApplicationCall) {
 
     val ok =
         transaction {
-            val userRow =
-                UserTable
-                    .select { UserTable.email eq session.userEmail }
-                    .limit(1)
-                    .firstOrNull() ?: return@transaction false
-
-            val userId = userRow[UserTable.id]
-
             val owned =
                 BookingTable
                     .select { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
