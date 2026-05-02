@@ -93,7 +93,7 @@ fun Route.pagesRoutes() {
  * @param call application call
  */
 private suspend fun handleGetHome(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireAuth(call, requireUser = true, requireBooking = false) ?: return
+    val userSession = AuthService.requireUser(call) ?: return
     val airports = AirportTableAccess().getAll()
 
     println(userSession)
@@ -102,7 +102,7 @@ private suspend fun handleGetHome(call: ApplicationCall) {
         PebbleContent(
             "home.peb",
             mapOf(
-                "userSession" to userSession!!,
+                "userSession" to userSession,
                 "airports" to airports,
             ),
         ),

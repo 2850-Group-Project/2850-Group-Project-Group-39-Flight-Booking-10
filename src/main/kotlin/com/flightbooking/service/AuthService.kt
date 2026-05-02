@@ -51,28 +51,28 @@ object AuthService {
         return BCrypt.checkpw(password, storedHash)
     }
 
-    suspend fun requireAuth(
-        call: ApplicationCall,
-        requireUser: Boolean = true,
-        requireBooking: Boolean = true,
-    ): Pair<UserSession?, BookingSession?>? {
+    suspend fun requireUser(call: ApplicationCall): UserSession? {
         val userSession = call.sessions.get<UserSession>()
-        val bookingSession = call.sessions.get<BookingSession>()
 
         val userId = userSession?.let { fetchValidUserId(it.userEmail) }
 
-        val bookingFailed = requireBooking && (bookingSession == null)
-        val userFailed = (userSession == null || userId == null) && requireUser
-
-        if (bookingFailed || userFailed) {
-            if (bookingFailed) {
-                call.respondRedirect("/home")
-            } else {
-                call.respondRedirect("/login")
-            }
+        if (userId == null || userSession == null) {
+            call.respondRedirect("/login")
             return null
         }
-        return Pair(userSession, bookingSession)
+
+        return userSession
+    }
+
+    suspend fun requireBooking(call: ApplicationCall): BookingSession? {
+        val bookingSession = call.sessions.get<BookingSession>()
+
+        if (bookingSession == null) {
+            call.respondRedirect("/home")
+            return null
+        }
+
+        return bookingSession
     }
 
     private fun fetchValidUserId(userEmail: String): Int? =
