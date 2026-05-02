@@ -1,6 +1,15 @@
 package com.flightbooking.service
 
 import com.flightbooking.access.UserTableAccess
+import com.flightbooking.models.BookingSession
+import com.flightbooking.models.UserSession
+import com.flightbooking.tables.UserTable
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 
 /**
@@ -41,4 +50,36 @@ object AuthService {
                 ?: return false
         return BCrypt.checkpw(password, storedHash)
     }
+
+    suspend fun requireAuth(
+        call: ApplicationCall,
+        requireUser: Boolean = true,
+        requireBooking: Boolean = true,
+    ): Pair<UserSession?, BookingSession?>? {
+        val userSession = call.sessions.get<UserSession>()
+        val bookingSession = call.sessions.get<BookingSession>()
+
+        val userId = userSession?.let { fetchValidUserId(it.userEmail) }
+
+        val bookingFailed = requireBooking && (bookingSession == null)
+        val userFailed = (userSession == null || userId == null) && requireUser
+
+        if (bookingFailed || userFailed) {
+            if (bookingFailed) {
+                call.respondRedirect("/home")
+            } else {
+                call.respondRedirect("/login")
+            }
+            return null
+        }
+        return Pair(userSession, bookingSession)
+    }
+
+    private fun fetchValidUserId(userEmail: String): Int? =
+        transaction {
+            UserTable
+                .select { UserTable.email eq userEmail }
+                .singleOrNull()
+                ?.get(UserTable.id)
+        }
 }

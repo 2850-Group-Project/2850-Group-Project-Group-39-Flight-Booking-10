@@ -7,6 +7,7 @@ import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
 import com.flightbooking.models.UserSession
+import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
@@ -92,20 +93,16 @@ fun Route.pagesRoutes() {
  * @param call application call
  */
 private suspend fun handleGetHome(call: ApplicationCall) {
-    val session = call.sessions.get<UserSession>()
-
-    if (session == null) {
-        call.respondRedirect("/login")
-        return
-    }
-
+    val (userSession, _) = AuthService.requireAuth(call, requireUser = true, requireBooking = false) ?: return
     val airports = AirportTableAccess().getAll()
+
+    println(userSession)
 
     call.respond(
         PebbleContent(
             "home.peb",
             mapOf(
-                "userSession" to session,
+                "userSession" to userSession!!,
                 "airports" to airports,
             ),
         ),
