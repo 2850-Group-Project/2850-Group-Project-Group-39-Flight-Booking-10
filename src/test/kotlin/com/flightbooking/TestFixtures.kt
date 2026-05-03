@@ -3,6 +3,7 @@ package com.flightbooking
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
+import com.flightbooking.tables.ChangeRequestTable
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FlightTable
@@ -390,6 +391,34 @@ fun seatAssignmentExists(bookingSegmentId: Int): Boolean =
             .any()
     }
 
+// Count submitted change request rows.
+fun changeRequestCount(): Int =
+    transaction {
+        ChangeRequestTable.selectAll().count().toInt()
+    }
+
+// Read the most recently submitted change request.
+fun latestChangeRequest(): TestChangeRequest =
+    transaction {
+        ChangeRequestTable
+            .selectAll()
+            .orderBy(ChangeRequestTable.id, SortOrder.DESC)
+            .limit(1)
+            .first()
+            .let {
+                TestChangeRequest(
+                    userId = it[ChangeRequestTable.userId],
+                    bookingId = it[ChangeRequestTable.bookingId],
+                    bookingSegmentId = it[ChangeRequestTable.bookingSegmentId],
+                    currentFlightId = it[ChangeRequestTable.currentFlightId],
+                    requestedFlightId = it[ChangeRequestTable.requestedFlightId],
+                    requestedSeatId = it[ChangeRequestTable.requestedSeatId],
+                    reason = it[ChangeRequestTable.reason],
+                    status = it[ChangeRequestTable.status],
+                )
+            }
+    }
+
 // Read generated seat codes for a flight in creation order.
 fun seatCodesForFlight(flightId: Int): List<String> =
     transaction {
@@ -432,3 +461,14 @@ fun seatStatus(seatId: Int): String =
             .limit(1)
             .first()[SeatTable.status]
     }
+
+data class TestChangeRequest(
+    val userId: Int,
+    val bookingId: Int,
+    val bookingSegmentId: Int,
+    val currentFlightId: Int?,
+    val requestedFlightId: Int?,
+    val requestedSeatId: Int?,
+    val reason: String?,
+    val status: String,
+)
