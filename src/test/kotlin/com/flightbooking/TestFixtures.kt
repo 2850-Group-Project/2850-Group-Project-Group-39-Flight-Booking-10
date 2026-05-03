@@ -6,6 +6,7 @@ import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FlightTable
+import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.UserTable
@@ -21,6 +22,7 @@ import io.ktor.http.formUrlEncode
 import io.ktor.http.parameters
 import io.ktor.server.testing.ApplicationTestBuilder
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -238,6 +240,85 @@ fun seedUser(
         }.resultedValues!!.first()[UserTable.id]
     }
 
+// Read a seeded or registered user id by email.
+fun userIdByEmail(email: String = "student@example.com"): Int =
+    transaction {
+        UserTable
+            .select { UserTable.email eq email }
+            .limit(1)
+            .first()[UserTable.id]
+    }
+
+// Insert a booking row for page and booking-management tests.
+fun seedBooking(
+    userId: Int,
+    bookingReference: String = "TESTREF",
+    bookingStatus: String = "confirmed",
+): Int =
+    transaction {
+        BookingTable.insert {
+            it[BookingTable.userId] = userId
+            it[paymentId] = null
+            it[BookingTable.bookingReference] = bookingReference
+            it[createdAt] = "2026-04-01T00:00:00Z"
+            it[BookingTable.bookingStatus] = bookingStatus
+            it[cancelledAt] = null
+            it[amendable] = 1
+        }.resultedValues!!.first()[BookingTable.id]
+    }
+
+// Insert a passenger row for a booking.
+fun seedPassenger(
+    bookingId: Int,
+    firstName: String = "Pat",
+    lastName: String = "Smith",
+): Int =
+    transaction {
+        PassengerTable.insert {
+            it[PassengerTable.bookingId] = bookingId
+            it[email] = "passenger@example.com"
+            it[checkedIn] = 0
+            it[title] = "Mx"
+            it[PassengerTable.firstName] = firstName
+            it[PassengerTable.lastName] = lastName
+            it[dateOfBirth] = "2000-01-01"
+            it[gender] = null
+            it[nationality] = "GB"
+            it[documentType] = "Passport"
+            it[documentNumber] = "P1234567"
+            it[documentCountry] = "GB"
+            it[documentExpiry] = "2030-01-01"
+        }.resultedValues!!.first()[PassengerTable.id]
+    }
+
+// Insert a booking segment row for a booking and flight.
+fun seedBookingSegment(
+    bookingId: Int,
+    flightId: Int,
+    flightFareId: Int,
+): Int =
+    transaction {
+        BookingSegmentTable.insert {
+            it[BookingSegmentTable.bookingId] = bookingId
+            it[BookingSegmentTable.flightId] = flightId
+            it[BookingSegmentTable.flightFareId] = flightFareId
+        }.resultedValues!!.first()[BookingSegmentTable.id]
+    }
+
+// Insert a seat assignment row.
+fun seedSeatAssignment(
+    passengerId: Int,
+    bookingSegmentId: Int,
+    seatId: Int?,
+): Int =
+    transaction {
+        SeatAssignmentTable.insert {
+            it[SeatAssignmentTable.passengerId] = passengerId
+            it[SeatAssignmentTable.bookingSegmentId] = bookingSegmentId
+            it[SeatAssignmentTable.seatId] = seatId
+        }.resultedValues!!.first()[SeatAssignmentTable.id]
+    }
+
 // Insert an available seat row.
 fun seedSeat(
     flightId: Int,
@@ -274,6 +355,39 @@ fun latestBookingId(): Int =
             .orderBy(BookingTable.id, SortOrder.DESC)
             .limit(1)
             .first()[BookingTable.id]
+    }
+
+// Read the current status for a booking.
+fun bookingStatus(bookingId: Int): String =
+    transaction {
+        BookingTable
+            .select { BookingTable.id eq bookingId }
+            .limit(1)
+            .first()[BookingTable.bookingStatus]
+    }
+
+// Check whether a booking row still exists.
+fun bookingExists(bookingId: Int): Boolean =
+    transaction {
+        BookingTable
+            .select { BookingTable.id eq bookingId }
+            .any()
+    }
+
+// Check whether a booking segment row still exists for a booking.
+fun bookingSegmentExists(bookingId: Int): Boolean =
+    transaction {
+        BookingSegmentTable
+            .select { BookingSegmentTable.bookingId eq bookingId }
+            .any()
+    }
+
+// Check whether a seat assignment row still exists for a segment.
+fun seatAssignmentExists(bookingSegmentId: Int): Boolean =
+    transaction {
+        SeatAssignmentTable
+            .select { SeatAssignmentTable.bookingSegmentId eq bookingSegmentId }
+            .any()
     }
 
 // Read generated seat codes for a flight in creation order.
