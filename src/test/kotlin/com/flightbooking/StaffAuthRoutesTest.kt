@@ -1,7 +1,5 @@
 package com.flightbooking
 
-import io.ktor.client.HttpClient
-import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -11,7 +9,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
-import io.ktor.http.parameters
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -114,35 +111,4 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertEquals(HttpStatusCode.Found, dashboardResponse.status)
             assertEquals("/staff/login", dashboardResponse.headers[HttpHeaders.Location])
         }
-
-    // Submit a valid staff registration form, with optional overrides for reuse in other tests.
-    private suspend fun HttpClient.registerStaff(
-        email: String = "staff@example.com",
-        password: String = "StrongPass123!",
-    ) = submitForm(
-        url = "/staff/register",
-        formParameters =
-            parameters {
-                append("firstName", "Alex")
-                append("lastName", "Admin")
-                append("email", email)
-                append("password", password)
-                append("confirmPassword", password)
-                append("role", "admin")
-                append("inviteCode", "STAFF-CHECK")
-            },
-    )
-
-    // Submit a staff login form, using defaults unless a test needs different credentials.
-    private suspend fun HttpClient.loginStaff(
-        email: String = "staff@example.com",
-        password: String = "StrongPass123!",
-    ) = submitForm(
-        url = "/staff/login",
-        formParameters =
-            parameters {
-                append("email", email)
-                append("password", password)
-            },
-    )
 }

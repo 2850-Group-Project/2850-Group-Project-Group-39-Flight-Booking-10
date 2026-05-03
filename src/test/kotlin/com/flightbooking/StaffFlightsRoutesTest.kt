@@ -1,10 +1,5 @@
 package com.flightbooking
 
-import com.flightbooking.tables.AirportTable
-import com.flightbooking.tables.FlightTable
-import com.flightbooking.tables.SeatTable
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -12,11 +7,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.parameters
 import io.ktor.server.testing.testApplication
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -39,16 +29,7 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
     fun authenticatedStaffFlightsPageLoads() =
         testApplication {
             configureApp()
-            val client =
-                createClient {
-                    followRedirects = false
-                    install(HttpCookies)
-                }
-
-            client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
-            assertEquals("/staff/dashboard", loginResponse.headers[HttpHeaders.Location])
+            val client = createAuthenticatedStaffClient()
 
             val response = client.get("/staff/flights")
             assertEquals(HttpStatusCode.OK, response.status)
@@ -60,18 +41,10 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
     fun createFlightRedirectsWithSuccessMessage() =
         testApplication {
             configureApp()
-            val client =
-                createClient {
-                    followRedirects = false
-                    install(HttpCookies)
-                }
+            val client = createAuthenticatedStaffClient()
             client.get("/__health")
             val originAirportId = seedAirport("LHR", "London Heathrow")
             val destinationAirportId = seedAirport("DXB", "Dubai International")
-
-            client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
 
             val response =
                 client.submitForm(
@@ -97,17 +70,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
     fun createFlightRejectsInvalidRouteData() =
         testApplication {
             configureApp()
-            val client =
-                createClient {
-                    followRedirects = false
-                    install(HttpCookies)
-                }
+            val client = createAuthenticatedStaffClient()
             client.get("/__health")
             val airportId = seedAirport("LHR", "London Heathrow")
-
-            client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
 
             val response =
                 client.submitForm(
@@ -136,18 +101,10 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
     fun updateFlightRedirectsWithSuccessMessage() =
         testApplication {
             configureApp()
-            val client =
-                createClient {
-                    followRedirects = false
-                    install(HttpCookies)
-                }
+            val client = createAuthenticatedStaffClient()
             client.get("/__health")
             val originAirportId = seedAirport("LHR", "London Heathrow")
             val destinationAirportId = seedAirport("DXB", "Dubai International")
-
-            client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
 
             val createResponse =
                 client.submitForm(
@@ -191,18 +148,10 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
     fun deleteFlightRedirectsWithSuccessMessage() =
         testApplication {
             configureApp()
-            val client =
-                createClient {
-                    followRedirects = false
-                    install(HttpCookies)
-                }
+            val client = createAuthenticatedStaffClient()
             client.get("/__health")
             val originAirportId = seedAirport("LHR", "London Heathrow")
             val destinationAirportId = seedAirport("DXB", "Dubai International")
-
-            client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
 
             val createResponse =
                 client.submitForm(
@@ -239,18 +188,10 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
     fun createFlightAutoGeneratesSeats() =
         testApplication {
             configureApp()
-            val client =
-                createClient {
-                    followRedirects = false
-                    install(HttpCookies)
-                }
+            val client = createAuthenticatedStaffClient()
             client.get("/__health")
             val originAirportId = seedAirport("LHR", "London Heathrow")
             val destinationAirportId = seedAirport("DXB", "Dubai International")
-
-            client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
 
             val response =
                 client.submitForm(
@@ -275,69 +216,5 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals(8, seatCodes.size)
             assertEquals("1A", seatCodes.first())
             assertEquals("2B", seatCodes.last())
-        }
-
-    // Submit a valid staff registration form for staff flights tests.
-    private suspend fun HttpClient.registerStaff(
-        email: String = "staff@example.com",
-        password: String = "StrongPass123!",
-    ) = submitForm(
-        url = "/staff/register",
-        formParameters =
-            parameters {
-                append("firstName", "Alex")
-                append("lastName", "Admin")
-                append("email", email)
-                append("password", password)
-                append("confirmPassword", password)
-                append("role", "admin")
-                append("inviteCode", "STAFF-CHECK")
-            },
-    )
-
-    // Submit a staff login form for authenticated staff flights requests.
-    private suspend fun HttpClient.loginStaff(
-        email: String = "staff@example.com",
-        password: String = "StrongPass123!",
-    ) = submitForm(
-        url = "/staff/login",
-        formParameters =
-            parameters {
-                append("email", email)
-                append("password", password)
-            },
-    )
-
-    // Insert an airport row so flight-management tests can submit valid airport ids.
-    private fun seedAirport(
-        iataCode: String,
-        name: String,
-    ): Int =
-        transaction {
-            AirportTable.insert {
-                it[AirportTable.iataCode] = iataCode
-                it[AirportTable.name] = name
-                it[city] = null
-                it[country] = null
-            }.resultedValues!!.first()[AirportTable.id]
-        }
-
-    // Fetch the most recently created flight id for post-create assertions.
-    private fun latestFlightId(): Int =
-        transaction {
-            FlightTable
-                .selectAll()
-                .orderBy(FlightTable.id, SortOrder.DESC)
-                .limit(1)
-                .first()[FlightTable.id]
-        }
-
-    // Read generated seat codes for a flight in creation order.
-    private fun seatCodesForFlight(flightId: Int): List<String> =
-        transaction {
-            SeatTable
-                .select { SeatTable.flightId eq flightId }
-                .orderBy(SeatTable.id, SortOrder.ASC)
-                .map { it[SeatTable.seatCode] }
         }
 }

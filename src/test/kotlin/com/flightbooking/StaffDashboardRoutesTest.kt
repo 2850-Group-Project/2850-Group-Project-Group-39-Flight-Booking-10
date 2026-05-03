@@ -1,14 +1,10 @@
 package com.flightbooking
 
 import com.flightbooking.tables.StaffTable
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.cookies.HttpCookies
-import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.parameters
 import io.ktor.server.testing.testApplication
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
@@ -35,16 +31,7 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
     fun authenticatedDashboardLoads() =
         testApplication {
             configureApp()
-            val client =
-                createClient {
-                    followRedirects = false
-                    install(HttpCookies)
-                }
-
-            client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
-            assertEquals("/staff/dashboard", loginResponse.headers[HttpHeaders.Location])
+            val client = createAuthenticatedStaffClient()
 
             val response = client.get("/staff/dashboard")
             assertEquals(HttpStatusCode.OK, response.status)
@@ -56,15 +43,7 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
     fun dashboardShowsStaffNotFoundMessageWhenSessionUserIsMissing() =
         testApplication {
             configureApp()
-            val client =
-                createClient {
-                    followRedirects = false
-                    install(HttpCookies)
-                }
-
-            client.registerStaff()
-            val loginResponse = client.loginStaff()
-            assertEquals(HttpStatusCode.Found, loginResponse.status)
+            val client = createAuthenticatedStaffClient()
 
             deleteStaffByEmail("staff@example.com")
 
@@ -72,37 +51,6 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertEquals(HttpStatusCode.OK, response.status)
             assertTrue(response.bodyAsText().contains("Staff not found, please login again."))
         }
-
-    // Submit a valid staff registration form for staff dashboard tests.
-    private suspend fun HttpClient.registerStaff(
-        email: String = "staff@example.com",
-        password: String = "StrongPass123!",
-    ) = submitForm(
-        url = "/staff/register",
-        formParameters =
-            parameters {
-                append("firstName", "Alex")
-                append("lastName", "Admin")
-                append("email", email)
-                append("password", password)
-                append("confirmPassword", password)
-                append("role", "admin")
-                append("inviteCode", "STAFF-CHECK")
-            },
-    )
-
-    // Submit a staff login form for authenticated dashboard requests.
-    private suspend fun HttpClient.loginStaff(
-        email: String = "staff@example.com",
-        password: String = "StrongPass123!",
-    ) = submitForm(
-        url = "/staff/login",
-        formParameters =
-            parameters {
-                append("email", email)
-                append("password", password)
-            },
-    )
 
     // Remove the backing staff row to simulate a stale dashboard session.
     private fun deleteStaffByEmail(email: String) =
