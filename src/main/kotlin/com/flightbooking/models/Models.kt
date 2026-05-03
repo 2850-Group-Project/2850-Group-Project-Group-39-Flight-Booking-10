@@ -314,12 +314,20 @@ data class Notification(
     val readAt: String?,
 )
 
+/**
+ * Class definition for PointsTransaction table
+ */
 data class UserPoints(
     val id: Int,
     val userId: Int,
+    val membershipStatus: String,
     val balance: Int,
+    val totalPointsEarned: Int,
 )
 
+/**
+ * Class definition for UserPoints table
+ */
 data class PointsTransaction(
     val id: Int,
     val userId: Int,
