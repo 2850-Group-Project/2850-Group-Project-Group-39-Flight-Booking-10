@@ -348,6 +348,10 @@ private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
                 }
             }
 
+            BookingSegmentTable.deleteWhere {
+                BookingSegmentTable.bookingId eq bookingId
+            }
+
             BookingTable.update({ (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }) {
                 it[bookingStatus] = "cancelled"
                 it[cancelledAt] = Instant.now().toString()
