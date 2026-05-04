@@ -18,19 +18,19 @@
     <!-- OPTIONS: SIDEBAR -->
     <div class="nav-title">MAIN MENU</div>
     <nav class="nav">
-      <a class="active" href=" "><span class="ico">📊</span> Operations Control</a>
+      <a class="active" href="/staff/dashboard" aria-current="page"><span class="ico">📊</span> Operations Control</a>
       <a href="/staff/flights"><span class="ico">✈️</span> Flight Scheduler</a>
       <a href="/staff/bookings"><span class="ico">📄</span> Bookings</a>
       <a href="#"><span class="ico">💬</span> Customer Inquiries</a>
       <a href="/staff/notifications"><span class="ico">🔄</span> Change Requests</a>
-      <a href="#" onclick="return false;"><span class="ico">👤</span> Crew Assignments</a>
-      <a href="#" onclick="return false;"><span class="ico">📋</span> Compliance Reports</a>
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">👤</span> Crew Assignments</a>
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">📋</span> Compliance Reports</a>
     </nav>
 
     <div class="nav-title">SYSTEM</div>
     <nav class="nav">
-      <a href="#" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a>
-      <a href="#" onclick="return false;"><span class="ico">⚠️</span> Alert Configuration</a>
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a>
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">⚠️</span> Alert Configuration</a>
     </nav>
 
     <div class="sidebar-footer">
@@ -39,7 +39,7 @@
   </aside>
 
   <!-- OPTIONS: ACCOUNT -->
-  <div class="main">
+  <div class="main" role="main">
     <header class="topbar">
       <div class="right">
         <a class="top" href="#" data-large-font-toggle><span class="ico">🔤</span> Large Font</a>
@@ -122,8 +122,8 @@
         <div class="bottom">
           <div>Signed in as <b>{{ staffEmail }}</b></div>
           <div class="links">
-            <a href=" " onclick="return false;">Operational Policy</a >
-            <a href="#" onclick="return false;">Help Desk</a >
+            <a href=" " aria-disabled="true" tabindex="-1" onclick="return false;">Operational Policy</a >
+            <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Help Desk</a >
           </div>
         </div>
       </section>

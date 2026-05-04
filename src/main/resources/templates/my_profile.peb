@@ -31,9 +31,9 @@
       <aside class="side">
         <h3>Navigation</h3>
         <div class="snav">
-          <a class="active" href="/profile"><span class="ico">👤</span> Profile</a >
+          <a class="active" href="/profile" aria-current="page"><span class="ico">👤</span> Profile</a >
           <a href="/profile/bookings"><span class="ico">🧾</span> Bookings</a >
-          <a href="/profile/complaints"><span class="ico">⚠️</span> Support</a >
+          <a href="/profile/complaints"><span class="ico">⚠️</span> Complaints</a >
           <a href="/profile/notifications"><span class="ico">🔔</span> Notifications</a >
         </div>
       </aside>
@@ -92,6 +92,7 @@
         </section>
 
         <section class="points-card card">
+          <h2>Loyalty points history</h2>
           {% set hasSpending = false %}
           {% for tx in pointsTransactions %}
               {% set hasSpending = true %}

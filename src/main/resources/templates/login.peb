@@ -44,12 +44,12 @@
         <p class="sub">Enter your credentials to access your flights and rewards.</p >
 
         {% if error %}
-          <div class="error">{{ error }}</div>
+          <div class="error" role="alert">{{ error }}</div>
         {% endif %}
 
         <div class="row">
-          <button class="btn" type="button" aria-label="Continue with Google">Google</button>
-          <button class="btn" type="button" aria-label="Continue with Apple">Apple</button>
+          <button class="btn" type="button" aria-label="Continue with Google" aria-disabled="true" tabindex="-1" onclick="return false;">Google</button>
+          <button class="btn" type="button" aria-label="Continue with Apple" aria-disabled="true" tabindex="-1" onclick="return false;">Apple</button>
         </div>
 
         <div class="divider">OR CONTINUE WITH EMAIL</div>
@@ -67,10 +67,10 @@
 
           <div class="meta">
             <label style="margin:0; display:flex; align-items:center; gap:8px; font-weight:600;">
-              <input type="checkbox" name="remember" />
+              <input type="checkbox" name="remember" aria-label="Remember me" />
               Remember me
             </label>
-            <a href=" " onclick="return false;">Forgot password?</a >
+            <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Forgot password?</a >
           </div>
 
           <button class="primary" type="submit" aria-label="Sign in to SkyFlow">Sign In →</button>
@@ -88,9 +88,11 @@
 
         <!-- FOOTER -->
         <div class="footer">
-          <a href="#" onclick="return false;">Privacy Policy</a >
-          <a href="#" onclick="return false;">Terms of Service</a >
-          <a href="#" onclick="return false;">Help Center</a >
+          <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Privacy Policy</a >
+          <span>•</span>
+          <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Terms of Service</a >
+          <span>•</span>
+          <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Help Center</a >
         </div>
       </div>
     </main>

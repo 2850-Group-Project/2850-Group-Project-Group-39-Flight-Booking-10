@@ -1,7 +1,11 @@
 // Trip type (return/one-way)
 function setTripType(type, btn) {
-    document.querySelectorAll('.trip-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.trip-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-pressed', 'false');
+    });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     document.getElementById('tripType').value = type;
 
     const returnField = document.getElementById('returnField');
@@ -18,23 +22,33 @@ function setTripType(type, btn) {
 
 // Swap button functionality
 function swapAirports() {
-    const inputs = document.querySelectorAll('input[name="origin"], input[name="destination"]');
-    const tmp = inputs[0].value;
+    const originInput = document.getElementById('origin-input');
+    const destinationInput = document.getElementById('destination-input');
+    const originHidden = document.getElementById('origin-value');
+    const destinationHidden = document.getElementById('destination-value');
+    const tmpVisible = originInput.value;
+    const tmpHidden = originHidden.value;
 
-    inputs[0].value = inputs[1].value;
-    inputs[1].value = tmp;
+    originInput.value = destinationInput.value;
+    destinationInput.value = tmpVisible;
+    originHidden.value = destinationHidden.value;
+    destinationHidden.value = tmpHidden;
 }
 
 // Passengers
 const pax = { adults: 1, children: 0, infants: 0 };
 
 function togglePax() {
-    document.getElementById('paxDropdown').classList.toggle('open');
+    const dropdown = document.getElementById('paxDropdown');
+    const toggle = document.getElementById('paxToggle');
+    const isOpen = dropdown.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 }
 
 document.addEventListener('click', e => {
     if (!e.target.closest('.pax-wrapper')) {
         document.getElementById('paxDropdown').classList.remove('open');
+        document.getElementById('paxToggle')?.setAttribute('aria-expanded', 'false');
     }
 });
 
@@ -94,9 +108,12 @@ function initAirportAutocomplete(inputId, dropdownId, hiddenId) {
             return;
         }
 
-        airports.forEach((airport) => {
+        airports.forEach((airport, index) => {
             const li = document.createElement("li");
             li.className = "autocomplete-item";
+            li.id = `${dropdownId}-option-${index}`;
+            li.setAttribute("role", "option");
+            li.setAttribute("aria-selected", "false");
             li.textContent = `${airport.city} - ${airport.name} (${airport.iataCode})`;
 
             li.addEventListener("mousedown", (e) => {
@@ -110,11 +127,14 @@ function initAirportAutocomplete(inputId, dropdownId, hiddenId) {
         });
 
         dropdown.classList.add("open");
+        input.setAttribute("aria-expanded", "true");
     }
 
     function closeDropdown() {
         dropdown.innerHTML = "";
         dropdown.classList.remove("open");
+        input.setAttribute("aria-expanded", "false");
+        input.removeAttribute("aria-activedescendant");
 
         flightIndex = -1;
     }
@@ -153,8 +173,12 @@ function initAirportAutocomplete(inputId, dropdownId, hiddenId) {
     function updateActive(items) {
         items.forEach((item, i) => {
             item.classList.toggle("autocomplete-item--active", i === flightIndex);
+            item.setAttribute("aria-selected", i === flightIndex ? "true" : "false");
         });
 
+        if (items[flightIndex]) {
+            input.setAttribute("aria-activedescendant", items[flightIndex].id);
+        }
         items[flightIndex]?.scrollIntoView({ block: "nearest" });
     }
 }

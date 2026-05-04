@@ -24,10 +24,10 @@
 
   <div class="card">
     {% if error and error != "" %}
-      <div class="msg err">{{ error }}</div>
+      <div class="msg err" role="alert">{{ error }}</div>
     {% endif %}
     {% if ok and ok != "" %}
-      <div class="msg">{{ ok }}</div>
+      <div class="msg" role="status">{{ ok }}</div>
     {% endif %}
 
     <!-- NOTIFICATION TITLE -->
@@ -39,10 +39,10 @@
 
       <form action="/staff/notifications" method="get" style="display:flex; gap:10px; align-items:end; margin-left:auto; min-width:360px;">
         <div style="flex:1;">
-          <label class="muted" style="display:block;margin:0 0 6px;font-weight:900;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">
+          <label for="requestSearch" class="muted" style="display:block;margin:0 0 6px;font-weight:900;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">
             Search Request ID
           </label>
-          <input class="input" name="q" value="{{ q }}" placeholder="e.g. 12" />
+          <input class="input" id="requestSearch" name="q" value="{{ q }}" placeholder="e.g. 12" />
         </div>
         <button class="btn" type="submit" style="width:120px;" aria-label="Search change requests">Search</button>
         <a class="btn" href="/staff/notifications">Clear</a >
@@ -118,7 +118,7 @@
                 <div class="row-actions">
                   <form action="/staff/notifications/status" method="post" style="display:flex; gap:8px; margin:0; align-items:center;">
                     <input type="hidden" name="requestId" value="{{ r.requestId }}" />
-                    <select name="status" style="min-width:160px;">
+                    <select name="status" aria-label="Change request {{ r.requestId }} status" style="min-width:160px;">
                       <option value="pending" {% if r.status == "pending" %}selected{% endif %}>pending</option>
                       <option value="approved" {% if r.status == "approved" %}selected{% endif %}>approved</option>
                       <option value="rejected" {% if r.status == "rejected" %}selected{% endif %}>rejected</option>

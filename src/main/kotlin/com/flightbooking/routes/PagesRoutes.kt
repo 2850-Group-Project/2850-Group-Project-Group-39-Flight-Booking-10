@@ -77,7 +77,7 @@ fun Route.pagesRoutes() {
  * @param call application call
  */
 private suspend fun handleGetHome(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
     val airports = AirportTableAccess().getAll()
 
     println("------------------------------------")
@@ -99,7 +99,7 @@ private suspend fun handleGetHome(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetFlightSearch(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
 
     // packaging all search data into one class
     val search =
@@ -173,8 +173,8 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
-    val bookingSession = AuthService.requireBooking(call, requireSearch = true)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
+    val bookingSession = AuthService.requireBooking(call, requireSearch = true) ?: return
 
     val search = bookingSession.search!!
 
@@ -215,7 +215,7 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetProfile(call: ApplicationCall) {
-    val (userSession, userId) = AuthService.requireUser(call)
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
 
     val pointsRow = PointsService.getUserPointsRow(userId)
 
@@ -280,7 +280,7 @@ private suspend fun handleNotFound(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetBookings(call: ApplicationCall) {
-    val (userSession, userId) = AuthService.requireUser(call)
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
 
     val q = call.request.queryParameters["q"]?.trim().orEmpty()
     val qId = q.toIntOrNull()
@@ -329,59 +329,60 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
-    val (_, userId) = AuthService.requireUser(call)
+    val auth = AuthService.requireUser(call)
 
-    val params = call.receiveParameters()
-    val bookingId = params["bookingId"]?.toIntOrNull()
-    if (bookingId == null) {
-        call.respondRedirect("/404")
-        return
-    }
+    if (auth != null) {
+        val (_, userId) = auth
+        val params = call.receiveParameters()
+        val bookingId = params["bookingId"]?.toIntOrNull()
+        if (bookingId == null) {
+            call.respondRedirect("/404")
+        } else {
+            val ok =
+                transaction {
+                    val owned =
+                        BookingTable
+                            .select { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
+                            .limit(1)
+                            .any()
 
-    val ok =
-        transaction {
-            val owned =
-                BookingTable
-                    .select { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
-                    .limit(1)
-                    .any()
+                    if (!owned) return@transaction false
 
-            if (!owned) return@transaction false
+                    val passengers =
+                        PassengerTable
+                            .select { PassengerTable.bookingId eq bookingId }
+                            .map { it[PassengerTable.id] }
 
-            val passengers =
-                PassengerTable
-                    .select { PassengerTable.bookingId eq bookingId }
-                    .map { it[PassengerTable.id] }
+                    val seatIdsToFree =
+                        SeatAssignmentTable
+                            .select { SeatAssignmentTable.passengerId inList passengers }
+                            .mapNotNull { it[SeatAssignmentTable.seatId] }
 
-            val seatIdsToFree =
-                SeatAssignmentTable
-                    .select { SeatAssignmentTable.passengerId inList passengers }
-                    .mapNotNull { it[SeatAssignmentTable.seatId] }
+                    SeatTable.update({ SeatTable.id inList seatIdsToFree }) {
+                        it[status] = "available"
+                    }
 
-            SeatTable.update({ SeatTable.id inList seatIdsToFree }) {
-                it[status] = "available"
-            }
+                    if (passengers.isNotEmpty()) {
+                        SeatAssignmentTable.deleteWhere {
+                            SeatAssignmentTable.passengerId inList passengers
+                        }
+                    }
 
-            if (passengers.isNotEmpty()) {
-                SeatAssignmentTable.deleteWhere {
-                    SeatAssignmentTable.passengerId inList passengers
+                    BookingTable.update({ (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }) {
+                        it[bookingStatus] = "cancelled"
+                        it[cancelledAt] = Instant.now().toString()
+                    }
+
+                    true
                 }
-            }
 
-            BookingTable.update({ (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }) {
-                it[bookingStatus] = "cancelled"
-                it[cancelledAt] = Instant.now().toString()
+            if (!ok) {
+                call.respondRedirect("/404")
+            } else {
+                call.respondRedirect("/profile/bookings")
             }
-
-            true
         }
-
-    if (!ok) {
-        call.respondRedirect("/404")
-        return
     }
-
-    call.respondRedirect("/profile/bookings")
 }
 
 /**
@@ -390,46 +391,47 @@ private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handlePostBookingsDelete(call: ApplicationCall) {
-    val (_, userId) = AuthService.requireUser(call)
+    val auth = AuthService.requireUser(call)
 
-    val params = call.receiveParameters()
-    val bookingId = params["bookingId"]?.toIntOrNull()
-    if (bookingId == null) {
-        call.respondRedirect("/404")
-        return
-    }
+    if (auth != null) {
+        val (_, userId) = auth
+        val params = call.receiveParameters()
+        val bookingId = params["bookingId"]?.toIntOrNull()
+        if (bookingId == null) {
+            call.respondRedirect("/404")
+        } else {
+            val ok =
+                transaction {
+                    val owned =
+                        BookingTable
+                            .select { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
+                            .limit(1)
+                            .any()
 
-    val ok =
-        transaction {
-            val owned =
-                BookingTable
-                    .select { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
-                    .limit(1)
-                    .any()
+                    if (!owned) {
+                        return@transaction false
+                    }
 
-            if (!owned) {
-                return@transaction false
+                    val segmentIds =
+                        BookingSegmentTable
+                            .select { BookingSegmentTable.bookingId eq bookingId }
+                            .map { it[BookingSegmentTable.id] }
+
+                    segmentIds.forEach { segId ->
+                        SeatAssignmentTable.deleteWhere { SeatAssignmentTable.bookingSegmentId eq segId }
+                    }
+
+                    BookingSegmentTable.deleteWhere { BookingSegmentTable.bookingId eq bookingId }
+                    BookingTable.deleteWhere { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
+
+                    true
+                }
+
+            if (!ok) {
+                call.respondRedirect("/404")
+            } else {
+                call.respondRedirect("/profile/bookings")
             }
-
-            val segmentIds =
-                BookingSegmentTable
-                    .select { BookingSegmentTable.bookingId eq bookingId }
-                    .map { it[BookingSegmentTable.id] }
-
-            segmentIds.forEach { segId ->
-                SeatAssignmentTable.deleteWhere { SeatAssignmentTable.bookingSegmentId eq segId }
-            }
-
-            BookingSegmentTable.deleteWhere { BookingSegmentTable.bookingId eq bookingId }
-            BookingTable.deleteWhere { (BookingTable.id eq bookingId) and (BookingTable.userId eq userId) }
-
-            true
         }
-
-    if (!ok) {
-        call.respondRedirect("/404")
-        return
     }
-
-    call.respondRedirect("/profile/bookings")
 }

@@ -65,12 +65,12 @@
         <p class="sub">Sign up to unlock exclusive flight deals and manage your trips effortlessly.</p >
 
         {% if error %}
-          <div class="error">{{ error }}</div>
+          <div class="error" role="alert">{{ error }}</div>
         {% endif %}
 
         <div class="row2">
-          <button class="btn" type="button" onclick="return false;" aria-label="Continue with Google">Google</button>
-          <button class="btn" type="button" onclick="return false;" aria-label="Continue with Apple">Apple</button>
+          <button class="btn" type="button" onclick="return false;" aria-label="Continue with Google" aria-disabled="true" tabindex="-1">Google</button>
+          <button class="btn" type="button" onclick="return false;" aria-label="Continue with Apple" aria-disabled="true" tabindex="-1">Apple</button>
         </div>
 
         <div class="divider">OR CONTINUE WITH EMAIL</div>
@@ -103,13 +103,13 @@
 
           <div class="checks">
             <label>
-              <input type="checkbox" checked />
+              <input type="checkbox" aria-label="Join SkyFlow Loyalty Program" checked />
               <span>Join SkyFlow Loyalty Program<br/><span style="color:rgba(255,255,255,.55);font-weight:600;">Enroll for free to start earning miles on every flight and unlock exclusive lounge access.</span></span>
             </label>
 
             <label>
-              <input type="checkbox" required />
-              <span>I agree to the <a href="#" onclick="return false;">Terms of Service</a > and <a href="#" onclick="return false;">Privacy Policy</a >.</span>
+              <input type="checkbox" aria-label="Agree to Terms of Service and Privacy Policy" required />
+              <span>I agree to the <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Terms of Service</a > and <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Privacy Policy</a >.</span>
             </label>
           </div>
 
@@ -128,10 +128,10 @@
   <footer class="bottombar">
     <div>© 2026 SkyBook. All rights reserved</div>
     <div class="links">
-      <a href="#" onclick="return false;">Privacy Policy</a >
-      <a href="#" onclick="return false;">Terms of Service</a >
-      <a href="#" onclick="return false;">Cookie Settings</a >
-      <a href="#" onclick="return false;">Contact Support</a >
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Privacy Policy</a >
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Terms of Service</a >
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Cookie Settings</a >
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Contact Support</a >
     </div>
   </footer>
   <script src="/static/javascript/Large_Font.js"></script>

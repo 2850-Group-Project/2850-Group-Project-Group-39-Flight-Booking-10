@@ -27,6 +27,8 @@
     }
 
     toggles.forEach(function (toggle) {
+      toggle.setAttribute("role", "button");
+      toggle.setAttribute("aria-label", enabled ? "Switch to normal font size" : "Switch to large font size");
       toggle.textContent = enabled ? "Normal Font" : "Large Font";
       toggle.setAttribute("aria-pressed", enabled ? "true" : "false");
     });
@@ -47,6 +49,12 @@
         enabled = !enabled;
         window.localStorage.setItem("skyflow_large_font", enabled ? "1" : "0");
         applyLargeFont(enabled);
+      });
+      toggle.addEventListener("keydown", function (event) {
+        if (event.key === " " || event.key === "Spacebar") {
+          event.preventDefault();
+          toggle.click();
+        }
       });
     });
   }
