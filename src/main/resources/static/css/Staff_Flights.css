@@ -251,6 +251,54 @@ tr td:last-child{
     background: rgba(255,77,77,.10);
 }
 
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+}
+
+.modal-backdrop.open {
+    display: grid;
+    place-items: center;
+}
+
+.modal {
+    background: rgba(15, 19, 32, .98);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+    padding: 28px;
+    max-width: 420px;
+    width: 90%;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+}
+
+.modal-sub {
+    color: rgba(255, 255, 255, .60);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-actions form {
+    display: contents;
+}
+
 /* -- FOOTER -- */
 footer {
   border-top: 1px solid rgba(255,255,255,.06);
