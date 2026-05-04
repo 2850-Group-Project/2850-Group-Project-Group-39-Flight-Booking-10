@@ -241,7 +241,8 @@ private fun fetchBookings(q: String): List<Map<String, Any?>> =
             if (q.isBlank()) {
                 Op.TRUE
             } else {
-                q.toIntOrNull()?.let { BookingTable.id eq it } ?: Op.FALSE
+                q.toIntOrNull()?.let { BookingTable.id eq it }
+                    ?: (BookingTable.bookingReference like "%$q%")
             }
         }
         .orderBy(BookingTable.id, SortOrder.DESC)

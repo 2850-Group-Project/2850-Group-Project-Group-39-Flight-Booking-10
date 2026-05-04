@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Customer Inquiries</title>
+  <link rel="stylesheet" href="/static/css/Staff_Inquiries.css">
+</head>
+<body>
+<div class="wrap">
+  <!-- NAV -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge">✈️</div>
+      <div>SkyFlow Staff</div>
+    </div>
+    <div class="right">
+      <a class="navbtn" href="#" data-large-font-toggle>Large Font</a>
+      <a class="navbtn" href="/staff/dashboard">Dashboard</a>
+      <a class="navbtn red" href="/staff/logout">Logout</a>
+    </div>
+  </div>
+
+  <div class="card">
+    {% if error and error != "" %}
+      <div class="msg err" role="alert">{{ error }}</div>
+    {% endif %}
+    {% if ok and ok != "" %}
+      <div class="msg ok" role="status">{{ ok }}</div>
+    {% endif %}
+
+    <!-- PAGE TITLE -->
+    <div class="section-title">
+      <div>
+        <h1>Customer Inquiries</h1>
+        <p class="sub">View, respond to, and manage customer inquiries.</p>
+      </div>
+
+      <form action="/staff/inquiries" method="get" style="display:flex; gap:10px; align-items:end; margin-left:auto; min-width:360px;">
+        <div style="flex:1;">
+          <label for="inquirySearch" class="muted" style="display:block;margin:0 0 6px;font-weight:700;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">
+            Search Request ID or Email
+          </label>
+          <input class="input" id="inquirySearch" name="q" value="{{ q }}" placeholder="e.g. 12 or user@email.com" />
+        </div>
+        <button class="btn" type="submit" style="height:42px;width:100px;" aria-label="Search complaints">Search</button>
+        <a class="btn" onclick="clearSearch()" style="height:42px;">Clear</a>
+      </form>
+    </div>
+
+    <!-- COMPLAINTS TABLE -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Complaint</th>
+          <th>User</th>
+          <th>Type</th>
+          <th>Message</th>
+          <th>Status</th>
+          <th>Responses</th>
+          <th style="width:200px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if complaints is empty %}
+          <tr>
+            <td colspan="7" class="muted">No complaints found.</td>
+          </tr>
+        {% else %}
+          {% for c in complaints %}
+            <tr>
+              <td>
+                <div style="font-weight:900;">#{{ c.complaintId }}</div>
+                <div class="muted" style="margin-top:3px;font-size:12px;">{{ c.createdAt }}</div>
+              </td>
+
+              <td>
+                <div style="font-weight:800;">{% if c.userEmail %}{{ c.userEmail }}{% else %}—{% endif %}</div>
+                <div class="muted" style="margin-top:3px;font-size:12px;">ID: {% if c.userId %}{{ c.userId }}{% else %}—{% endif %}</div>
+              </td>
+
+              <td>
+                <span class="pill">{% if c.type %}{{ c.type }}{% else %}—{% endif %}</span>
+              </td>
+
+              <td style="max-width:220px;">
+                <div style="line-height:1.5;">{% if c.message %}{{ c.message }}{% else %}—{% endif %}</div>
+              </td>
+
+              <td>
+                <span class="status {{ c.status | lower }}">
+                  <span class="s"></span>
+                  {% if c.status %}{{ c.status }}{% else %}—{% endif %}
+                </span>
+              </td>
+
+              <!-- RESPONSES -->
+              <td style="min-width:260px;">
+                {% set responses = responsesByComplaint[c.complaintId] %}
+                {% if responses is not empty %}
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+                    {% for resp in responses %}
+                      <div class="response-bubble">
+                        <div class="muted" style="font-size:11px;margin-bottom:4px;">{{ resp.staffEmail }} - {{ resp.createdAt }}</div>
+                        <div style="font-size:13px;">{{ resp.message }}</div>
+                        <form action="/staff/inquiries/delete-response" method="post" style="margin-top:6px;">
+                          <input type="hidden" name="responseId" value="{{ resp.responseId }}" />
+                          <button class="btn red" style="font-size:11px;padding:4px 8px;" type="button"
+                            onclick="openDeleteResponse({{ resp.responseId }})" aria-label="Delete response {{ resp.responseId }}">
+                            Delete
+                          </button>
+                        </form>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <div class="muted" style="font-size:12px; margin-bottom:10px; text-align: center;">No responses.</div>
+                {% endif %}
+
+                <button class="btn primary" style="width: 100%;" onclick="openWriteResponse({{ c.complaintId }})">Write Response</button>
+              </td>
+
+              <!-- ACTIONS -->
+              <td>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <form action="/staff/inquiries/status" method="post" style="display:flex;flex-direction:column;gap:8px;">
+                    <input type="hidden" name="complaintId" value="{{ c.complaintId }}" />
+                    <select name="status" aria-label="Complaint {{ c.complaintId }} status">
+                      <option value="open" {% if c.status == "open" %}selected{% endif %}>open</option>
+                      <option value="in_progress" {% if c.status == "in_progress" %}selected{% endif %}>in progress</option>
+                      <option value="resolved" {% if c.status == "resolved" %}selected{% endif %}>resolved</option>
+                      <option value="closed" {% if c.status == "closed" %}selected{% endif %}>closed</option>
+                    </select>
+                    <button class="btn primary" type="submit" aria-label="Update status for complaint {{ c.complaintId }}">Update</button>
+                  </form>
+                  <button class="btn red" type="button" onclick="openDeleteComplaint({{ c.complaintId }})"
+                    aria-label="Delete complaint {{ c.complaintId }}">Delete</button>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DELETE COMPLAINT MODAL -->
+<div id="deleteComplaintModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="deleteComplaintTitle">
+    <div class="modal-title" id="deleteComplaintTitle">Delete Complaint?</div>
+    <div class="modal-sub">This will permanently delete the complaint and all its responses.</div>
+    <div class="modal-actions">
+      <form action="/staff/inquiries/delete" method="post">
+        <input type="hidden" name="complaintId" id="deleteComplaintId" />
+        <button class="btn red" type="submit">Delete</button>
+      </form>
+      <button class="btn" type="button" onclick="closeDeleteComplaint()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE RESPONSE MODAL -->
+<div id="deleteResponseModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="deleteResponseTitle">
+    <div class="modal-title" id="deleteResponseTitle">Delete Response?</div>
+    <div class="modal-sub">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <form action="/staff/inquiries/delete-response" method="post">
+        <input type="hidden" name="responseId" id="deleteResponseId" />
+        <button class="btn red" type="submit">Delete</button>
+      </form>
+      <button class="btn" type="button" onclick="closeDeleteResponse()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- WRITE RESPONSE MODAL -->
+<div id="writeResponseModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-response" role="dialog" aria-labelledby="writeResponseTitle">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+      <div class="modal-title" id="writeResponseTitle">Write A Response</div>
+      <!-- Used Claude AI for lines 184, 188-198 to style the layout of the form -->
+      <button class="btn" type="button" onclick="closeWriteResponse()" style="padding:6px 10px; font-size:16px; border:none; background:none; color:rgba(255,255,255,.5); cursor:pointer;">✕</button>
+    </div>
+    <div class="modal-sub">Your response will be visible to the customer on their complaints page.</div>
+
+    <form action="/staff/inquiries/respond" method="post" style="display:flex; flex-direction:column; gap:12px;">
+      <input type="hidden" name="complaintId" id="writeResponseId" />
+
+      <textarea
+        class="input"
+        name="message"
+        rows="5"
+        placeholder="Write a clear and helpful response..."
+        style="resize:vertical; line-height:1.6;"></textarea>
+
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="btn" type="button" onclick="closeWriteResponse()">Cancel</button>
+        <button class="btn primary" type="submit" style="min-width:120px;">Send Response →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 SkyFlow. All rights reserved</span>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/complaints">Help</a>
+  </div>
+</footer>
+<script src="/static/javascript/Large_Font.js"></script>
+<script src="/static/javascript/Staff_Inquiries.js"></script>
+</body>
+</html>

@@ -11,7 +11,7 @@
   <!-- NAV -->
   <div class="topbar">
     <div class="brand">
-      <div class="badge">✈</div>
+      <div class="badge">✈️</div>
       <div>SkyFlow Staff</div>
     </div>
     <div class="nav">
@@ -22,7 +22,7 @@
   </div>
 
   <h1>Flight Scheduler</h1>
-  <p class="sub">Create, edit, and manage flights directly from the database.</p >
+  <p class="sub">Create, edit, and manage flights directly.</p >
 
   <div class="grid">
     <div class="card">
@@ -30,7 +30,7 @@
         <div class="msg err" role="alert">{{ error }}</div>
       {% endif %}
       {% if ok and ok != "" %}
-        <div class="msg" role="status">{{ ok }}</div>
+        <div class="msg ok" role="status">{{ ok }}</div>
       {% endif %}
 
       {% if editId and editId != 0 %}
@@ -155,12 +155,11 @@
                 value="{{ q }}"
                 placeholder="Search by flight number (e.g. 101)" />
         <button class="a" type="submit" style="white-space:nowrap;" aria-label="Search flights">Search</button>
-        <a class="a" href="/staff/flights" style="white-space:nowrap;">Clear</a >
+        <a class="a" onclick="clearSearch()" style="white-space:nowrap;">Clear</a >
       </form>
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>No.</th>
             <th>Route</th>
             <th>Departure</th>
@@ -173,26 +172,41 @@
         <tbody>
           {% for f in flights %}
             <tr>
-              <td>{{ f.id }}</td>
-              <td><span class="pill">{{ f.flightNumber }}</span></td>
+              <td><b>{{ f.flightNumber }}</b></td>
               <td>{{ f.originIata }} → {{ f.destIata }}</td>
               <td>{{ f.dep }}</td>
               <td>{{ f.arr }}</td>
-              <td>{{ f.status }}</td>
+              <td>                    
+                <span class="status {{ f.status | lower }}">
+                <span class="s"></span>
+                {{ f.status }}
+              </td>
               <td>{{ f.capacity }}</td>
               <td>
                 <div class="actions">
                   <a class="a" href="/staff/flights?edit={{ f.id }}">Edit</a >
-                  <form action="/staff/flights/delete" method="post" style="margin:0;">
-                    <input type="hidden" name="id" value="{{ f.id }}"/>
-                    <button class="a red" type="submit" aria-label="Delete flight {{ f.flightNumber }}">Delete</button>
-                  </form>
+                  <button class="a red" type="button" onclick="openDelete({{ f.id }})" aria-label="Delete flight {{ f.flightNumber }}">Delete</button>
                 </div>
               </td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRMATION -->
+<div id="deleteModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="deleteModalTitle">
+    <div class="modal-title" id="deleteModalTitle">Delete Flight?</div>
+    <div class="modal-sub">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <form action="/staff/flights/delete" method="post">
+        <input type="hidden" name="id" id="deleteFlightId"/>
+        <button class="a red" type="submit">Delete</button>
+      </form>
+      <button class="a" type="button" onclick="closeDelete()">Cancel</button>
     </div>
   </div>
 </div>
@@ -207,5 +221,6 @@
   </div>
 </footer>
   <script src="/static/javascript/Large_Font.js"></script>
+  <script src="/static/javascript/Staff_Flights.js"></script>
 </body>
 </html>

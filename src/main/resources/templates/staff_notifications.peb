@@ -11,12 +11,11 @@
   <!-- NAV -->
   <div class="topbar">
     <div class="brand">
-      <div class="brand-badge">✈</div>
+      <div class="brand-badge">✈️</div>
       <div>SkyFlow Staff</div>
     </div>
     <div class="right">
-        <a class="navbtn" href="#" data-large-font-toggle>Large Font</a >
-      <span class="pill">{{ staffName }} • {{ staffRole }}</span>
+      <a class="navbtn" href="#" data-large-font-toggle>Large Font</a >
       <a class="navbtn" href="/staff/dashboard">Dashboard</a >
       <a class="navbtn red" href="/staff/logout">Logout</a >
     </div>
@@ -27,14 +26,14 @@
       <div class="msg err" role="alert">{{ error }}</div>
     {% endif %}
     {% if ok and ok != "" %}
-      <div class="msg" role="status">{{ ok }}</div>
+      <div class="msg ok" role="status">{{ ok }}</div>
     {% endif %}
 
     <!-- NOTIFICATION TITLE -->
     <div class="section-title">
       <div>
         <h1>Notifications</h1>
-        <p class="sub">Review and manage user change requests (flight/seat amendments).</p >
+        <p class="sub">Review and manage user change requests.</p >
       </div>
 
       <form action="/staff/notifications" method="get" style="display:flex; gap:10px; align-items:end; margin-left:auto; min-width:360px;">
@@ -103,22 +102,24 @@
                   Seat: {% if r.requestedSeatCode %}{{ r.requestedSeatCode }}{% else %}—{% endif %}
                 </div>
                 <div class="muted" style="margin-top:3px;">
-                  Reason: {% if r.reason %}{{ r.reason }}{% else %}—{% endif %}
+                  {% if r.reason %}
+                    Reason: {{ r.reason }}
+                  {% endif %}
                 </div>
               </td>
 
               <td>
                 <span class="status-pill">
-                  <span class="status-dot"></span>
+                  <span class="status-dot {{ r.status }}"></span>
                   {{ r.status }}
                 </span>
               </td>
 
               <td>
-                <div class="row-actions">
+                <div class="row-actions" style="display:flex; flex-direction:column; gap:8px;">
                   <form action="/staff/notifications/status" method="post" style="display:flex; gap:8px; margin:0; align-items:center;">
                     <input type="hidden" name="requestId" value="{{ r.requestId }}" />
-                    <select name="status" aria-label="Change request {{ r.requestId }} status" style="min-width:160px;">
+                    <select name="status" aria-label="Change request {{ r.requestId }} status" style="min-width:120px;">
                       <option value="pending" {% if r.status == "pending" %}selected{% endif %}>pending</option>
                       <option value="approved" {% if r.status == "approved" %}selected{% endif %}>approved</option>
                       <option value="rejected" {% if r.status == "rejected" %}selected{% endif %}>rejected</option>
@@ -130,7 +131,7 @@
 
                   <form action="/staff/notifications/delete" method="post" style="margin:0;">
                     <input type="hidden" name="requestId" value="{{ r.requestId }}" />
-                    <button class="btn red" type="submit" aria-label="Delete change request {{ r.requestId }}">Delete</button>
+                    <button class="btn red" style="width:100%;" type="button" onclick="openDelete({{ r.requestId }})" aria-label="Delete change request {{ r.requestId }}">Delete</button>
                   </form>
                 </div>
               </td>
@@ -146,6 +147,21 @@
   </div>
 </div>
 
+<!-- DELETE CONFIRMATION -->
+<div id="deleteModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="deleteModalTitle">
+    <div class="modal-title" id="deleteModalTitle">Delete Request?</div>
+    <div class="modal-sub">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <form action="/staff/notifications/delete" method="post">
+        <input type="hidden" name="requestId" id="deleteRequestId"/>
+        <button class="a red" type="submit">Delete</button>
+      </form>
+      <button class="a" type="button" onclick="closeDelete()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <span>© 2026 SkyFlow. All rights reserved</span>
@@ -156,5 +172,6 @@
   </div>
 </footer>
   <script src="/static/javascript/Large_Font.js"></script>
+  <script src="/static/javascript/Staff_Notifications.js"></script>
 </body>
 </html>

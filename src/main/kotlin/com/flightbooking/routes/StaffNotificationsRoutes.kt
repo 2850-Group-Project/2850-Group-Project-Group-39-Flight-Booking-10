@@ -210,14 +210,20 @@ private fun mapChangeRequestRow(
         "segmentId" to r[ChangeRequestTable.bookingSegmentId],
         "reason" to r.getOrNull(ChangeRequestTable.reason),
         "status" to (r.getOrNull(ChangeRequestTable.status) ?: "pending"),
-        "createdAt" to (r.getOrNull(ChangeRequestTable.createdAt) ?: ""),
-        "updatedAt" to (r.getOrNull(ChangeRequestTable.updatedAt) ?: ""),
+        "createdAt" to r[ChangeRequestTable.createdAt]?.truncateDateTime(),
+        "updatedAt" to r[ChangeRequestTable.updatedAt]?.truncateDateTime(),
         "currentFlightNo" to (r.getOrNull(aliases.currentFlight[FlightTable.flightNumber])?.toString() ?: ""),
         "requestedFlightNo" to (r.getOrNull(aliases.requestedFlight[FlightTable.flightNumber])?.toString() ?: ""),
         "currentRoute" to route,
         "requestedSeatCode" to r.getOrNull(aliases.requestedSeat[SeatTable.seatCode]),
     )
 }
+
+private fun String.truncateDateTime(): String =
+    this.substringBefore("T").let { date ->
+        val time = this.substringAfter("T").substringBefore(".")
+        "$date $time"
+    }
 
 /**
  * Updates the status of a ChangeRequest record, using id to search,

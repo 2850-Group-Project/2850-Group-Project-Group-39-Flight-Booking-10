@@ -112,6 +112,16 @@ h1{
     font-size:18px;
     letter-spacing: 0;
 }
+.card form[method="get"]{
+    align-items: stretch;
+}
+.card form[method="get"] .input{
+    height: 46px;
+}
+.card form[method="get"] .a{
+    height: 46px;
+    padding: 0 14px;
+}
 label{
     display:block;
     margin:12px 0 8px;
@@ -173,10 +183,25 @@ label{
     font-size:13px;
     line-height:1.35;
 }
-.msg.err{
-    background: rgba(255,77,77,.12);
-    border-color: rgba(255,77,77,.25);
-    color: #ffd0d0;
+.msg.err {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.30);
+    color: #ffb4b4;
+}
+.msg.ok {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(34, 197, 94, 0.10);
+    border-color: rgba(34, 197, 94, 0.30);
+    color: #b6f7c2;
+}
+tbody tr:hover td{
+    background: rgba(255,255,255,.07);
+    transition: background .15s ease;
 }
 table{
     width:100%;
@@ -184,7 +209,7 @@ table{
     border-spacing:0 10px;
 }
 th{
-    text-align:left;
+    text-align:center;
     font-size:12px;
     color: rgba(255,255,255,.65);
     font-weight:800;
@@ -198,6 +223,11 @@ td{
     border-bottom:1px solid rgba(255,255,255,.10);
     font-size:14px;
     color: rgba(255,255,255,.92);
+}
+td:nth-child(3), td:nth-child(4){
+    white-space: nowrap;
+    font-size: 13px;
+    color: rgba(255,255,255,.75);
 }
 tr td:first-child{
     border-left:1px solid rgba(255,255,255,.10);
@@ -218,7 +248,7 @@ tr td:last-child{
     color: rgba(255,255,255,.85);
     font-weight:800;
 }
-.actions{display:flex;gap:8px;flex-wrap:wrap;}
+.actions{display:flex;gap:8px;flex-wrap:nowrap;}
 .actions .a {
     min-width: 64px;
 }
@@ -238,6 +268,54 @@ tr td:last-child{
 .a.red{
     border-color: rgba(255,77,77,.30);
     background: rgba(255,77,77,.10);
+}
+
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+}
+
+.modal-backdrop.open {
+    display: grid;
+    place-items: center;
+}
+
+.modal {
+    background: rgba(15, 19, 32, .98);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+    padding: 28px;
+    max-width: 420px;
+    width: 90%;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+}
+
+.modal-sub {
+    color: rgba(255, 255, 255, .60);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-actions form {
+    display: contents;
 }
 
 /* -- FOOTER -- */
@@ -263,3 +341,24 @@ footer a:hover {
   display: flex;
   gap: 16px;
 }
+
+.status{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    font-weight:700;
+    color:rgba(255,255,255,.80);
+}
+.status .s{
+    width:8px;height:8px;border-radius:50%;
+    background: rgba(255,255,255,.55);
+}
+.status.scheduled .s{ background: rgba(56,189,248,.9); }
+.status.boarding .s{ background: rgba(245,158,11,.95); }
+.status.ontime .s{ background: rgba(34,197,94,.95); }
+.status.delayed .s{ background: rgba(239,68,68,.95); }
+.status.cancelled .s{ background: rgba(239,68,68,.95); }
