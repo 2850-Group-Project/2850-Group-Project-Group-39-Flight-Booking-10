@@ -50,11 +50,6 @@ document.getElementById("deleteResponseModal").addEventListener("click", functio
     if (e.target === this) closeDeleteResponse();
 });
 
-document.getElementById("writeResponseModal").addEventListener("click", function(e) {
-    if (e.target === this) closeWriteResponse();
-});
-
-
 document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") {
         if (document.getElementById("deleteComplaintModal").classList.contains("open")) closeDeleteComplaint();
