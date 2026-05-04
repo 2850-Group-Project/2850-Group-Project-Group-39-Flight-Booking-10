@@ -219,6 +219,7 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
 
     val pointsRow = PointsService.getUserPointsRow(userId)
 
+    val pointsBalance = PointsService.getBalance(userId)
     val pointsTable = PointsTableAccess()
     val pointsTransactions = pointsTable.getTransactions(userId)
     val totalEarned = pointsRow?.totalPointsEarned ?: 0

@@ -6,7 +6,6 @@ import com.flightbooking.models.BookingSession
 import com.flightbooking.models.Payment
 import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
-import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -118,13 +117,13 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
     val bookingTableAccess = BookingTableAccess()
     bookingTableAccess.createBookingWithPaymentUpdate(bookingSession, paymentId, userSession.userEmail)
 
-    val milesEarnRate = fetchMilesEarnRate(bookingSession.outboundFareId)
+    val milesEarnRate = PointsService.fetchMilesEarnRate(bookingSession.outboundFareId)
 
     PointsService.awardPointsForBooking(
         userId = userId,
         bookingId = bookingSession.bookingId,
         amountPaid = finalTotal,
-        milesEarnRate = milesEarnRate,
+        fareEarnRate = milesEarnRate,
     )
 
     call.respondRedirect("/confirmation")
@@ -168,19 +167,3 @@ private fun calculateTotal(bookingSession: BookingSession): Double =
 
         (outboundFarePrice + discountedReturnFare) * passengerCount
     }
-
-/**
- * Gets the miles earn rate for a flight fare
- * @param outboundFareId fare id
- * @return miles earn rate
- */
-private fun fetchMilesEarnRate(outboundFareId: Int?): Double {
-    if (outboundFareId == null) return 1.0
-    return transaction {
-        (FlightFareTable innerJoin FareClassTable)
-            .select { FlightFareTable.id eq outboundFareId }
-            .singleOrNull()
-            ?.get(FareClassTable.milesEarnRate)
-            ?: 1.0
-    }
-}
