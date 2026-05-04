@@ -20,16 +20,17 @@
     <nav class="nav">
       <a class="active" href=" "><span class="ico">📊</span> Operations Control</a>
       <a href="/staff/flights"><span class="ico">✈️</span> Flight Scheduler</a>
-      <a href="#" onclick="return false;"><span class="ico">👨‍✈️</span> Crew Assignments</a>
-      <a href="/staff/bookings"><span class="ico">📑</span> Bookings</a>
-      <a href="/staff/notifications"><span class="ico">🔔</span> Notifications</a>
-      <a href="#" onclick="return false;"><span class="ico">🗂️</span> Compliance Reports</a>
+      <a href="/staff/bookings"><span class="ico">📄</span> Bookings</a>
+      <a href="#"><span class="ico">💬</span> Customer Inquiries</a>
+      <a href="/staff/notifications"><span class="ico">🔄</span> Change Requests</a>
+      <a href="#" onclick="return false;"><span class="ico">👤</span> Crew Assignments</a>
+      <a href="#" onclick="return false;"><span class="ico">📋</span> Compliance Reports</a>
     </nav>
 
     <div class="nav-title">SYSTEM</div>
     <nav class="nav">
       <a href="#" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a>
-      <a href="#" onclick="return false;"><span class="ico">🚨</span> Alert Configuration</a>
+      <a href="#" onclick="return false;"><span class="ico">⚠️</span> Alert Configuration</a>
     </nav>
 
     <div class="sidebar-footer">
@@ -79,56 +80,6 @@
         </div>
       </section>
 
-      <section class="grid">
-        <div class="panel">
-          <h2>Global Booking Velocity</h2>
-          <p class="sub">Summary view powered by current database state (live counts).</p >
-          <div class="mini">
-            <div class="spark">
-              <div class="bar" style="height:38%"></div>
-              <div class="bar" style="height:52%"></div>
-              <div class="bar" style="height:45%"></div>
-              <div class="bar" style="height:62%"></div>
-              <div class="bar" style="height:58%"></div>
-              <div class="bar" style="height:72%"></div>
-              <div class="bar" style="height:66%"></div>
-              <div class="bar" style="height:78%"></div>
-            </div>
-            <div class="legend">
-              <div class="tag"><span class="dot"></span> Active Flights: <b style="color:white">{{ activeFlights }}</b></div>
-              <div class="tag"><span class="dot" style="background:rgba(56,189,248,.9); box-shadow:0 0 0 4px rgba(56,189,248,.18)"></span> Departures Today: <b style="color:white">{{ departuresToday }}</b></div>
-              <div class="tag"><span class="dot" style="background:rgba(239,68,68,.95); box-shadow:0 0 0 4px rgba(239,68,68,.14)"></span> Customer Inquiries: <b style="color:white">{{ customerInquiries }}</b></div>
-            </div>
-          </div>
-        </div>
-        <div class="panel">
-          <h2>Quick Status</h2>
-          <p class="sub">Operational signals derived from flight/seat/complaint tables.</p >
-          <table>
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="muted">Active Flights</td>
-                <td><b>{{ activeFlights }}</b></td>
-              </tr>
-              <tr>
-                <td class="muted">Departures Today</td>
-                <td><b>{{ departuresToday }}</b></td>
-              </tr>
-              <tr>
-                <td class="muted">Customer Inquiries</td>
-                <td><b>{{ customerInquiries }}</b></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
       <section class="panel">
         <h2>Upcoming Flights</h2>
 
@@ -141,7 +92,6 @@
               <th>Status</th>
               <th>Capacity</th>
               <th>Assigned Seats</th>
-              <th>Util</th>
             </tr>
           </thead>
           <tbody>
@@ -159,7 +109,6 @@
                   </td>
                   <td>{{ f.capacity }}</td>
                   <td>{{ f.assigned }}</td>
-                  <td><b>{{ f.util }}</b></td>
                 </tr>
               {% endfor %}
             {% else %}
