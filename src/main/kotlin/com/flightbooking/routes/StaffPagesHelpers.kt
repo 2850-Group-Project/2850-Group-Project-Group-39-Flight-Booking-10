@@ -1,8 +1,10 @@
 package com.flightbooking.routes
 
 import com.flightbooking.tables.AirportTable
+import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.ComplaintTable
 import com.flightbooking.tables.FlightTable
+import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.StaffTable
 import io.ktor.server.routing.get
@@ -23,8 +25,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 
 private const val FLIGHT_LIST_LIMIT = 8
-private const val MIN_TIMESTAMP_LENGTH = 16
-private const val ISO_TIME_START_INDEX = 11
+private const val ISO_TIME_START_INDEX = 0
 private const val ISO_TIME_END_INDEX = 16
 private const val DEFAULT_CAPACITY = 180
 private const val STAFF_FLIGHTS_PAGE_LIMIT = 10
@@ -152,27 +153,41 @@ fun queryActiveFlightList(): List<Map<String, String>> {
             FlightTable.capacity,
             origin[AirportTable.iataCode],
             dest[AirportTable.iataCode],
+            dest[AirportTable.city],
         )
         .select { FlightTable.status neq "cancelled" }
-        .orderBy(FlightTable.id, SortOrder.DESC)
+        .orderBy(FlightTable.scheduledDepartureTime, SortOrder.ASC)
         .limit(FLIGHT_LIST_LIMIT)
         .map { row ->
             val no = row[FlightTable.flightNumber]?.toString() ?: row[FlightTable.id].toString()
-            val destination = row[dest[AirportTable.iataCode]]
+            val destinationCity = row[dest[AirportTable.city]] ?: ""
+            val destinationIata = row[dest[AirportTable.iataCode]]
+            val destination = "$destinationCity ($destinationIata)"
             val departureTimeRaw = row[FlightTable.scheduledDepartureTime] ?: ""
-            val depTime =
-                if (departureTimeRaw.length >= MIN_TIMESTAMP_LENGTH) {
-                    departureTimeRaw.substring(ISO_TIME_START_INDEX, ISO_TIME_END_INDEX)
-                } else {
-                    departureTimeRaw
-                }
+            var departureDate = ""
+            var departureTime = ""
+
+            departureTimeRaw.substring(ISO_TIME_START_INDEX, ISO_TIME_END_INDEX)
+            val splitDepartureTime = departureTimeRaw.split(" ")
+            departureDate = splitDepartureTime[0]
+            departureTime = splitDepartureTime[1]
+
+            val assignedSeats =
+                SeatAssignmentTable
+                    .join(BookingSegmentTable, JoinType.INNER, additionalConstraint = {
+                        SeatAssignmentTable.bookingSegmentId eq BookingSegmentTable.id
+                    })
+                    .select { BookingSegmentTable.flightId eq row[FlightTable.id] }
+                    .count()
 
             mapOf(
                 "no" to no,
                 "dest" to destination,
-                "dep" to depTime,
+                "depatureDate" to departureDate,
+                "depatureTime" to departureTime,
                 "status" to row[FlightTable.status],
-                "capacity" to (row[FlightTable.capacity]?.toString() ?: ""),
+                "capacity" to (row[FlightTable.capacity]?.toString() ?: "0"),
+                "assignedSeats" to (assignedSeats?.toString() ?: "0"),
             )
         }
 }
@@ -211,7 +226,7 @@ fun buildStaffDashboardModel(staffEmail: String): Map<String, Any> =
                 .select { FlightTable.scheduledDepartureTime like "$todayPrefix%" }
                 .count()
 
-        val systemAlertsCount =
+        val customerInquiries =
             ComplaintTable
                 .select { ComplaintTable.status eq "open" }
                 .count()
@@ -224,7 +239,7 @@ fun buildStaffDashboardModel(staffEmail: String): Map<String, Any> =
             "staffRole" to staffRole,
             "activeFlights" to activeFlightsCount,
             "departuresToday" to departuresTodayCount,
-            "systemAlerts" to systemAlertsCount,
+            "customerInquiries" to customerInquiries,
             "flights" to flightList,
         )
     }
