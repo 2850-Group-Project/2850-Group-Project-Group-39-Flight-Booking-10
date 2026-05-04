@@ -219,10 +219,11 @@ private fun mapChangeRequestRow(
     )
 }
 
-private fun String.truncateDateTime(): String = this.substringBefore("T").let { date ->
-    val time = this.substringAfter("T").substringBefore(".")
-    "$date $time"
-}
+private fun String.truncateDateTime(): String =
+    this.substringBefore("T").let { date ->
+        val time = this.substringAfter("T").substringBefore(".")
+        "$date $time"
+    }
 
 /**
  * Updates the status of a ChangeRequest record, using id to search,
