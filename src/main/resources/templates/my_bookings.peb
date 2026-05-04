@@ -63,19 +63,26 @@
 
             <div class="card-top">
               <div>
-                <div class="btitle">Booking Ref: {{ b.bookingReference }}</div>
+                <div class="btitle">
+                  {% if b.segments is not empty %}
+                    {{ b.segments[0].originIata }} → {{ b.segments[0].destIata }}
+                  {% else %}
+                    Booking #{{ b.bookingReference }}
+                  {% endif %}
+                </div>
                 <div class="meta">
                   <div class="pill {{ bs }}">
                     <span class="dot"></span>
-                    Status: {{ b.bookingStatus }}
+                    {{ b.bookingStatus }}
                   </div>
-                  <div class="created-at">Created: {{ b.createdAt }}</div>
+                  <div class="created-at">Ref: {{ b.bookingReference }}</div>
+                  <div class="created-at">{{ b.createdAt }}</div>
                 </div>
               </div>
 
               {% if b.bookingStatus != "cancelled" %}
                 <div class="actions">
-                  <a class="btn" href="/profile/bookings/change?bookingId={{ b.bookingId }}">Change</a >
+                  <a class="btn" href="/profile/bookings/change?bookingId={{ b.bookingId }}">Change</a>
                   <form action="/profile/bookings/cancel" method="post" style="margin:0;">
                     <input type="hidden" name="bookingId" value="{{ b.bookingId }}" />
                     <button class="a red" type="button" onclick="openCancel({{ b.bookingId }})" aria-label="Cancel booking {{ b.bookingReference }}">Cancel</button>
@@ -98,37 +105,46 @@
                   </div>
                 </div>
               {% else %}
-                {% for seg in b.segments %}
+                {% if bs == "cancelled" %}
                   <div class="seg">
                     <div class="seg-left">
-                      <div class="seg-main">
-                        {% if seg.originIata %}{{ seg.originIata }}{% else %}—{% endif %}
-                        {% if seg.originName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.originName }})</span>{% endif %}
-                        →
-                        {% if seg.destIata %}{{ seg.destIata }}{% else %}—{% endif %}
-                        {% if seg.destName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.destName }})</span>{% endif %}
-                      </div>
-
-                      <div class="seg-sub">
-                        Flight:
-                        {% if seg.flightNumber and seg.flightNumber != "" %}{{ seg.flightNumber }}{% else %}—{% endif %}
-                        • Dep: {% if seg.dep and seg.dep != "" %}{{ seg.dep }}{% else %}—{% endif %}
-                        • Arr: {% if seg.arr and seg.arr != "" %}{{ seg.arr }}{% else %}—{% endif %}
-                      </div>
-                    </div>
-
-                    <div class="seg-right">
-                      {% if seg.flightStatus and seg.flightStatus != "" %}
-                        <span class="mini-pill">{{ seg.flightStatus }}</span>
-                      {% endif %}
-
-                      <span class="mini-pill">
-                        Seat:
-                        {% if seg.seatCode %}{{ seg.seatCode }}{% else %}No seat{% endif %}
-                      </span>
+                      <div class="seg-main" style="color: rgba(239,68,68,.80);">Booking Cancelled</div>
+                      <div class="seg-sub">All passengers on this booking have been removed.</div>
                     </div>
                   </div>
-                {% endfor %}
+                {% else %}
+                  {% for seg in b.segments %}
+                    <div class="seg">
+                      <div class="seg-left">
+                        <div class="seg-main">
+                          {% if seg.originIata %}{{ seg.originIata }}{% else %}—{% endif %}
+                          {% if seg.originName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.originName }})</span>{% endif %}
+                          →
+                          {% if seg.destIata %}{{ seg.destIata }}{% else %}—{% endif %}
+                          {% if seg.destName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.destName }})</span>{% endif %}
+                        </div>
+
+                        <div class="seg-sub">
+                          Flight:
+                          {% if seg.flightNumber and seg.flightNumber != "" %}{{ seg.flightNumber }}{% else %}—{% endif %}
+                          • Dep: {% if seg.dep and seg.dep != "" %}{{ seg.dep }}{% else %}—{% endif %}
+                          • Arr: {% if seg.arr and seg.arr != "" %}{{ seg.arr }}{% else %}—{% endif %}
+                        </div>
+                      </div>
+
+                      <div class="seg-right">
+                        {% if seg.flightStatus and seg.flightStatus != "" %}
+                          <span class="mini-pill">{{ seg.flightStatus }}</span>
+                        {% endif %}
+
+                        <span class="mini-pill">
+                          Seat:
+                          {% if seg.seatCode %}{{ seg.seatCode }}{% else %}No seat{% endif %}
+                        </span>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% endif %}
               {% endif %}
             </div>
 
