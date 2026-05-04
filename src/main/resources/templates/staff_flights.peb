@@ -11,7 +11,7 @@
   <!-- NAV -->
   <div class="topbar">
     <div class="brand">
-      <div class="badge">✈</div>
+      <div class="badge">✈️</div>
       <div>SkyFlow Staff</div>
     </div>
     <div class="nav">
@@ -22,7 +22,7 @@
   </div>
 
   <h1>Flight Scheduler</h1>
-  <p class="sub">Create, edit, and manage flights directly from the database.</p >
+  <p class="sub">Create, edit, and manage flights directly.</p >
 
   <div class="grid">
     <div class="card">
@@ -30,7 +30,7 @@
         <div class="msg err" role="alert">{{ error }}</div>
       {% endif %}
       {% if ok and ok != "" %}
-        <div class="msg" role="status">{{ ok }}</div>
+        <div class="msg ok" role="status">{{ ok }}</div>
       {% endif %}
 
       {% if editId and editId != 0 %}
@@ -160,7 +160,6 @@
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>No.</th>
             <th>Route</th>
             <th>Departure</th>
@@ -173,12 +172,15 @@
         <tbody>
           {% for f in flights %}
             <tr>
-              <td>{{ f.id }}</td>
-              <td><span class="pill">{{ f.flightNumber }}</span></td>
+              <td><b>{{ f.flightNumber }}</b></td>
               <td>{{ f.originIata }} → {{ f.destIata }}</td>
               <td>{{ f.dep }}</td>
               <td>{{ f.arr }}</td>
-              <td>{{ f.status }}</td>
+              <td>                    
+                <span class="status {{ f.status | lower }}">
+                <span class="s"></span>
+                {{ f.status }}
+              </td>
               <td>{{ f.capacity }}</td>
               <td>
                 <div class="actions">

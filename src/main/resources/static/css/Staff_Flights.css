@@ -173,10 +173,21 @@ label{
     font-size:13px;
     line-height:1.35;
 }
-.msg.err{
-    background: rgba(255,77,77,.12);
-    border-color: rgba(255,77,77,.25);
-    color: #ffd0d0;
+.msg.err {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.30);
+    color: #ffb4b4;
+}
+.msg.ok {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(34, 197, 94, 0.10);
+    border-color: rgba(34, 197, 94, 0.30);
+    color: #b6f7c2;
 }
 table{
     width:100%;
@@ -263,3 +274,24 @@ footer a:hover {
   display: flex;
   gap: 16px;
 }
+
+.status{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    font-weight:700;
+    color:rgba(255,255,255,.80);
+}
+.status .s{
+    width:8px;height:8px;border-radius:50%;
+    background: rgba(255,255,255,.55);
+}
+.status.scheduled .s{ background: rgba(56,189,248,.9); }
+.status.boarding .s{ background: rgba(245,158,11,.95); }
+.status.ontime .s{ background: rgba(34,197,94,.95); }
+.status.delayed .s{ background: rgba(239,68,68,.95); }
+.status.cancelled .s{ background: rgba(239,68,68,.95); }

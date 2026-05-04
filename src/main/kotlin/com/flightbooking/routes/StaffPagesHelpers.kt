@@ -164,13 +164,11 @@ fun queryActiveFlightList(): List<Map<String, String>> {
             val destinationIata = row[dest[AirportTable.iataCode]]
             val destination = "$destinationCity ($destinationIata)"
             val departureTimeRaw = row[FlightTable.scheduledDepartureTime] ?: ""
-            var departureDate = ""
-            var departureTime = ""
 
             departureTimeRaw.substring(ISO_TIME_START_INDEX, ISO_TIME_END_INDEX)
             val splitDepartureTime = departureTimeRaw.split(" ")
-            departureDate = splitDepartureTime[0]
-            departureTime = splitDepartureTime[1]
+            val departureDate = splitDepartureTime[0]
+            val departureTime = splitDepartureTime[1]
 
             val assignedSeats =
                 SeatAssignmentTable
@@ -187,7 +185,7 @@ fun queryActiveFlightList(): List<Map<String, String>> {
                 "depatureTime" to departureTime,
                 "status" to row[FlightTable.status],
                 "capacity" to (row[FlightTable.capacity]?.toString() ?: "0"),
-                "assignedSeats" to (assignedSeats?.toString() ?: "0"),
+                "assignedSeats" to (assignedSeats.toString()),
             )
         }
 }
