@@ -2,6 +2,7 @@ package com.flightbooking.routes
 
 import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
+import com.flightbooking.service.calculateEarning
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.response.respond
@@ -18,11 +19,18 @@ import io.ktor.server.sessions.get
  */
 fun Route.confirmationRoutes() {
     get("/confirmation") {
-        val (_, _) = AuthService.requireUser(call)
+        val (_, userId) = AuthService.requireUser(call)
         val bookingSession = AuthService.requireBooking(call)
 
         val totalPrice = bookingSession.totalPrice
-        val pointsEarned = PointsService.calculatePointsEarned(totalPrice)
+
+        val membershipStatus = PointsService.getUserPointsRow(userId)?.membershipStatus ?: "Bronze"
+        val pointsEarned =
+            calculateEarning(
+                amountPaid = totalPrice,
+                fareEarnRate = PointsService.fetchMilesEarnRate(bookingSession.outboundFareId),
+                membershipStatus = membershipStatus,
+            )
 
         call.respond(
             PebbleContent(

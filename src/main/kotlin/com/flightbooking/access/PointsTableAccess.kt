@@ -12,6 +12,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
 
+/**
+ * Class instance for using points table
+ */
 class PointsTableAccess {
     /**
      * Returns the current points balance row for a user, or null if none exists yet.
@@ -26,7 +29,9 @@ class PointsTableAccess {
                     UserPoints(
                         id = it[UserPointsTable.id],
                         userId = it[UserPointsTable.userId],
+                        membershipStatus = it[UserPointsTable.membershipStatus],
                         balance = it[UserPointsTable.balance],
+                        totalPointsEarned = it[UserPointsTable.totalPointsEarned],
                     )
                 }
         }
@@ -148,6 +153,28 @@ class PointsTableAccess {
             }
 
             newBalance
+        }
+    }
+
+    /**
+     * Updates points along with status of a record
+     * @param userId the user you want to update
+     * @param balance new balance
+     * @param totalPointsEarned new point total
+     * @param membershipStatus the new status
+     */
+    fun updatePointsAndStatus(
+        userId: Int,
+        balance: Int,
+        totalPointsEarned: Int,
+        membershipStatus: String,
+    ) {
+        transaction {
+            UserPointsTable.update({ UserPointsTable.userId eq userId }) {
+                it[UserPointsTable.balance] = balance
+                it[UserPointsTable.totalPointsEarned] = totalPointsEarned
+                it[UserPointsTable.membershipStatus] = membershipStatus
+            }
         }
     }
 }
