@@ -41,7 +41,12 @@ body{
     overscroll-behavior: none;
     overflow-y: auto;
 }
-.wrap{max-width:1200px;margin:0 auto;padding:26px 18px 60px;}
+.wrap{
+    max-width:1200px;
+    margin:0 auto;
+    padding:26px 18px 60px;
+}
+
 .topbar{
     display:flex;justify-content:space-between;align-items:center;gap:14px;
     padding:16px 18px;border-radius:18px;
@@ -289,6 +294,13 @@ footer {
   font-size: 12px;
   flex-wrap: wrap;
   gap: 6px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(11, 13, 18, 0.168);
+  backdrop-filter: blur(10px);
+  z-index: 100;
 }
 footer a { 
   color: rgba(255,255,255,.50); 
