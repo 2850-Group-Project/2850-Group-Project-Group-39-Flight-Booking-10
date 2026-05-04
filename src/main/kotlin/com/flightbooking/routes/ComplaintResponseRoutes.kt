@@ -42,10 +42,11 @@ private suspend fun handleGetInquiries(call: io.ktor.server.application.Applicat
     val complaintAccess = ComplaintResponseTableAccess()
     val complaints = complaintAccess.getComplaints(q)
 
-    val responsesByComplaint = complaints.associate { complaint ->
-        val id = complaint["complaintId"] as Int
-        id to complaintAccess.getResponsesForComplaint(id)
-    }
+    val responsesByComplaint =
+        complaints.associate { complaint ->
+            val id = complaint["complaintId"] as Int
+            id to complaintAccess.getResponsesForComplaint(id)
+        }
 
     call.respond(
         PebbleContent(
