@@ -1,10 +1,10 @@
 package com.flightbooking.routes
 
 import com.flightbooking.tables.AirportTable
-import com.flightbooking.tables.ComplaintTable
-import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.BookingSegmentTable
+import com.flightbooking.tables.ComplaintTable
 import com.flightbooking.tables.FlightTable
+import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.StaffTable
 import io.ktor.server.routing.get
@@ -172,12 +172,13 @@ fun queryActiveFlightList(): List<Map<String, String>> {
             departureDate = splitDepartureTime[0]
             departureTime = splitDepartureTime[1]
 
-            val assignedSeats = SeatAssignmentTable
-                .join(BookingSegmentTable, JoinType.INNER, additionalConstraint = {
-                    SeatAssignmentTable.bookingSegmentId eq BookingSegmentTable.id
-                })
-                .select { BookingSegmentTable.flightId eq row[FlightTable.id] }
-                .count()
+            val assignedSeats =
+                SeatAssignmentTable
+                    .join(BookingSegmentTable, JoinType.INNER, additionalConstraint = {
+                        SeatAssignmentTable.bookingSegmentId eq BookingSegmentTable.id
+                    })
+                    .select { BookingSegmentTable.flightId eq row[FlightTable.id] }
+                    .count()
 
             mapOf(
                 "no" to no,
