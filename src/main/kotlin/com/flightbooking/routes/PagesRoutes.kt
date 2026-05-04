@@ -35,6 +35,9 @@ import org.jetbrains.exposed.sql.update
 import java.time.Instant
 import java.time.LocalDate
 
+private const val SILVER_MEMBER_THRESHOLD: Int = 5000
+private const val GOLD_MEMBER_THRESHOLD: Int = 10000
+
 /**
  * Page routes for user-facing pages (home, profile, profile sub-pages, bookings) and a shared 404 page.
  *
@@ -214,17 +217,34 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
 private suspend fun handleGetProfile(call: ApplicationCall) {
     val (userSession, userId) = AuthService.requireUser(call)
 
-    val pointsBalance = PointsService.getBalance(userId)
+    val pointsRow = PointsService.getUserPointsRow(userId)
+
     val pointsTable = PointsTableAccess()
     val pointsTransactions = pointsTable.getTransactions(userId)
+    val totalEarned = pointsRow?.totalPointsEarned ?: 0
+    val totalRedeemed =
+        pointsTransactions
+            .filter { it.type == "redeem" }
+            .sumOf { -(it.points) } // redeemed points are the negative transactions
+    val membershipStatus = pointsRow?.membershipStatus ?: "Bronze"
+    val nextMilestone =
+        when (membershipStatus) {
+            "Bronze" -> SILVER_MEMBER_THRESHOLD
+            "Silver" -> GOLD_MEMBER_THRESHOLD
+            else -> GOLD_MEMBER_THRESHOLD
+        }
 
     call.respond(
         PebbleContent(
             "my_profile.peb",
             mapOf(
                 "userSession" to userSession,
-                "pointsBalance" to pointsBalance,
+                "pointsBalance" to (pointsRow?.balance ?: 0),
                 "pointsTransactions" to pointsTransactions,
+                "totalEarned" to totalEarned,
+                "totalRedeemed" to totalRedeemed,
+                "membershipStatus" to membershipStatus,
+                "nextMilestone" to nextMilestone,
             ),
         ),
     )

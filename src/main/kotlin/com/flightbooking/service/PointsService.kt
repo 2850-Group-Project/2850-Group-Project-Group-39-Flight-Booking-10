@@ -1,24 +1,25 @@
 package com.flightbooking.service
 
 import com.flightbooking.access.PointsTableAccess
+import com.flightbooking.models.UserPoints
+import com.flightbooking.tables.FareClassTable
+import com.flightbooking.tables.FlightFareTable
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * Business rules for the loyalty points system.
  *
- *  Earning  : 1 pt per £1 spent × fare class milesEarnRate  (floor to Int)
- *  Redeeming: 100 pts = £1 discount
+ *  Earning  : 1 pt per £1 spent × fare class earn rate x membership rate  (floor to Int)
+ *  Redeeming: 100 pts = discount based on balance * membership rate
  */
 object PointsService {
-    private const val POINTS_PER_POUND: Double = 1.0
-    private const val POUNDS_PER_POINT: Double = 0.01 // 100 pts = £1
-
     private val pointsTable = PointsTableAccess()
 
     fun getBalance(userId: Int): Int = pointsTable.getBalance(userId)?.balance ?: 0
 
     /**
      * Call when booking is confirmed/paid.
-     *
      * @param userId      the logged-in user
      * @param bookingId   for audit trail
      * @param amountPaid  the actual GBP amount charged (after any discount)
@@ -28,47 +29,57 @@ object PointsService {
         userId: Int,
         bookingId: Int,
         amountPaid: Double,
-        milesEarnRate: Double = 1.0,
+        fareEarnRate: Double,
     ): Int {
-        val earned = calculatePointsEarned(amountPaid, milesEarnRate)
-        if (earned <= 0) return getBalance(userId)
+        val row =
+            getUserPointsRow(userId) ?: error(
+                "Failed to create points record for userId: $userId",
+            )
 
-        return pointsTable.addPoints(
+        val earned =
+            calculateEarning(
+                amountPaid = amountPaid,
+                fareEarnRate = fareEarnRate,
+                membershipStatus = row.membershipStatus,
+            )
+
+        val newBalance =
+            updateAwardUserPoints(
+                userId = userId,
+                earned = earned,
+                currentBalance = row.balance,
+                currentTotal = row.totalPointsEarned,
+            )
+
+        pointsTable.addPoints(
             userId = userId,
             points = earned,
             bookingId = bookingId,
             type = "earn",
             description = "Points earned for booking #$bookingId",
         )
-    }
 
-    /**
-     * Calculates number of points earned based on the amount of money
-     * that the user has spent.
-     *
-     * @return Int
-     */
-    fun calculatePointsEarned(
-        amountPaid: Double,
-        milesEarnRate: Double = 1.0,
-    ): Int {
-        return (amountPaid * POINTS_PER_POUND * milesEarnRate).toInt()
+        return newBalance
     }
 
     /**
      * Calculates the maximum GBP discount available for [userId] on a booking
      * totalling [bookingTotal], without actually deducting anything.
-     *
-     * @return Pair(pointsNeeded, discountAmount)
+     * gets minimum between max discount calculated and booking total
+     * because discount < booking total
+     * @return Pair(, discount)
      */
     fun calculateRedemption(
         userId: Int,
         bookingTotal: Double,
     ): Pair<Int, Double> {
-        val balance = getBalance(userId)
-        val balanceAsGBP = balance * POUNDS_PER_POINT
-        val discount = minOf(balanceAsGBP, bookingTotal)
-        return Pair(balance, discount)
+        val row =
+            pointsTable.getBalance(userId)
+                ?: return Pair(0, 0.0)
+        val rate = discountRateForTier(row.membershipStatus)
+        val maxDiscount = row.balance * rate
+        val discount = minOf(maxDiscount, bookingTotal)
+        return Pair(row.balance, discount)
     }
 
     /**
@@ -86,7 +97,11 @@ object PointsService {
     ): Double {
         require(pointsToRedeem > 0) { "Must redeem at least 1 point" }
 
-        val discountValue = (pointsToRedeem * POUNDS_PER_POINT).coerceAtMost(bookingTotal)
+        val row =
+            getUserPointsRow(userId)
+                ?: error("Failed creating points record for userId: $userId")
+        val rate = discountRateForTier(row.membershipStatus)
+        val discountValue = (pointsToRedeem * rate).coerceAtMost(bookingTotal)
 
         pointsTable.deductPoints(
             userId = userId,
@@ -95,5 +110,71 @@ object PointsService {
             description = "Points redeemed for booking #$bookingId (£%.2f discount)".format(discountValue),
         )
         return discountValue
+    }
+
+    /**
+     * Updates the balance and total spent of a user with earned amount
+     * @param userId
+     * @param earned difference to add
+     * @param currentBalance
+     * @param currentTotal
+     * @return the new record
+     */
+    private fun updateAwardUserPoints(
+        userId: Int,
+        earned: Int,
+        currentBalance: Int,
+        currentTotal: Int,
+    ): Int {
+        val newBalance = currentBalance + earned
+        val newTotal = currentTotal + earned
+
+        val newStatus = calculateMembershipStatus(newTotal)
+
+        pointsTable.updatePointsAndStatus(
+            userId = userId,
+            balance = newBalance,
+            totalPointsEarned = newTotal,
+            membershipStatus = newStatus,
+        )
+
+        return newBalance
+    }
+
+    /**
+     * Gets the miles earn rate for a flight fare
+     * @param outboundFareId fare id
+     * @return miles earn rate
+     */
+    fun fetchMilesEarnRate(outboundFareId: Int?): Double {
+        if (outboundFareId == null) return 1.0
+        return transaction {
+            (FlightFareTable innerJoin FareClassTable)
+                .select { FlightFareTable.id eq outboundFareId }
+                .singleOrNull()
+                ?.get(FareClassTable.milesEarnRate)
+                ?: 1.0
+        }
+    }
+
+    /**
+     * Gets the record of the user's points, if it exists,
+     * creates a new record if it doesn't exist
+     * @param userId of user points record we want
+     * @return the user points record
+     */
+    fun getUserPointsRow(userId: Int): UserPoints? {
+        val exists = pointsTable.getBalance(userId)
+        if (exists != null) return exists
+
+        pointsTable.addPoints(
+            userId = userId,
+            points = 0,
+            bookingId = null,
+            type = "init",
+            description = "Initial points record creation",
+        )
+
+        return pointsTable.getBalance(userId)
     }
 }
