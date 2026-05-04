@@ -31,7 +31,7 @@
         <div class="snav">
           <a class="active" href="/profile"><span class="ico">👤</span> Profile</a >
           <a href="/profile/bookings"><span class="ico">🧾</span> Bookings</a >
-          <a href="/profile/complaints"><span class="ico">⚠️</span> Complaints</a >
+          <a href="/profile/complaints"><span class="ico">⚠️</span> Support</a >
           <a href="/profile/notifications"><span class="ico">🔔</span> Notifications</a >
         </div>
       </aside>
@@ -109,7 +109,7 @@
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
       <a href="/help">Help</a>
-      <a href="/complaints">Complaints</a>
+      <a href="/complaints">Help</a>
     </div>
   </footer>
 

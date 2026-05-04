@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Complaints</title>
+  <title>My Requests</title>
   <link rel="stylesheet" href="/static/css/Profile_Complaints.css">
   <link rel="stylesheet" href="/static/css/Home.css">
 </head>
@@ -25,7 +25,7 @@
 
   <div class="page-top">
     <div>
-      <h1>My Complaints</h1>
+      <h1>My Requests</h1>
       <p class="sub">Track the status of complaints you have submitted to our support team.</p>
     </div>
     <a href="/complaints" class="btn-new">+ New Complaint</a>
@@ -81,7 +81,7 @@
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
     <a href="/help">Help</a>
-    <a href="/complaints">Complaints</a>
+    <a href="/complaints">Help</a>
   </div>
 </footer>
 
