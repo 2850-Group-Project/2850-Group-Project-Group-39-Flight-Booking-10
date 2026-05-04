@@ -153,13 +153,16 @@ fun queryActiveFlightList(): List<Map<String, String>> {
             FlightTable.capacity,
             origin[AirportTable.iataCode],
             dest[AirportTable.iataCode],
+            dest[AirportTable.city],
         )
         .select { FlightTable.status neq "cancelled" }
         .orderBy(FlightTable.scheduledDepartureTime, SortOrder.ASC)
         .limit(FLIGHT_LIST_LIMIT)
         .map { row ->
             val no = row[FlightTable.flightNumber]?.toString() ?: row[FlightTable.id].toString()
-            val destination = row[dest[AirportTable.iataCode]]
+            val destinationCity = row[dest[AirportTable.city]] ?: ""
+            val destinationIata = row[dest[AirportTable.iataCode]]
+            val destination = "$destinationCity ($destinationIata)"
             val departureTimeRaw = row[FlightTable.scheduledDepartureTime] ?: ""
             var departureDate = ""
             var departureTime = ""
