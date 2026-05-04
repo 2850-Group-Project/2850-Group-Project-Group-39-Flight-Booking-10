@@ -34,7 +34,7 @@
 .summary-airport {
   font-size: 20px;
   font-weight: 900;
-  letter-spacing: -.5px;
+  letter-spacing: 0;
 }
 
 .summary-arrow {
@@ -129,7 +129,7 @@
 .flights-title {
   font-size: 17px;
   font-weight: 800;
-  letter-spacing: -.3px;
+  letter-spacing: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -261,7 +261,7 @@
 .flight-time {
   font-size: 26px;
   font-weight: 900;
-  letter-spacing: -1px;
+  letter-spacing: 0;
   line-height: 1;
 }
 
@@ -407,7 +407,7 @@
 .flight-price-amount {
   font-size: 22px;
   font-weight: 900;
-  letter-spacing: -.5px;
+  letter-spacing: 0;
   color: var(--good);
   line-height: 1;
 }

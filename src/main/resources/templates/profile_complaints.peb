@@ -33,7 +33,7 @@
 
   <!-- COMPLAINTS LIST -->
   {% if complaints is empty %}
-    <div class="empty">
+    <div class="empty" role="status">
       <div class="empty-icon">📭</div>
       <div class="empty-title">No complaints yet</div>
       <p class="empty-sub">If you've experienced an issue, <a href="/complaints">submit a complaint</a> and we'll look into it.</p>

@@ -35,6 +35,9 @@ import org.jetbrains.exposed.sql.update
 import java.time.Instant
 import java.time.LocalDate
 
+private const val SILVER_MEMBER_THRESHOLD: Int = 5000
+private const val GOLD_MEMBER_THRESHOLD: Int = 10000
+
 /**
  * Page routes for user-facing pages (home, profile, profile sub-pages, bookings) and a shared 404 page.
  *
@@ -74,7 +77,7 @@ fun Route.pagesRoutes() {
  * @param call application call
  */
 private suspend fun handleGetHome(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
     val airports = AirportTableAccess().getAll()
 
     println("------------------------------------")
@@ -96,7 +99,7 @@ private suspend fun handleGetHome(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetFlightSearch(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
 
     // packaging all search data into one class
     val search =
@@ -170,8 +173,8 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
-    val bookingSession = AuthService.requireBooking(call, requireSearch = true)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
+    val bookingSession = AuthService.requireBooking(call, requireSearch = true) ?: return
 
     val search = bookingSession.search!!
 
@@ -212,19 +215,36 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetProfile(call: ApplicationCall) {
-    val (userSession, userId) = AuthService.requireUser(call)
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
 
-    val pointsBalance = PointsService.getBalance(userId)
+    val pointsRow = PointsService.getUserPointsRow(userId)
+
     val pointsTable = PointsTableAccess()
     val pointsTransactions = pointsTable.getTransactions(userId)
+    val totalEarned = pointsRow?.totalPointsEarned ?: 0
+    val totalRedeemed =
+        pointsTransactions
+            .filter { it.type == "redeem" }
+            .sumOf { -(it.points) } // redeemed points are the negative transactions
+    val membershipStatus = pointsRow?.membershipStatus ?: "Bronze"
+    val nextMilestone =
+        when (membershipStatus) {
+            "Bronze" -> SILVER_MEMBER_THRESHOLD
+            "Silver" -> GOLD_MEMBER_THRESHOLD
+            else -> GOLD_MEMBER_THRESHOLD
+        }
 
     call.respond(
         PebbleContent(
             "my_profile.peb",
             mapOf(
                 "userSession" to userSession,
-                "pointsBalance" to pointsBalance,
+                "pointsBalance" to (pointsRow?.balance ?: 0),
                 "pointsTransactions" to pointsTransactions,
+                "totalEarned" to totalEarned,
+                "totalRedeemed" to totalRedeemed,
+                "membershipStatus" to membershipStatus,
+                "nextMilestone" to nextMilestone,
             ),
         ),
     )
@@ -260,7 +280,7 @@ private suspend fun handleNotFound(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetBookings(call: ApplicationCall) {
-    val (userSession, userId) = AuthService.requireUser(call)
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
 
     val q = call.request.queryParameters["q"]?.trim().orEmpty()
     val qId = q.toIntOrNull()
@@ -309,7 +329,7 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
-    val (_, userId) = AuthService.requireUser(call)
+     val (_, userId) = AuthService.requireUser(call) ?: return
 
     val params = call.receiveParameters()
     val bookingId = params["bookingId"]?.toIntOrNull()
@@ -370,7 +390,7 @@ private suspend fun handlePostBookingsCancel(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handlePostBookingsDelete(call: ApplicationCall) {
-    val (_, userId) = AuthService.requireUser(call)
+    val (_, userId) = AuthService.requireUser(call) ?: return
 
     val params = call.receiveParameters()
     val bookingId = params["bookingId"]?.toIntOrNull()

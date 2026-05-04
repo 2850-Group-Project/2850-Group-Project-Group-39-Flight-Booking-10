@@ -30,10 +30,10 @@
         <p class="sub">Submit a request to change your flight/seat. A staff member will review and update the request status.</p >
 
         {% if error and error != "" %}
-          <div class="msg err">{{ error }}</div>
+          <div class="msg err" role="alert">{{ error }}</div>
         {% endif %}
         {% if ok and ok != "" %}
-          <div class="msg">{{ ok }}</div>
+          <div class="msg" role="status">{{ ok }}</div>
         {% endif %}
 
         <div class="kv">
@@ -64,8 +64,8 @@
           <input type="hidden" name="bookingId" value="{{ bookingId }}"/>
           <input type="hidden" name="segmentId" value="{{ segmentId }}"/>
 
-          <label>Requested Flight</label>
-          <select name="requestedFlightId" required>
+          <label for="requestedFlightId">Requested Flight</label>
+          <select id="requestedFlightId" name="requestedFlightId" required>
             {% if selectedFlightId and selectedFlightId != 0 %}
               <option value="{{ selectedFlightId }}" selected>Selected Flight ID: {{ selectedFlightId }}</option>
             {% else %}
@@ -77,8 +77,8 @@
             Tip: use the Flight Search panel to find a flight, then select it (this page reloads seats for the chosen flight).
           </div>
 
-          <label>Requested Seat (optional)</label>
-          <select name="requestedSeatId">
+          <label for="requestedSeatId">Requested Seat (optional)</label>
+          <select id="requestedSeatId" name="requestedSeatId">
             <option value="">No seat preference</option>
             {% if availableSeats is not empty %}
               {% for s in availableSeats %}
@@ -87,8 +87,8 @@
             {% endif %}
           </select>
 
-          <label>Reason (optional)</label>
-          <textarea name="reason" placeholder="e.g. Need a later flight / prefer an aisle seat / travel plan changed..."></textarea>
+          <label for="reason">Reason (optional)</label>
+          <textarea id="reason" name="reason" placeholder="e.g. Need a later flight / prefer an aisle seat / travel plan changed..."></textarea>
 
           <button class="btn" type="submit" aria-label="Submit change request">Submit Change Request →</button>
         </form>
@@ -101,12 +101,13 @@
 
         <form action="/profile/bookings/change" method="get" class="row" style="margin-top:10px;">
           <input type="hidden" name="bookingId" value="{{ bookingId }}"/>
-          <input class="input" name="flightQ" value="{{ flightQ }}" placeholder="Search flight no. (e.g. 101)"/>
+          <label class="sr-only" for="flightQ">Search flight number</label>
+          <input class="input" id="flightQ" name="flightQ" value="{{ flightQ }}" placeholder="Search flight no. (e.g. 101)"/>
           <button class="btn2" type="submit" aria-label="Search flights for change request">Search</button>
         </form>
 
         {% if flightResults is empty %}
-          <div class="msg" style="margin-top:12px;">No results yet. Enter a flight number and search.</div>
+          <div class="msg" role="status" style="margin-top:12px;">No results yet. Enter a flight number and search.</div>
         {% else %}
           <table>
             <thead>
@@ -130,6 +131,7 @@
                   <td style="text-align:right;">
                     <a class="btn2"
                        href="/profile/bookings/change?bookingId={{ bookingId }}&flightQ={{ flightQ }}&selectedFlightId={{ f.id }}"
+                       aria-label="Select flight {{ f.flightNumber }} for change request"
                        style="text-decoration:none;display:inline-block;">
                       Select
                     </a >

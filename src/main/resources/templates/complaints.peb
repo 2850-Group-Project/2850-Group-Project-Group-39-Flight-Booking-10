@@ -34,15 +34,15 @@
       <div class="divider"></div>
 
       {% if success == "true" %}
-        <div class="flash success">✓ Your complaint has been submitted. We'll be in touch soon.</div>
+        <div class="flash success" role="status">✓ Your complaint has been submitted. We'll be in touch soon.</div>
       {% endif %}
 
       {% if error == "missing_fields" %}
-        <div class="flash error">✕ Please provide a full message.</div>
+        <div class="flash error" role="alert">✕ Please provide a full message.</div>
       {% endif %}
 
       {% if error == "server_error" %}
-        <div class="flash error">✕ Sorry, something went wrong.</div>
+        <div class="flash error" role="alert">✕ Sorry, something went wrong.</div>
       {% endif %}
 
       <form action="/complaints/submit" method="POST">
@@ -79,7 +79,7 @@
             ></textarea>
           </div>
           <div class="char-row">
-            <span class="char-count" id="charCount">0 / 1000</span>
+            <span class="char-count" id="charCount" aria-live="polite">0 / 1000</span>
           </div>
         </div>
 

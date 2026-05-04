@@ -46,8 +46,8 @@ fun Route.paymentRoutes() {
  * @param call request call
  */
 private suspend fun handleGetPayment(call: ApplicationCall) {
-    val (userSession, userId) = AuthService.requireUser(call)
-    val bookingSession = AuthService.requireBooking(call)
+    val bookingSession = AuthService.requireBooking(call) ?: return
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
 
     val bookingTotal = calculateTotal(bookingSession)
     val (pointsAvailable, maxDiscount) = PointsService.calculateRedemption(userId, bookingTotal)
@@ -73,8 +73,8 @@ private suspend fun handleGetPayment(call: ApplicationCall) {
  * @param call request call
  */
 private suspend fun handlePostPayment(call: ApplicationCall) {
-    val (userSession, userId) = AuthService.requireUser(call)
-    val bookingSession = AuthService.requireBooking(call)
+    val bookingSession = AuthService.requireBooking(call) ?: return
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
 
     val params = call.receiveParameters()
     val cardNumber = params["cardNumber"]?.trim()

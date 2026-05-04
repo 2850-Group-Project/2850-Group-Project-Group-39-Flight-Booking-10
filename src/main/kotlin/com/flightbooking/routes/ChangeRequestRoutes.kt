@@ -69,7 +69,7 @@ fun Route.changeRequestRoutes() {
  * @param call request call
  */
 private suspend fun handleGetBookingsChange(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
 
     val bookingId = call.request.queryParameters["bookingId"]?.toIntOrNull()
     if (bookingId == null) {
@@ -266,7 +266,7 @@ private fun getModel(params: BookingChangeModelParams): Map<String, Any>? =
  * @param call request call
  */
 private suspend fun handlePostBookingsChange(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
 
     val p = call.receiveParameters()
     val bookingId = p["bookingId"]?.toIntOrNull()

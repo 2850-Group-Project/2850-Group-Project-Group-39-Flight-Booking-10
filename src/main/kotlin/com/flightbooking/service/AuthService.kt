@@ -16,7 +16,6 @@ import org.mindrot.jbcrypt.BCrypt
  * Service object for user authentication
  */
 object AuthService {
-    private const val NULL_USER_ID: Int = 0
     private val users = UserTableAccess()
 
     /**
@@ -52,14 +51,14 @@ object AuthService {
         return BCrypt.checkpw(password, storedHash)
     }
 
-    suspend fun requireUser(call: ApplicationCall): Pair<UserSession, Int> {
+    suspend fun requireUser(call: ApplicationCall): Pair<UserSession, Int>? {
         val userSession = call.sessions.get<UserSession>()
 
         val userId = userSession?.let { fetchValidUserId(it.userEmail) }
 
         if (userSession == null || userId == null) {
             call.respondRedirect("/login")
-            return Pair(UserSession("", null), NULL_USER_ID)
+            return null
         }
 
         return Pair(userSession, userId)
@@ -68,13 +67,13 @@ object AuthService {
     suspend fun requireBooking(
         call: ApplicationCall,
         requireSearch: Boolean = false,
-    ): BookingSession {
+    ): BookingSession? {
         val bookingSession = call.sessions.get<BookingSession>()
         val search = bookingSession?.search
 
         if (bookingSession == null || (requireSearch && search == null)) {
             call.respondRedirect("/home")
-            return BookingSession()
+            return null
         }
 
         return bookingSession

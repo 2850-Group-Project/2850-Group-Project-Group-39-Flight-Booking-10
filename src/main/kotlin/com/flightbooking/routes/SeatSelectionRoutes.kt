@@ -54,8 +54,9 @@ fun Route.seatSelectionRoutes() {
  * @param call request call
  */
 private suspend fun handleGetSeats(call: ApplicationCall) {
-    val bookingSession = AuthService.requireBooking(call)
-    val flightId = checkNotNull(bookingSession.outboundFlightId)
+    AuthService.requireUser(call) ?: return
+    val bookingSession = AuthService.requireBooking(call) ?: return
+    val flightId = bookingSession.outboundFlightId ?: return call.respondRedirect("/flights/search")
 
     val flightAccess = FlightTableAccess()
     val airportAccess = AirportTableAccess()
@@ -107,9 +108,10 @@ private suspend fun handleGetSeats(call: ApplicationCall) {
  * @param call request call
  */
 private suspend fun handlePostSeats(call: ApplicationCall) {
-    val bookingSession = AuthService.requireBooking(call)
+    AuthService.requireUser(call) ?: return
+    val bookingSession = AuthService.requireBooking(call) ?: return
 
-    val flightId = checkNotNull(bookingSession.outboundFlightId)
+    val flightId = bookingSession.outboundFlightId ?: return call.respondRedirect("/flights/search")
 
     val selectedSeatsJson = call.receiveParameters()["selectedSeats"]?.trim().orEmpty()
     val selectedSeats = parseSelectedSeats(call, selectedSeatsJson) ?: return

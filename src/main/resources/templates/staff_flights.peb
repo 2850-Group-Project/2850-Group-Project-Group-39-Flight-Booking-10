@@ -27,10 +27,10 @@
   <div class="grid">
     <div class="card">
       {% if error and error != "" %}
-        <div class="msg err">{{ error }}</div>
+        <div class="msg err" role="alert">{{ error }}</div>
       {% endif %}
       {% if ok and ok != "" %}
-        <div class="msg">{{ ok }}</div>
+        <div class="msg" role="status">{{ ok }}</div>
       {% endif %}
 
       {% if editId and editId != 0 %}
@@ -147,13 +147,15 @@
     <div class="card">
       <h2>Flights</h2>
       <form action="/staff/flights" method="get" style="margin:10px 0 14px; display:flex; gap:10px; align-items:center;">
+        <label class="sr-only" for="flightSearch">Search flight number</label>
         <input class="input"
+                id="flightSearch"
                 type="text"
                 name="q"
                 value="{{ q }}"
                 placeholder="Search by flight number (e.g. 101)" />
         <button class="a" type="submit" style="white-space:nowrap;" aria-label="Search flights">Search</button>
-        <a class="a" href=" " style="white-space:nowrap;">Clear</a >
+        <a class="a" href="/staff/flights" style="white-space:nowrap;">Clear</a >
       </form>
       <table>
         <thead>

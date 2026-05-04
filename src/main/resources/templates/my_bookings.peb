@@ -10,7 +10,7 @@
 <body>
   <!-- NAV -->
   <nav>
-    <a href=" " class="brand">
+    <a href="/home" class="brand">
       <div class="brand-badge">✈️</div>
       <span class="brand-title">SkyFlow</span>
     </a >
@@ -32,9 +32,9 @@
 
       <form class="filters" action="/profile/bookings" method="get">
         <div>
-          <label>Filters</label>
+          <label for="bookingStatusFilter">Filters</label>
           {% set s = statusFilter | default("") %}
-          <select name="status">
+          <select id="bookingStatusFilter" name="status">
             <option value="" {% if s == "" %}selected{% endif %}>All statuses</option>
             <option value="pending" {% if s == "pending" %}selected{% endif %}>pending</option>
             <option value="confirmed" {% if s == "confirmed" %}selected{% endif %}>confirmed</option>
@@ -43,8 +43,8 @@
         </div>
 
         <div>
-          <label>Booking ID</label>
-          <input class="input" name="q" value="{{ q | default('') }}" placeholder="e.g. 4" />
+          <label for="bookingIdFilter">Booking ID</label>
+          <input class="input" id="bookingIdFilter" name="q" value="{{ q | default('') }}" placeholder="e.g. 4" />
         </div>
 
         <button class="btn" type="submit" aria-label="Apply booking filters">Apply</button>
@@ -54,7 +54,7 @@
 
     <!-- BOOKINGS LIST -->
     {% if bookings is empty %}
-      <div class="empty">No bookings found.</div>
+      <div class="empty" role="status">No bookings found.</div>
     {% else %}
       <div class="list">
         {% for b in bookings %}
@@ -63,19 +63,26 @@
 
             <div class="card-top">
               <div>
-                <div class="btitle">Booking Ref: {{ b.bookingReference }}</div>
+                <div class="btitle">
+                  {% if b.segments is not empty %}
+                    {{ b.segments[0].originIata }} → {{ b.segments[0].destIata }}
+                  {% else %}
+                    Booking #{{ b.bookingReference }}
+                  {% endif %}
+                </div>
                 <div class="meta">
                   <div class="pill {{ bs }}">
                     <span class="dot"></span>
-                    Status: {{ b.bookingStatus }}
+                    {{ b.bookingStatus }}
                   </div>
-                  <div class="created-at">Created: {{ b.createdAt }}</div>
+                  <div class="created-at">Ref: {{ b.bookingReference }}</div>
+                  <div class="created-at">{{ b.createdAt }}</div>
                 </div>
               </div>
 
               {% if b.bookingStatus != "cancelled" %}
                 <div class="actions">
-                  <a class="btn" href="/profile/bookings/change?bookingId={{ b.bookingId }}">Change</a >
+                  <a class="btn" href="/profile/bookings/change?bookingId={{ b.bookingId }}">Change</a>
                   <form action="/profile/bookings/cancel" method="post" style="margin:0;">
                     <input type="hidden" name="bookingId" value="{{ b.bookingId }}" />
                     <button class="a red" type="button" onclick="openCancel({{ b.bookingId }})" aria-label="Cancel booking {{ b.bookingReference }}">Cancel</button>
@@ -98,37 +105,46 @@
                   </div>
                 </div>
               {% else %}
-                {% for seg in b.segments %}
+                {% if bs == "cancelled" %}
                   <div class="seg">
                     <div class="seg-left">
-                      <div class="seg-main">
-                        {% if seg.originIata %}{{ seg.originIata }}{% else %}—{% endif %}
-                        {% if seg.originName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.originName }})</span>{% endif %}
-                        →
-                        {% if seg.destIata %}{{ seg.destIata }}{% else %}—{% endif %}
-                        {% if seg.destName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.destName }})</span>{% endif %}
-                      </div>
-
-                      <div class="seg-sub">
-                        Flight:
-                        {% if seg.flightNumber and seg.flightNumber != "" %}{{ seg.flightNumber }}{% else %}—{% endif %}
-                        • Dep: {% if seg.dep and seg.dep != "" %}{{ seg.dep }}{% else %}—{% endif %}
-                        • Arr: {% if seg.arr and seg.arr != "" %}{{ seg.arr }}{% else %}—{% endif %}
-                      </div>
-                    </div>
-
-                    <div class="seg-right">
-                      {% if seg.flightStatus and seg.flightStatus != "" %}
-                        <span class="mini-pill">{{ seg.flightStatus }}</span>
-                      {% endif %}
-
-                      <span class="mini-pill">
-                        Seat:
-                        {% if seg.seatCode %}{{ seg.seatCode }}{% else %}No seat{% endif %}
-                      </span>
+                      <div class="seg-main" style="color: rgba(239,68,68,.80);">Booking Cancelled</div>
+                      <div class="seg-sub">All passengers on this booking have been removed.</div>
                     </div>
                   </div>
-                {% endfor %}
+                {% else %}
+                  {% for seg in b.segments %}
+                    <div class="seg">
+                      <div class="seg-left">
+                        <div class="seg-main">
+                          {% if seg.originIata %}{{ seg.originIata }}{% else %}—{% endif %}
+                          {% if seg.originName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.originName }})</span>{% endif %}
+                          →
+                          {% if seg.destIata %}{{ seg.destIata }}{% else %}—{% endif %}
+                          {% if seg.destName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.destName }})</span>{% endif %}
+                        </div>
+
+                        <div class="seg-sub">
+                          Flight:
+                          {% if seg.flightNumber and seg.flightNumber != "" %}{{ seg.flightNumber }}{% else %}—{% endif %}
+                          • Dep: {% if seg.dep and seg.dep != "" %}{{ seg.dep }}{% else %}—{% endif %}
+                          • Arr: {% if seg.arr and seg.arr != "" %}{{ seg.arr }}{% else %}—{% endif %}
+                        </div>
+                      </div>
+
+                      <div class="seg-right">
+                        {% if seg.flightStatus and seg.flightStatus != "" %}
+                          <span class="mini-pill">{{ seg.flightStatus }}</span>
+                        {% endif %}
+
+                        <span class="mini-pill">
+                          Seat:
+                          {% if seg.seatCode %}{{ seg.seatCode }}{% else %}No seat{% endif %}
+                        </span>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% endif %}
               {% endif %}
             </div>
 
@@ -140,10 +156,10 @@
   </div>
 
   <!-- CANCEL CONFIRMATION POPUP -->
-  <div class="modal-backdrop" id="cancelModal">
+  <div class="modal-backdrop" id="cancelModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="cancelModalTitle" aria-describedby="cancelModalDescription" tabindex="-1">
     <div class="modal">
-      <div class="modal-title">Cancel Booking?</div>
-      <p class="modal-sub">This action cannot be undone. Your booking will be permanently cancelled.</p>
+      <div class="modal-title" id="cancelModalTitle">Cancel Booking?</div>
+      <p class="modal-sub" id="cancelModalDescription">This action cannot be undone. Your booking will be permanently cancelled.</p>
       <div class="modal-actions">
         <button class="btn" type="button" onclick="closeCancel()" aria-label="Go back without cancelling booking">Go Back</button>
         <form id="cancelForm" action="/profile/bookings/cancel" method="post" style="margin:0;">
@@ -155,13 +171,13 @@
   </div>
 
   <!-- DELETE CONFIRMATION POPUP -->
-  <div class="modal-backdrop" id="deleteModal">
+  <div class="modal-backdrop" id="deleteModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="deleteModalTitle" aria-describedby="deleteModalDescription" tabindex="-1">
     <div class="modal">
-      <div class="modal-title">Delete Booking?</div>
-      <p class="modal-sub">This action cannot be undone. Your booking will be permanently deleted.</p>
+      <div class="modal-title" id="deleteModalTitle">Delete Booking?</div>
+      <p class="modal-sub" id="deleteModalDescription">This action cannot be undone. Your booking will be permanently deleted.</p>
       <div class="modal-actions">
         <button class="btn" type="button" onclick="closeDelete()" aria-label="Go back without deleting booking">Go Back</button>
-        <form id="cancelForm" action="/profile/bookings/delete" method="post" style="margin:0;">
+        <form id="deleteForm" action="/profile/bookings/delete" method="post" style="margin:0;">
           <input type="hidden" name="bookingId" id="deleteBookingId" />
           <button class="a red" type="submit" aria-label="Confirm delete booking">Yes, delete</button>
         </form>

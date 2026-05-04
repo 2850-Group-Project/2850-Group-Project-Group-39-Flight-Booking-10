@@ -35,20 +35,20 @@
       <form action="/staff/bookings/create" method="post">
         <div class="row">
           <div>
-            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Passenger Email</label>
-            <input class="input" type="email" name="passengerEmail" required placeholder="passenger@example.com" />
+            <label for="newPassengerEmail" class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Passenger Email</label>
+            <input class="input" id="newPassengerEmail" type="email" name="passengerEmail" required placeholder="passenger@example.com" />
           </div>
           <div>
-            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">First Name</label>
-            <input class="input" type="text" name="passengerFirstName" placeholder="First name" />
+            <label for="newPassengerFirstName" class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">First Name</label>
+            <input class="input" id="newPassengerFirstName" type="text" name="passengerFirstName" placeholder="First name" />
           </div>
           <div>
-            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Last Name</label>
-            <input class="input" type="text" name="passengerLastName" placeholder="Last name" />
+            <label for="newPassengerLastName" class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Last Name</label>
+            <input class="input" id="newPassengerLastName" type="text" name="passengerLastName" placeholder="Last name" />
           </div>
           <div>
-            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Flight</label>
-            <select name="flightId" required>
+            <label for="newBookingFlightId" class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Flight</label>
+            <select id="newBookingFlightId" name="flightId" required>
               <option value="">Select flight</option>
               {% for f in flights %}
                 <option value="{{ f.id }}">{{ f.label }}</option>
@@ -56,8 +56,8 @@
             </select>
           </div>
           <div>
-            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Status</label>
-            <select name="bookingStatus" required>
+            <label for="newBookingStatus" class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Status</label>
+            <select id="newBookingStatus" name="bookingStatus" required>
               <option value="pending">pending</option>
               <option value="confirmed">confirmed</option>
               <option value="cancelled">cancelled</option>
@@ -67,8 +67,8 @@
 
         <div style="margin-top:10px; display:grid; grid-template-columns: 1fr 220px; gap:10px; align-items:end;">
           <div>
-            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Seat (optional, must match flight)</label>
-            <select name="seatId">
+            <label for="newBookingSeatId" class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Seat (optional, must match flight)</label>
+            <select id="newBookingSeatId" name="seatId">
               <option value="">No seat</option>
             </select>
             <div class="sub" style="margin-top:8px;">After creating, edit the booking to assign a seat for its flight.</div>
@@ -89,8 +89,8 @@
         </div>
         <form action="/staff/bookings" method="get" style="display:flex; gap:10px; align-items:end; margin-left:auto; min-width:340px;">
           <div style="flex:1;">
-            <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Search Booking ID</label>
-            <input class="input" name="q" value="{{ q }}" placeholder="e.g. 4" />
+            <label for="staffBookingSearch" class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:12px;letter-spacing:.35px;text-transform:uppercase;">Search Booking ID</label>
+            <input class="input" id="staffBookingSearch" name="q" value="{{ q }}" placeholder="e.g. 4" />
           </div>
           <button class="btn" type="submit" style="width:120px;" aria-label="Search bookings">Search</button>
         </form>
@@ -133,7 +133,7 @@
 
                     <div>
                       <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Status</label>
-                      <select name="bookingStatus">
+                      <select name="bookingStatus" aria-label="Booking {{ b.bookingReference }} status">
                         <option value="pending" {% if b.bookingStatus == "pending" %}selected{% endif %}>pending</option>
                         <option value="confirmed" {% if b.bookingStatus == "confirmed" %}selected{% endif %}>confirmed</option>
                         <option value="cancelled" {% if b.bookingStatus == "cancelled" %}selected{% endif %}>cancelled</option>
@@ -142,7 +142,7 @@
 
                     <div>
                       <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Flight</label>
-                      <select name="flightId">
+                      <select name="flightId" aria-label="Booking {{ b.bookingReference }} flight">
                         <option value="">No flight</option>
                         {% for f in flights %}
                           <option value="{{ f.id }}"
@@ -155,7 +155,7 @@
 
                     <div>
                       <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Seat</label>
-                      <select name="seatId">
+                      <select name="seatId" aria-label="Booking {{ b.bookingReference }} seat">
                         <option value="">No seat</option>
 
                         {% if b.flightId is not null %}

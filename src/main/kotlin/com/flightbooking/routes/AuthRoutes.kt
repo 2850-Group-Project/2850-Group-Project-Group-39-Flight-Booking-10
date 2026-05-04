@@ -69,12 +69,13 @@ fun Route.authRoutes() {
 
             if (userData == null) {
                 call.respondRedirect("/login")
+                return@post
             }
 
             call.sessions.set(
                 UserSession(
                     userEmail = email,
-                    firstName = userData?.firstName ?: "UNKNOWN",
+                    firstName = userData.firstName ?: "UNKNOWN",
                 ),
             )
             call.respondRedirect("/home")

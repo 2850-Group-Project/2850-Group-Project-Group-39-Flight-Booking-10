@@ -29,9 +29,9 @@
       <div class="search-card">
 
         <!-- TRIP TYPES -->
-        <div class="trip-tabs">
-          <button class="trip-tab active" onclick="setTripType('return', this)" aria-label="Select return trip">⇄ Return</button>
-          <button class="trip-tab" onclick="setTripType('oneway', this)" aria-label="Select one way trip">→ One way</button>
+        <div class="trip-tabs" role="group" aria-label="Trip type">
+          <button class="trip-tab active" onclick="setTripType('return', this)" aria-label="Select return trip" aria-pressed="true">⇄ Return</button>
+          <button class="trip-tab" onclick="setTripType('oneway', this)" aria-label="Select one way trip" aria-pressed="false">→ One way</button>
         </div>
 
         <!-- SEARCH FORM -->
@@ -42,17 +42,22 @@
 
             <!-- ORIGIN -->
             <div class="field">
-              <label>From</label>
+              <label for="origin-input">From</label>
               <div class="field-inner autocomplete-wrapper">
                 <input
                   type="text"
                   id="origin-input"
                   placeholder="City or airport"
                   autocomplete="off"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="origin-dropdown"
+                  aria-label="Origin city or airport"
                   required
                 />
                 <input type="hidden" name="origin" id="origin-value" />
-                <ul class="autocomplete-dropdown" id="origin-dropdown"></ul>
+                <ul class="autocomplete-dropdown" id="origin-dropdown" role="listbox"></ul>
               </div>
             </div>
 
@@ -63,44 +68,58 @@
 
             <!-- DESTINATION -->
             <div class="field">
-              <label>To</label>
+              <label for="destination-input">To</label>
               <div class="field-inner autocomplete-wrapper">
                 <input
                   type="text"
                   id="destination-input"
                   placeholder="City or airport"
                   autocomplete="off"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="destination-dropdown"
+                  aria-label="Destination city or airport"
                   required
                 />
                 <input type="hidden" name="destination" id="destination-value" />
-                <ul class="autocomplete-dropdown" id="destination-dropdown"></ul>
+                <ul class="autocomplete-dropdown" id="destination-dropdown" role="listbox"></ul>
               </div>
             </div>
 
             <!-- DEPARTURE DATE -->
             <div class="field">
-              <label>Departure</label>
+              <label for="departureDate">Departure</label>
               <div class="field-inner">
-                <input type="date" name="departure_date" required />
+                <input type="date" id="departureDate" name="departure_date" aria-label="Departure date" required />
               </div>
             </div>
 
             <!-- RETURN DATE -->
             <div class="field" id="returnField">
-              <label>Return</label>
+              <label for="returnDate">Return</label>
               <div class="field-inner">
-                <input type="date" name="return_date" id="returnDate" required />
+                <input type="date" name="return_date" id="returnDate" aria-label="Return date" required />
               </div>
             </div>
 
             <!-- PASSENGERS -->
             <div class="field pax-wrapper">
-              <label>Passengers</label>
-              <div class="pax-display" onclick="togglePax()">
+              <label id="passengersLabel" for="paxToggle">Passengers</label>
+              <button
+                type="button"
+                class="pax-display"
+                id="paxToggle"
+                onclick="togglePax()"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-controls="paxDropdown"
+                aria-labelledby="passengersLabel paxLabel"
+              >
                 <span id="paxLabel">1 Adult</span>
                 <span class="caret">▼</span>
-              </div>
-              <div class="pax-dropdown" id="paxDropdown">
+              </button>
+              <div class="pax-dropdown" id="paxDropdown" role="group" aria-label="Passenger count controls">
                 <div class="pax-row">
                   <div>
                     <div class="pax-label">Adults</div>
@@ -108,7 +127,7 @@
                   </div>
                   <div class="pax-ctrl">
                     <button type="button" onclick="changePax('adults', -1)" aria-label="Decrease adults">-</button>
-                    <span class="count" id="adultsCount">1</span>
+                    <span class="count" id="adultsCount" aria-live="polite">1</span>
                     <button type="button" onclick="changePax('adults', 1)" aria-label="Increase adults">+</button>
                   </div>
                 </div>
@@ -119,7 +138,7 @@
                   </div>
                   <div class="pax-ctrl">
                     <button type="button" onclick="changePax('children', -1)" aria-label="Decrease children">-</button>
-                    <span class="count" id="childrenCount">0</span>
+                    <span class="count" id="childrenCount" aria-live="polite">0</span>
                     <button type="button" onclick="changePax('children', 1)" aria-label="Increase children">+</button>
                   </div>
                 </div>
@@ -130,7 +149,7 @@
                   </div>
                   <div class="pax-ctrl">
                     <button type="button" onclick="changePax('infants', -1)" aria-label="Decrease infants">-</button>
-                    <span class="count" id="infantsCount">0</span>
+                    <span class="count" id="infantsCount" aria-live="polite">0</span>
                     <button type="button" onclick="changePax('infants', 1)" aria-label="Increase infants">+</button>
                   </div>
                 </div>
