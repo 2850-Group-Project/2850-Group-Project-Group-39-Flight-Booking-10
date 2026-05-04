@@ -8,17 +8,16 @@
 </head>
 <body>
 <div class="wrap">
+  <!-- NAV -->
   <div class="topbar">
     <div class="brand">
-      <div class="brand-badge">✈</div>
+      <div class="badge">✈️</div>
       <div>SkyFlow Staff</div>
     </div>
-    <div class="right">
-        <a class="navbtn" href="#" data-large-font-toggle>Large Font</a >
-      <span class="pill">{{ staffName }} • {{ staffRole }}</span>
-      <a class="navbtn" href="/staff/dashboard">Dashboard</a >
-      <span class="muted">•</span>
-      <a class="navbtn red" href="/staff/logout">Logout</a >
+    <div class="nav">
+        <a class="link" href="#" data-large-font-toggle>Large Font</a >
+      <a class="link" href="/staff/dashboard">Dashboard</a >
+      <a class="link red" href="/staff/logout">Logout</a >
     </div>
   </div>
 
@@ -195,7 +194,10 @@
                 </td>
 
                 <td>
-                  <div class="pill">{% if b.bookingStatus %}{{ b.bookingStatus }}{% else %}—{% endif %}</div>
+                  <span class="status {{ b.bookingStatus | lower }}">
+                    <span class="s"></span>
+                    {% if b.bookingStatus %}{{ b.bookingStatus }}{% else %}—{% endif %}
+                  </span>
                 </td>
               </tr>
             {% endfor %}
