@@ -70,7 +70,8 @@ fun fetchBookingRows(
     dest: Alias<AirportTable>,
 ): List<Map<String, Any?>> {
     return BookingTable
-        .join(BookingSegmentTable, JoinType.INNER, additionalConstraint = {
+        // Used Claude AI to debug incorrect JoinType on line 74 (JoinType.INNER -> JoinType.LEFT)
+        .join(BookingSegmentTable, JoinType.LEFT, additionalConstraint = {
             BookingSegmentTable.bookingId eq BookingTable.id
         })
         .join(FlightTable, JoinType.LEFT, additionalConstraint = {
