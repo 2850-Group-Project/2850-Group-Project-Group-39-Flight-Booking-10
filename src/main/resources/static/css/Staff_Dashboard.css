@@ -234,13 +234,6 @@ body{
     min-width:0;
 }
 
-.crumbs{
-    color:rgba(255,255,255,.55);
-    font-size:12px;
-    margin-bottom:4px;
-}
-.crumbs b{color:rgba(125,211,252,.9); font-weight:700}
-
 h1{
     margin:0 0 14px;
     font-size:30px;

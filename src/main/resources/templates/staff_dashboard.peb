@@ -11,29 +11,29 @@
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-badge">✈</div>
+      <div class="brand-badge">✈️</div>
       <div class="brand-title">SkyFlow Staff</div>
     </div>
 
     <!-- OPTIONS: SIDEBAR -->
     <div class="nav-title">MAIN MENU</div>
     <nav class="nav">
-      <a class="active" href=" "><span class="ico">📊</span> Operations Control</a >
-      <a href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
-      <a href="#" onclick="return false;"><span class="ico">👥</span> Crew Assignments</a >
-      <a href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
-      <a href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
-      <a href="#" onclick="return false;"><span class="ico">✅</span> Compliance Reports</a >
+      <a class="active" href=" "><span class="ico">📊</span> Operations Control</a>
+      <a href="/staff/flights"><span class="ico">✈️</span> Flight Scheduler</a>
+      <a href="#" onclick="return false;"><span class="ico">👨‍✈️</span> Crew Assignments</a>
+      <a href="/staff/bookings"><span class="ico">📑</span> Bookings</a>
+      <a href="/staff/notifications"><span class="ico">🔔</span> Notifications</a>
+      <a href="#" onclick="return false;"><span class="ico">🗂️</span> Compliance Reports</a>
     </nav>
 
     <div class="nav-title">SYSTEM</div>
     <nav class="nav">
-      <a href="#" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a >
-      <a href="#" onclick="return false;"><span class="ico">🔔</span> Alert Configuration</a >
+      <a href="#" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a>
+      <a href="#" onclick="return false;"><span class="ico">🚨</span> Alert Configuration</a>
     </nav>
 
     <div class="sidebar-footer">
-      <a class="logout" href="/staff/logout"><span class="ico">⇐</span> Log Out</a >
+      <a class="logout" href="/staff/logout"><span class="ico">↩️</span> Log Out</a>
     </div>
   </aside>
 
@@ -41,11 +41,11 @@
   <div class="main">
     <header class="topbar">
       <div class="right">
-          <a class="top" href="#" data-large-font-toggle><span class="ico">A</span> Large Font</a >
-        <a class="top" href="/staff/flights"><span class="ico">🗓</span> Flight Scheduler</a >
-        <a class="top" href="/staff/bookings"><span class="ico">🧾</span> Bookings</a >
-        <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a >
-        <a class="top" href="/staff/logout"><span class="ico">⇐</span> Log Out</a >
+        <a class="top" href="#" data-large-font-toggle><span class="ico">🔤</span> Large Font</a>
+        <a class="top" href="/staff/flights"><span class="ico">✈️</span> Flight Scheduler</a>
+        <a class="top" href="/staff/bookings"><span class="ico">📑</span> Bookings</a>
+        <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a>
+        <a class="top" href="/staff/logout"><span class="ico">↩️</span> Log Out</a>
         <div class="profile">
           <div class="avatar"></div>
           <div class="name">
@@ -55,10 +55,9 @@
         </div>
       </div>
     </header>
-
+    
     <!-- INFORMATION SUMMARY -->
     <div class="content">
-      <div class="crumbs">Operations Control <span class="muted">›</span> <b>Dashboard</b></div>
       <h1>Operational Overview</h1>
 
       <section class="cards">
@@ -70,17 +69,6 @@
           <div class="kpi">
             <span>Active Flights</span>
             <b>{{ activeFlights }}</b>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="top">
-            <div class="badge">📈</div>
-            <div class="pill">Seat Utilization</div>
-          </div>
-          <div class="kpi">
-            <span>Load Factor</span>
-            <b>{{ loadFactor }}</b>
           </div>
         </div>
 
@@ -140,10 +128,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="muted">Load Factor</td>
-                <td><b>{{ loadFactor }}</b></td>
-              </tr>
               <tr>
                 <td class="muted">Active Flights</td>
                 <td><b>{{ activeFlights }}</b></td>
@@ -207,7 +191,6 @@
           <div>Signed in as <b>{{ staffEmail }}</b></div>
           <div class="links">
             <a href=" " onclick="return false;">Operational Policy</a >
-            <a href="#" onclick="return false;">Privacy</a >
             <a href="#" onclick="return false;">Help Desk</a >
           </div>
         </div>
@@ -223,7 +206,6 @@
   <div class="footer-links">
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
-    <a href="/help">Help</a>
     <a href="/complaints">Help</a>
   </div>
 </footer>
