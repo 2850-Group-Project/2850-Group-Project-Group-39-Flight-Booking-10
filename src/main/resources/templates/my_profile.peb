@@ -98,6 +98,19 @@
           {% if not hasSpending %}
             <p class="sub">No points spent yet.</p>
           {% endif %}
+        </section>
+        <section class="card" style="margin-top:1.5rem;">
+          <h2>Loyalty Points Overview</h2>
+          <canva id="pointsChart" style="max-height:300px;"></canvas>
+          <div style="margin-top:1.5rem;">
+            <p style="margin-bottom:0.5rem;">Progress to next milestone</p>
+            <div style="background:#e0e0e0;border-radius:8px;height:24px;">
+              <div style="width:{% if membershipStatus == 'Gold' %}100{% else %}{{ ((totalEarned * 100) / nextMilestone) }}{% endif %}%;background:gold;height:24px;border-radius:8px;"></div>
+            </div>
+            <p class="sub" style="margin-top:0.5rem;">{{ totalEarned }} / {{ nextMilestone }} total points earned • {{ membershipStatus }} → {% if membershipStatus == 'Gold' %}Gold (max tier){% elseif membershipStatus == 'Silver' %}Gold{% else %}Silver{% endif %}</p>
+          </div>
+        </section>
+
       </main>
     </div>
   </div>
@@ -114,5 +127,26 @@
   </footer>
 
   <script src="/static/javascript/Large_Font.js"></script>
+  <script>
+    new Chart(document.getElementById('pointsChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Total Earned', 'Total Redeemed', 'Current Balance'],
+        datasets: [{
+          label: 'Points',
+          data: [{{totalEarned}}, {{totalRedeemed}}, {{pointsBalance}}],
+          backgroundColor: ['#22c55e', '#ef4444', '#3b82f6'],
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {display: false},
+          title: {display: true, text: 'Loyalty Points Summary'}
+        },
+        scales: {y: {beginAtZero: true } }
+      }
+    });
 </body>
 </html>
