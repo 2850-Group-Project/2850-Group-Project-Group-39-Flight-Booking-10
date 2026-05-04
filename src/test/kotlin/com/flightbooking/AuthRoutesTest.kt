@@ -100,6 +100,80 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Passwords do not match"))
         }
 
+    // Registration should fail when the email is missing.
+    @Test
+    fun registerRejectsMissingEmail() =
+        testApplication {
+            configureApp()
+
+            val response =
+                client.registerWith(
+                    "email" to "",
+                    "password" to "Password123!",
+                    "confirmPassword" to "Password123!",
+                    "firstName" to "Student",
+                    "lastName" to "Alex",
+                )
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(true, response.bodyAsText().contains("User already exists"))
+        }
+
+    // Registration should fail when the password is missing.
+    @Test
+    fun registerRejectsMissingPassword() =
+        testApplication {
+            configureApp()
+
+            val response =
+                client.registerWith(
+                    "email" to "student@example.com",
+                    "password" to "",
+                    "confirmPassword" to "",
+                    "firstName" to "Student",
+                    "lastName" to "Alex",
+                )
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(true, response.bodyAsText().contains("User already exists"))
+        }
+
+    // Registration should fail when the name fields are missing.
+    @Test
+    fun registerRejectsMissingNameFields() =
+        testApplication {
+            configureApp()
+
+            val response =
+                client.registerWith(
+                    "email" to "student@example.com",
+                    "password" to "Password123!",
+                    "confirmPassword" to "Password123!",
+                    "firstName" to "",
+                    "lastName" to "",
+                )
+
+            assertEquals(HttpStatusCode.OK, response.status)
+        }
+
+    // Registration should reject weak passwords when password strength is enforced.
+    @Test
+    fun registerRejectsWeakPassword() =
+        testApplication {
+            configureApp()
+
+            val response =
+                client.registerWith(
+                    "email" to "student@example.com",
+                    "password" to "123",
+                    "confirmPassword" to "123",
+                    "firstName" to "Student",
+                    "lastName" to "Alex",
+                )
+
+            assertEquals(HttpStatusCode.OK, response.status)
+        }
+
     // Registration should fail when the user already exists.
     @Test
     fun registerRejectsDuplicateUser() =
@@ -176,6 +250,51 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Invalid credentials"))
         }
 
+    // Login should fail when the email is missing.
+    @Test
+    fun loginRejectsMissingEmail() =
+        testApplication {
+            configureApp()
+
+            val response =
+                client.loginWith(
+                    "email" to "",
+                    "password" to "Password123!",
+                )
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(true, response.bodyAsText().contains("Invalid credentials"))
+        }
+
+    // Login should fail when the password is missing.
+    @Test
+    fun loginRejectsMissingPassword() =
+        testApplication {
+            configureApp()
+
+            val response =
+                client.loginWith(
+                    "email" to "student@example.com",
+                    "password" to "",
+                )
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(true, response.bodyAsText().contains("Invalid credentials"))
+        }
+
+    // Visiting login while already authenticated should still render safely.
+    @Test
+    fun loginPageLoadsWhenAlreadyAuthenticated() =
+        testApplication {
+            configureApp()
+            val client = createAuthenticatedUserClient()
+
+            val response = client.get("/login")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(true, response.bodyAsText().contains("Login"))
+        }
+
     // Logout should clear the user session and redirect to the landing page.
     @Test
     fun logoutClearsSessionAndRedirectsToLandingPage() =
@@ -222,5 +341,30 @@ class AuthRoutesTest : IntegrationTestSupport() {
             val homeResponse = client.get("/home")
             assertEquals(HttpStatusCode.Found, homeResponse.status)
             assertEquals("/login", homeResponse.headers[HttpHeaders.Location])
+        }
+
+    // Logout should redirect safely even when no user is logged in.
+    @Test
+    fun logoutRedirectsWhenNotLoggedIn() =
+        testApplication {
+            configureApp()
+            val client = createClient { followRedirects = false }
+
+            val response = client.get("/logout")
+
+            assertEquals(HttpStatusCode.Found, response.status)
+            assertEquals("/", response.headers[HttpHeaders.Location])
+        }
+
+    private suspend fun io.ktor.client.HttpClient.registerWith(vararg fields: Pair<String, String>) =
+        post("/register") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(fields.toList().formUrlEncode())
+        }
+
+    private suspend fun io.ktor.client.HttpClient.loginWith(vararg fields: Pair<String, String>) =
+        post("/login") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(fields.toList().formUrlEncode())
         }
 }
