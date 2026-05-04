@@ -21,7 +21,7 @@
       <a class="active" href="/staff/dashboard" aria-current="page"><span class="ico">📊</span> Operations Control</a>
       <a href="/staff/flights"><span class="ico">✈️</span> Flight Scheduler</a>
       <a href="/staff/bookings"><span class="ico">📄</span> Bookings</a>
-      <a href="#"><span class="ico">💬</span> Customer Inquiries</a>
+      <a href="/staff/inquiries"><span class="ico">💬</span> Customer Inquiries</a>
       <a href="/staff/notifications"><span class="ico">🔄</span> Change Requests</a>
       <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">👤</span> Crew Assignments</a>
       <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">📋</span> Compliance Reports</a>
