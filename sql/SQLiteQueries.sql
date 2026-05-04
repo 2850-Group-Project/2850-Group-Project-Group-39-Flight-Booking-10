@@ -222,11 +222,22 @@ select * from flight;
 -- staff
 -- complaint
 -- notification
+-- complaint_response
 
 
 ----------------------------------------
 --       TABLE SQL CONSTRUCTION       --
 ----------------------------------------
+
+-- CREATE TABLE "complaint_response" (
+--   "response_id" INTEGER PRIMARY KEY,
+--   "complaint_id" INTEGER NOT NULL,
+--   "staff_id" INTEGER NOT NULL,
+--   "message" TEXT NOT NULL,
+--   "created_at" TEXT DEFAULT (datetime('now')),
+--   FOREIGN KEY ("complaint_id") REFERENCES "complaint" ("complaint_id"),
+--   FOREIGN KEY ("staff_id") REFERENCES "staff" ("staff_id")
+-- );
 
 -- CREATE TABLE "airport" (
 --   "airport_id" INTEGER PRIMARY KEY,

@@ -232,6 +232,19 @@ object ComplaintTable : Table("complaint") {
 }
 
 /**
+ * Exposed table definition for the `complaint_response` table.
+ */
+object ComplaintResponseTable : Table("complaint_response") {
+    val id = integer("response_id").autoIncrement()
+    val complaintId = integer("complaint_id").references(ComplaintTable.id)
+    val staffId = integer("staff_id").references(StaffTable.id)
+    val message = text("message")
+    val createdAt = varchar("created_at", STANDARD_FIELD_LENGTH)
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+/**
  * Exposed table definition for the `notification` table.
  */
 object NotificationTable : Table("notification") {

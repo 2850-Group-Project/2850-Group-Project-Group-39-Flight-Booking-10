@@ -303,6 +303,17 @@ data class Complaint(
 )
 
 /**
+ * Class definition for complaint_response table
+ */
+data class ComplaintResponse(
+    val id: Int,
+    val complaintId: Int,
+    val staffId: Int,
+    val message: String,
+    val createdAt: String,
+)
+
+/**
  * Class definition for notification table
  */
 data class Notification(
