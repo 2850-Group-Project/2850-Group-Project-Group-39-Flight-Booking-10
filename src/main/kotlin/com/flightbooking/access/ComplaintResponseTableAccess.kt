@@ -10,7 +10,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
@@ -22,7 +21,6 @@ private const val END_DATE_INDEX = 16
  * Class instance for using complaint and complaint response tables
  */
 class ComplaintResponseTableAccess {
-
     /**
      * Gets all complaints joined with user info
      * @param q optional search text (complaint id or user email)
@@ -82,10 +80,11 @@ class ComplaintResponseTableAccess {
                         "staffId" to row[ComplaintResponseTable.staffId],
                         "staffEmail" to row.getOrNull(StaffTable.email),
                         "message" to row[ComplaintResponseTable.message],
-                        "createdAt" to row[ComplaintResponseTable.createdAt]
-                            ?.toString()
-                            ?.formatDate()
-                            .orEmpty(),
+                        "createdAt" to
+                            row[ComplaintResponseTable.createdAt]
+                                .toString()
+                                .formatDate()
+                                .orEmpty(),
                     )
                 }
         }
@@ -127,10 +126,11 @@ class ComplaintResponseTableAccess {
         handledByStaffId: Int,
     ): Boolean =
         transaction {
-            val rows = ComplaintTable.update({ ComplaintTable.id eq complaintId }) {
-                it[ComplaintTable.status] = status
-                it[ComplaintTable.handledByStaffId] = handledByStaffId
-            }
+            val rows =
+                ComplaintTable.update({ ComplaintTable.id eq complaintId }) {
+                    it[ComplaintTable.status] = status
+                    it[ComplaintTable.handledByStaffId] = handledByStaffId
+                }
             rows > 0
         }
 

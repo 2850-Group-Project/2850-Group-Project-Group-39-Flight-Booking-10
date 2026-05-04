@@ -72,15 +72,10 @@ private suspend fun handleRespond(call: io.ktor.server.application.ApplicationCa
     val params = call.receiveParameters()
     val complaintId = params["complaintId"]?.toIntOrNull()
     val message = params["message"]?.trim() ?: ""
-
-    if (complaintId == null || message.length < 2) {
-        call.respondRedirect("/staff/inquiries?error=missing_fields")
-        return
-    }
-
     val staff = StaffTableAccess().findByEmail(staffSession.staffEmail)
-    if (staff == null) {
-        call.respondRedirect("/staff/inquiries?error=server_error")
+
+    if (complaintId == null || message.length < 2 || staff == null) {
+        call.respondRedirect("/staff/inquiries?error=missing_fields")
         return
     }
 
@@ -104,15 +99,10 @@ private suspend fun handleUpdateStatus(call: io.ktor.server.application.Applicat
     val params = call.receiveParameters()
     val complaintId = params["complaintId"]?.toIntOrNull()
     val status = params["status"] ?: ""
-
-    if (complaintId == null || status.isBlank()) {
-        call.respondRedirect("/staff/inquiries?error=missing_fields")
-        return
-    }
-
     val staff = StaffTableAccess().findByEmail(staffSession.staffEmail)
-    if (staff == null) {
-        call.respondRedirect("/staff/inquiries?error=server_error")
+
+    if (complaintId == null || status.isBlank() || staff == null) {
+        call.respondRedirect("/staff/inquiries?error=missing_fields")
         return
     }
 
