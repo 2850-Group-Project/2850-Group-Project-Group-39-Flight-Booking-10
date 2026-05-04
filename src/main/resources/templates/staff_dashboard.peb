@@ -108,7 +108,7 @@
                       {{ f.status }}
                     </span>
                   </td>
-                  <td>{{ f.capacity }}</td>
+                  <td>{{ f.assignedSeats }}/{{ f.capacity }}</td>
                 </tr>
               {% endfor %}
             {% else %}
