@@ -4,6 +4,7 @@ import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.ChangeRequestTable
+import com.flightbooking.tables.ComplaintTable
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FlightTable
@@ -419,6 +420,47 @@ fun latestChangeRequest(): TestChangeRequest =
             }
     }
 
+// Insert a complaint row for profile complaint tests.
+fun seedComplaint(
+    userId: Int,
+    type: String = "service",
+    message: String = "Flight support was slow",
+): Int =
+    transaction {
+        ComplaintTable.insert {
+            it[ComplaintTable.userId] = userId
+            it[ComplaintTable.type] = type
+            it[ComplaintTable.message] = message
+            it[createdAt] = "2026-04-01T00:00:00Z"
+            it[status] = "open"
+            it[handledByStaffId] = null
+        }.resultedValues!!.first()[ComplaintTable.id]
+    }
+
+// Count complaint rows.
+fun complaintCount(): Int =
+    transaction {
+        ComplaintTable.selectAll().count().toInt()
+    }
+
+// Read the most recently submitted complaint.
+fun latestComplaint(): TestComplaint =
+    transaction {
+        ComplaintTable
+            .selectAll()
+            .orderBy(ComplaintTable.id, SortOrder.DESC)
+            .limit(1)
+            .first()
+            .let {
+                TestComplaint(
+                    userId = it[ComplaintTable.userId],
+                    type = it[ComplaintTable.type],
+                    message = it[ComplaintTable.message],
+                    status = it[ComplaintTable.status],
+                )
+            }
+    }
+
 // Read generated seat codes for a flight in creation order.
 fun seatCodesForFlight(flightId: Int): List<String> =
     transaction {
@@ -470,5 +512,12 @@ data class TestChangeRequest(
     val requestedFlightId: Int?,
     val requestedSeatId: Int?,
     val reason: String?,
+    val status: String,
+)
+
+data class TestComplaint(
+    val userId: Int?,
+    val type: String?,
+    val message: String?,
     val status: String,
 )
