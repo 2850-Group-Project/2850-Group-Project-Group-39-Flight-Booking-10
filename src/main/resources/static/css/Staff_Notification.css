@@ -76,7 +76,7 @@ body{
     background: rgba(255,255,255,.06);
     color: rgba(255,255,255,.9);
     text-decoration:none;
-    font-weight:800;
+    font-weight:700;
     transition:.18s ease;
     cursor:pointer;
 }
@@ -112,15 +112,21 @@ h1{margin:0;font-size:22px;letter-spacing: 0;}
 }
 .btn{
     border:1px solid rgba(255,255,255,.14);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    font-size: 16px;
     background: rgba(255,255,255,.06);
     color: rgba(255,255,255,.92);
     padding:10px 12px;
+    text-decoration: none;
     border-radius:12px;
-    font-weight:800;
     cursor:pointer;
     transition: .18s ease;
     user-select:none;
     white-space:nowrap;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .btn:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
 .btn.primary{ background: linear-gradient(90deg, var(--accent), #2b7bff); border:none; }
@@ -141,6 +147,22 @@ h1{margin:0;font-size:22px;letter-spacing: 0;}
     border-color: rgba(255,77,77,.25);
     color: #ffd0d0;
 }
+.msg.err {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.30);
+    color: #ffb4b4;
+}
+.msg.ok {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(34, 197, 94, 0.10);
+    border-color: rgba(34, 197, 94, 0.30);
+    color: #b6f7c2;
+}
 .table{
     width:100%;
     border-collapse:collapse;
@@ -157,7 +179,7 @@ h1{margin:0;font-size:22px;letter-spacing: 0;}
 }
 .table th{
     color:rgba(255,255,255,.80);
-    font-weight:900;
+    font-weight:700;
     font-size:12px;
     letter-spacing:.35px;
     background: rgba(255,255,255,.04);
@@ -170,12 +192,91 @@ h1{margin:0;font-size:22px;letter-spacing: 0;}
     padding:7px 10px;border-radius:999px;
     border:1px solid rgba(255,255,255,.14);
     background: rgba(255,255,255,.06);
-    font-weight:900;
+    font-weight:700;
     font-size:12px;
     white-space:nowrap;
 }
 .status-dot{ width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.55); }
-.row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.row-actions{display:flex;flex-direction:column;gap:8px;}
+
+/* -- DELETE MODAL CONFIRMATION -- */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+}
+
+.modal-backdrop.open {
+    display: grid;
+    place-items: center;
+}
+
+.modal {
+    background: rgba(15, 19, 32, .98);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+    padding: 28px;
+    max-width: 420px;
+    width: 90%;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+}
+
+.modal-sub {
+    color: rgba(255, 255, 255, .60);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-actions form {
+    display: contents;
+}
+
+.section-title form .btn,
+.section-title form .input {
+    height: 42px;
+}
+
+.actions .a {
+    min-width: 64px;
+}
+.a{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:9px 10px;border-radius:12px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.92);
+    text-decoration:none;
+    font-weight:700;
+    font-size:12px;
+    cursor:pointer;
+    transition:.18s ease;
+}
+.a:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
+.a.red{
+    border-color: rgba(255,77,77,.30);
+    background: rgba(255,77,77,.10);
+}
+a.a { text-decoration: none; }
+.a.btn {
+    font-size: 13px;
+}
 
 /* -- FOOTER -- */
 footer {
@@ -200,3 +301,9 @@ footer a:hover {
   display: flex;
   gap: 16px;
 }
+
+.status-dot.complete { background: rgba(77, 255, 83, 0.9); }
+.status-dot.approved { background: rgba(98, 224, 102, 0.9); }
+.status-dot.pending { background: rgba(108, 108, 108, 0.95); }
+.status-dot.cancelled { background: rgba(245,158,11,.95); }
+.status-dot.rejected { background: rgba(239,68,68,.95); }
