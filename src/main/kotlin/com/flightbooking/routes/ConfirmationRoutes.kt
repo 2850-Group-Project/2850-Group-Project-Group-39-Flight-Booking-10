@@ -19,8 +19,8 @@ import io.ktor.server.sessions.get
  */
 fun Route.confirmationRoutes() {
     get("/confirmation") {
-        val (_, _) = AuthService.requireUser(call)
-        val bookingSession = AuthService.requireBooking(call)
+        AuthService.requireUser(call) ?: return@get
+        val bookingSession = AuthService.requireBooking(call) ?: return@get
 
         val totalPrice = bookingSession.totalPrice
 
