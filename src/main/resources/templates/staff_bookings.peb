@@ -117,13 +117,20 @@
               <tr>
                 <td>
                   <div style="font-weight:900;">{{ b.bookingReference }}</div>
-                  <div class="muted" style="margin-top:3px;">ID: {{ b.bookingId }}</div>
-                  <div class="muted" style="margin-top:3px;">{{ b.createdAt }}</div>
+                  <div class="muted" style="font-size:12px;margin-top:3px;">ID: {{ b.bookingId }}</div>
+                  <div class="muted" style="font-size:12px;margin-top:2px;">{{ b.createdAt }}</div>
                 </td>
 
                 <td>
                   <div style="font-weight:800;">{% if b.passengerName %}{{ b.passengerName }}{% else %}—{% endif %}</div>
-                  <div class="muted" style="margin-top:3px;">{% if b.passengerEmail %}{{ b.passengerEmail }}{% else %}—{% endif %}</div>
+                  <div class="muted" style="font-size:12px;margin-top:3px;">{% if b.passengerEmail %}{{ b.passengerEmail }}{% else %}—{% endif %}</div>
+                </td>
+
+                <td>
+                  <span class="status {{ b.bookingStatus | lower }}">
+                    <span class="s"></span>
+                    {% if b.bookingStatus %}{{ b.bookingStatus }}{% else %}—{% endif %}
+                  </span>
                 </td>
 
                 <td colspan="3">
@@ -144,8 +151,7 @@
                       <select name="flightId" aria-label="Booking {{ b.bookingReference }} flight">
                         <option value="">No flight</option>
                         {% for f in flights %}
-                          <option value="{{ f.id }}"
-                            {% if b.flightId is not null and f.id == b.flightId %}selected{% endif %}>
+                          <option value="{{ f.id }}" {% if b.flightId is not null and f.id == b.flightId %}selected{% endif %}>
                             {{ f.label }}
                           </option>
                         {% endfor %}
@@ -156,7 +162,6 @@
                       <label class="muted" style="display:block;margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.35px;text-transform:uppercase;">Seat</label>
                       <select name="seatId" aria-label="Booking {{ b.bookingReference }} seat">
                         <option value="">No seat</option>
-
                         {% if b.flightId is not null %}
                           {% set fid = b.flightId %}
                           {% set seats = seatsByFlight[fid] %}
@@ -168,10 +173,8 @@
                                   {% set isCurrent = true %}
                                 {% endif %}
                               {% endif %}
-
                               {% if s.status == "available" or isCurrent %}
-                                <option value="{{ s.id }}"
-                                  {% if isCurrent %}selected{% endif %}>
+                                <option value="{{ s.id }}" {% if isCurrent %}selected{% endif %}>
                                   {{ s.seatCode }}{% if s.status != "available" %} (assigned){% endif %}
                                 </option>
                               {% endif %}
@@ -184,20 +187,11 @@
                       </div>
                     </div>
 
-                    <div style="grid-column: 1 / -1; display:grid; grid-template-columns: 1fr 140px; gap:10px; margin-top:10px;">
-                      <div class="muted" style="font-size:12px; align-self:center;">
-                        Saving seat only works if it belongs to the selected flight.
-                      </div>
-                      <button class="btn primary" type="submit" aria-label="Save booking {{ b.bookingReference }}">Save</button>
+                    <div style="grid-column: 1 / -1; display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
+                      <button class="btn primary" style="width:120px;" type="submit" aria-label="Save booking {{ b.bookingReference }}">Save →</button>
                     </div>
-                  </form>
-                </td>
 
-                <td>
-                  <span class="status {{ b.bookingStatus | lower }}">
-                    <span class="s"></span>
-                    {% if b.bookingStatus %}{{ b.bookingStatus }}{% else %}—{% endif %}
-                  </span>
+                  </form>
                 </td>
               </tr>
             {% endfor %}

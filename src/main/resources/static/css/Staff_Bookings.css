@@ -253,8 +253,15 @@ footer a:hover {
     width:8px;height:8px;border-radius:50%;
     background: rgba(255,255,255,.55);
 }
-.status.scheduled .s{ background: rgba(56,189,248,.9); }
-.status.boarding .s{ background: rgba(245,158,11,.95); }
-.status.ontime .s{ background: rgba(34,197,94,.95); }
-.status.delayed .s{ background: rgba(239,68,68,.95); }
+tbody tr:hover td {
+    background: rgba(255,255,255,.04);
+    transition: background .15s ease;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.status.confirmed .s{ background: rgba(98, 224, 102, 0.9); }
+.status.pending .s{ background: rgba(245,158,11,.95); }
 .status.cancelled .s{ background: rgba(239,68,68,.95); }
