@@ -248,7 +248,6 @@ object NotificationTable : Table("notification") {
 /**
  * Exposed table definition for the `change_request` table.
  */
-
 object ChangeRequestTable : Table("change_request") {
     val id = integer("change_request_id").autoIncrement()
     override val primaryKey = PrimaryKey(id)
@@ -275,7 +274,9 @@ object ChangeRequestTable : Table("change_request") {
 object UserPointsTable : Table("user_points") {
     val id = integer("user_points_id").autoIncrement()
     val userId = integer("user_id").references(UserTable.id).uniqueIndex()
+    val membershipStatus = varchar("membership_status", SHORTEST_FIELD_LENGTH).default("Bronze")
     val balance = integer("balance").default(0)
+    val totalPointsEarned = integer("total_points_earned").default(0)
 
     override val primaryKey = PrimaryKey(id)
 }

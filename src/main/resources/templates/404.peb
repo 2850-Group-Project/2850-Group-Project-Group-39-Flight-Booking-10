@@ -10,7 +10,7 @@
 <body>
   <!-- NAV -->
   <nav>
-    <a href="/" class="brand">
+    <a href="/home" class="brand">
       <div class="brand-badge">✈️</div>
       <span class="brand-title">SkyFlow</span>
     </a>
@@ -39,7 +39,7 @@
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
       <a href="/help">Help</a>
-      <a href="/complaints">Complaints</a>
+      <a href="/complaints">Help</a>
     </div>
   </footer>
 

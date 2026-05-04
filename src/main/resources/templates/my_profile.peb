@@ -6,10 +6,12 @@
   <title>My Profile</title>
   <link rel="stylesheet" href="/static/css/My_Profile.css">
   <link rel="stylesheet" href="/static/css/Home.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 </head>
 <body>
   <nav>
-    <a href=" " class="brand">
+    <a href="/home" class="brand">
       <div class="brand-badge">✈️</div>
       <span class="brand-title">SkyFlow</span>
     </a >
@@ -31,7 +33,7 @@
         <div class="snav">
           <a class="active" href="/profile"><span class="ico">👤</span> Profile</a >
           <a href="/profile/bookings"><span class="ico">🧾</span> Bookings</a >
-          <a href="/profile/complaints"><span class="ico">⚠️</span> Complaints</a >
+          <a href="/profile/complaints"><span class="ico">⚠️</span> Support</a >
           <a href="/profile/notifications"><span class="ico">🔔</span> Notifications</a >
         </div>
       </aside>
@@ -78,6 +80,17 @@
           </aside>
         </div>
 
+        <section class="card" style="margin-top:1.5rem;">
+          <canvas id="pointsChart" style="max-height:300px;"></canvas>
+          <div style="margin-top:1.5rem;">
+            <p style="margin-bottom:0.5rem;">Progress to next milestone</p>
+            <div style="background:#e0e0e0;border-radius:8px;height:24px;">
+              <div style="width:{% if membershipStatus == 'Gold' %}100{% else %}{{ ((totalEarned * 100) / nextMilestone) }}{% endif %}%;background:gold;height:24px;border-radius:8px;"></div>
+            </div>
+            <p class="sub" style="margin-top:0.5rem;">{{ totalEarned }} / {{ nextMilestone }} total points earned • {{ membershipStatus }} → {% if membershipStatus == 'Gold' %}Gold (max tier){% elseif membershipStatus == 'Silver' %}Gold{% else %}Silver{% endif %}</p>
+          </div>
+        </section>
+
         <section class="points-card card">
           {% set hasSpending = false %}
           {% for tx in pointsTransactions %}
@@ -98,6 +111,7 @@
           {% if not hasSpending %}
             <p class="sub">No points spent yet.</p>
           {% endif %}
+        </section>
       </main>
     </div>
   </div>
@@ -109,10 +123,70 @@
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
       <a href="/help">Help</a>
-      <a href="/complaints">Complaints</a>
+      <a href="/complaints">Help</a>
     </div>
   </footer>
 
   <script src="/static/javascript/Large_Font.js"></script>
+  <script>
+    Chart.register(ChartDataLabels);
+    Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+
+    function renderChart() {
+      const existing = Chart.getChart('pointsChart');
+      if (existing) existing.destroy();
+
+      const baseFontSize = parseFloat(getComputedStyle(document.body).fontSize);
+      const isLargeFont = window.localStorage.getItem('skyflow_large_font') === '1';
+      const fontSize = isLargeFont ? baseFontSize * 1.15 : baseFontSize;
+
+      new Chart(document.getElementById('pointsChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Total Earned', 'Total Redeemed', 'Current Balance'],
+          datasets: [{
+            label: 'Points',
+            data: [{{totalEarned}}, {{totalRedeemed}}, {{pointsBalance}}],
+            backgroundColor: ['#22c55e', '#ef4444', '#3b82f6'],
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {display: false},
+            title: {
+              display: true,
+              text: 'Loyalty Points Summary',
+              padding: {top: 0, bottom: 0},
+              font: {size: fontSize, weight: 'bold'}
+            },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              font: {size: fontSize, weight: 'bold'}
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {font: {size: fontSize}}
+              },
+            x: {
+              ticks: {font: {size: fontSize}}
+            }
+          }
+        }
+      });
+    }
+
+    renderChart();
+
+    document.querySelectorAll('[data-large-font-toggle]').forEach(function(toggle) {
+      toggle.addEventListener('click', function() {
+        setTimeout(renderChart, 50);
+      });
+    });
+  </script>
 </body>
 </html>
