@@ -9,7 +9,7 @@
 </head>
 <body>
   <nav>
-    <a href=" " class="brand">
+    <a href="/home" class="brand">
       <div class="brand-badge">✈️</div>
       <span class="brand-title">SkyFlow</span>
     </a >
