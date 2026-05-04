@@ -117,7 +117,7 @@
                   <div class="muted" style="font-size:12px; margin-bottom:10px; text-align: center;">No responses.</div>
                 {% endif %}
 
-                <button class="btn primary" onclick="openWriteResponse({{ c.complaintId }})">Write Response</button>
+                <button class="btn primary" style="width: 100%;" onclick="openWriteResponse({{ c.complaintId }})">Write Response</button>
               </td>
 
               <!-- ACTIONS -->
@@ -177,17 +177,29 @@
 
 <!-- WRITE RESPONSE MODAL -->
 <div id="writeResponseModal" class="modal-backdrop" aria-hidden="true">
-  <div class="modal" role="dialog" aria-labelledby="writeResponseTitle">
-    <div class="modal-title" id="writeResponseTitle">Write Response</div>
-    <div class="modal-sub">Send a response to this inquiry.</div>
-    <div class="modal-actions">
-      <form action="/staff/inquiries/respond" method="post" style="display:flex;flex-direction:column;gap:8px;">
-        <input type="hidden" name="complaintId" id="writeResponseId" />
-        <textarea class="input" name="message" rows="2" placeholder="Write a response..." style="resize:vertical;"></textarea>
-        <button class="btn primary" type="submit" aria-label="Send response to complaint {{ c.complaintId }}">Send →</button>
-      </form>
-      <button class="btn" type="button" onclick="closeWriteResponse()">Cancel</button>
+  <div class="modal-response" role="dialog" aria-labelledby="writeResponseTitle">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+      <div class="modal-title" id="writeResponseTitle">Write A Response</div>
+      <!-- Used Claude AI for lines 184, 188-198 to style the layout of the form -->
+      <button class="btn" type="button" onclick="closeWriteResponse()" style="padding:6px 10px; font-size:16px; border:none; background:none; color:rgba(255,255,255,.5); cursor:pointer;">✕</button>
     </div>
+    <div class="modal-sub">Your response will be visible to the customer on their complaints page.</div>
+
+    <form action="/staff/inquiries/respond" method="post" style="display:flex; flex-direction:column; gap:12px;">
+      <input type="hidden" name="complaintId" id="writeResponseId" />
+
+      <textarea
+        class="input"
+        name="message"
+        rows="5"
+        placeholder="Write a clear and helpful response..."
+        style="resize:vertical; line-height:1.6;"></textarea>
+
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="btn" type="button" onclick="closeWriteResponse()">Cancel</button>
+        <button class="btn primary" type="submit" style="min-width:120px;">Send Response →</button>
+      </div>
+    </form>
   </div>
 </div>
 

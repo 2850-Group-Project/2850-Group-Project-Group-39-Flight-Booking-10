@@ -227,6 +227,15 @@ tbody tr:hover td{ background: rgba(255,255,255,.03); transition: background .15
 .modal-sub{ color:rgba(255,255,255,.60); font-size:14px; line-height:1.6; margin-bottom:24px; }
 .modal-actions{ display:flex; gap:10px; justify-content:flex-end; }
 .modal-actions form{ display:contents; }
+.modal-response {
+    background: rgba(15,19,32,.98);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px rgba(0,0,0,.6);
+    padding: 32px;
+    max-width: 500px;
+    width: 90%;
+}
 
 /* -- FOOTER -- */
 footer{
