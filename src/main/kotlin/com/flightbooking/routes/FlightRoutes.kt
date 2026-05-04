@@ -26,7 +26,7 @@ import java.util.UUID
  */
 fun Route.flightSelectRoutes() {
     post("/flights/select") {
-        val (_, _) = AuthService.requireUser(call)
+        AuthService.requireUser(call) ?: return@post
 
         val params = call.receiveParameters()
         val flightId =

@@ -3,7 +3,6 @@ package com.flightbooking.routes
 import com.flightbooking.access.ComplaintTableAccess
 import com.flightbooking.access.UserTableAccess
 import com.flightbooking.service.AuthService
-import com.flightbooking.tables.ComplaintTable
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.request.receiveParameters
@@ -13,8 +12,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * Complaints page routes
@@ -36,7 +33,7 @@ fun Route.complaintsRoutes() {
  * @param call request call
  */
 private suspend fun handleGetComplaints(call: io.ktor.server.application.ApplicationCall) {
-    val userSession = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
     call.respond(
         PebbleContent(
             "complaints.peb",
@@ -55,7 +52,7 @@ private suspend fun handleGetComplaints(call: io.ktor.server.application.Applica
  * @param call request call
  */
 private suspend fun handleSubmitComplaint(call: io.ktor.server.application.ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
 
     val params = call.receiveParameters()
     val complaintText = params["message"] ?: ""
@@ -66,13 +63,7 @@ private suspend fun handleSubmitComplaint(call: io.ktor.server.application.Appli
         val error = if (complaintText.length < 2) "missing_fields" else "server_error"
         call.respondRedirect("/complaints?error=$error")
     } else {
-        transaction {
-            ComplaintTable.insert {
-                it[ComplaintTable.userId] = user.id
-                it[ComplaintTable.type] = type
-                it[ComplaintTable.message] = complaintText
-            }
-        }
+        ComplaintTableAccess().createComplaint(user.id, type, complaintText, "open", null)
         call.respondRedirect("/complaints?success=true")
     }
 }
@@ -82,7 +73,7 @@ private suspend fun handleSubmitComplaint(call: io.ktor.server.application.Appli
  * @param call request call
  */
 private suspend fun handleProfileComplaints(call: io.ktor.server.application.ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call)
+    val (userSession, _) = AuthService.requireUser(call) ?: return
 
     val user = UserTableAccess().findByEmail(userSession.userEmail) ?: return call.respondRedirect("/login")
 

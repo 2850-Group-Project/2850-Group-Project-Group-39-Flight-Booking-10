@@ -15,10 +15,12 @@ async function selectFlight(event, form) {
     const track = form.closest('.carousel-track');
     track.querySelectorAll('.flight-card').forEach(card => {
         card.classList.remove('flight-card--selected');
+        card.querySelector('.btn-select')?.setAttribute('aria-pressed', 'false');
     });
 
     // mark this card as selected
     form.closest('.flight-card').classList.add('flight-card--selected');
+    form.querySelector('.btn-select')?.setAttribute('aria-pressed', 'true');
 
     // track which legs are selected
     selected[leg] = true;
