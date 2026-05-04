@@ -70,11 +70,11 @@
             <select id="newBookingSeatId" name="seatId">
               <option value="">No seat</option>
             </select>
-            <div class="sub" style="margin-top:8px;">After creating, edit the booking to assign a seat for its flight.</div>
           </div>
           <div>
             <button class="btn primary" type="submit" aria-label="Create booking">Create Booking →</button>
           </div>
+          <div class="sub" style="margin-top:8px;">After creating, edit the booking to assign a seat for its flight.</div>
         </div>
       </form>
     </div>
