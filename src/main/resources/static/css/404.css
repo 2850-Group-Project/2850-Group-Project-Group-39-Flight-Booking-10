@@ -16,7 +16,7 @@
 .error-code {
     font-size: clamp(80px, 18vw, 180px);
     font-weight: 900;
-    letter-spacing: -6px;
+    letter-spacing: 0;
     line-height: 1;
     background: linear-gradient(135deg, var(--accent2), var(--accent));
     -webkit-background-clip: text;
@@ -30,7 +30,7 @@
 .error-title {
     font-size: 22px;
     font-weight: 800;
-    letter-spacing: -.5px;
+    letter-spacing: 0;
     margin-bottom: 10px;
     opacity: 0;
     animation: fadeUp .5s ease .15s forwards;

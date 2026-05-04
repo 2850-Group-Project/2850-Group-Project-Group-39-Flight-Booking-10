@@ -70,10 +70,10 @@
 
       <!-- MESSAGES -->
       {% if error %}
-        <div class="msg msg-error">{{ error }}</div>
+        <div class="msg msg-error" role="alert">{{ error }}</div>
       {% endif %}
       {% if ok %}
-        <div class="msg msg-success">{{ ok }}</div>
+        <div class="msg msg-success" role="status">{{ ok }}</div>
       {% endif %}
 
       <!-- PASSENGERS INFO -->
@@ -104,21 +104,21 @@
       </div>
 
       <!-- CURRENT PASSENGER -->
-      <div class="current-passenger-info">
+      <div class="current-passenger-info" aria-live="polite">
         <span class="passenger-icon-large">👤</span>
         <div class="current-passenger-text">
           <span class="current-passenger-label">Assigning seat for</span>
-          <span class="current-passenger-name">{{ currentPassenger }}</span>
+          <span class="current-passenger-name" id="current-passenger-name">{{ currentPassenger }}</span>
         </div>
       </div>
 
       <!-- SEAT SELECTION STATUS -->
-      <div class="seat-status-bar" id="status-bar">
+      <div class="seat-status-bar" id="status-bar" role="status" aria-live="polite">
         <div class="seat-status-info">
           <span class="seat-status-label">Seats assigned:</span>
           <span class="seat-status-count" id="seat-count">0 / {{ passengers|length }}</span>
         </div>
-        <div class="seat-status-list" id="seat-list">
+        <div class="seat-status-list" id="seat-list" aria-label="Selected seat assignments">
           <!-- Filled by javascript -->
         </div>
         <!-- RESET SEATS -->
@@ -142,9 +142,12 @@
 
       <!-- SEAT MAP -->
       <form id="seat-form" action="/flights/seats" method="post" class="seat-form">
+        <p class="sr-only" id="seat-instructions">
+          Select one available seat for each passenger. Selected seats are announced in the status area.
+        </p>
         <div class="seatmap-wrapper">
-          <div class="seatmap">
-            <div class="seatmap-header">Front of Aircraft</div>
+          <div class="seatmap" role="group" aria-labelledby="seatmap-title" aria-describedby="seat-instructions">
+            <div class="seatmap-header" id="seatmap-title">Front of Aircraft</div>
             
             {% for row in seatRows %}
               <div class="seat-row">
@@ -166,9 +169,12 @@
                         class="{{ cls }}"
                         type="button"
                         data-seat-code="{{ s.code }}"
+                        data-seat-position="{{ s.position }}"
+                        data-seat-status="{{ s.status }}"
                         data-passenger-id=""
                         data-passenger-name="{{ currentPassenger }}"
-                        aria-label="{{ s.code }}"
+                        aria-label="Seat {{ s.code }}, {{ s.position }}, {{ s.status }}"
+                        aria-pressed="false"
                         {% if s.status == "occupied" %}disabled{% endif %}
                         title="{{ s.code }} ({{ s.position }})"
                       >
@@ -184,10 +190,10 @@
 
         <!-- CONTINUE -->
         <div class="seat-actions">
-          <button type="button" class="btn-continue" id="continue-btn" disabled aria-label="Continue to next step">
+          <button type="button" class="btn-continue" id="continue-btn" disabled aria-disabled="true" aria-label="Continue to next step">
             Continue to next step →
           </button>
-          <p class="seat-actions-hint" id="hint-text">Select a seat for {{ currentPassenger }}</p>
+          <p class="seat-actions-hint" id="hint-text" aria-live="polite">Select a seat for {{ currentPassenger }}</p>
         </div>
 
         <!-- HIDDEN: INPUT SUBMITTED TO FORM -->

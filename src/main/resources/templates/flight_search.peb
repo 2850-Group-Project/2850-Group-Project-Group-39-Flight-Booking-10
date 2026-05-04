@@ -71,10 +71,10 @@
 
     <section class="flights-section-container">
       <!-- ROW 2: OUTBOUND FLIGHTS -->
-      <section class="flights-section">
+      <section class="flights-section" aria-labelledby="outbound-flights-title">
         <div class="flights-header">
           <div>
-            <h2 class="flights-title">
+            <h2 class="flights-title" id="outbound-flights-title">
               <span class="flights-leg-badge outbound">Outbound</span>
               {{ search.origin }} → {{ search.destination }}
             </h2>
@@ -87,9 +87,9 @@
         </div>
 
         <div class="carousel-track-wrapper">
-          <div class="carousel-track" id="outbound-track">
+          <div class="carousel-track" id="outbound-track" role="list" aria-label="Outbound flight options">
             {% for flight in outboundFlights %}
-            <div class="flight-card">
+            <div class="flight-card" role="listitem" aria-label="Outbound flight {{ flight.flightNumber }} from {{ flight.originCode }} to {{ flight.destinationCode }}, departing {{ flight.departureTime }}, from £{{ flight.cheapestFare.price }}">
               <div class="flight-card-top">
                 <div class="flight-time-block">
                   <span class="flight-time">{{ flight.departureTime }}</span>
@@ -132,13 +132,13 @@
                     <input type="hidden" name="adults" value="{{ search.adults }}" />
                     <input type="hidden" name="children" value="{{ search.children }}" />
                     <input type="hidden" name="infants" value="{{ search.infants }}" />
-                    <button type="submit" class="btn-select" aria-label="Select outbound flight {{ flight.flightNumber }}">Select →</button>
+                    <button type="submit" class="btn-select" aria-label="Select outbound flight {{ flight.flightNumber }}" aria-pressed="false">Select →</button>
                   </form>
                 </div>
               </div>
             </div>
             {% else %}
-            <div class="flights-empty">
+            <div class="flights-empty" role="status">
               <span class="flights-empty-icon">✈️</span>
               <p>No flights found around this date.</p>
               <a href="/home" class="btn-ghost">Search again</a>
@@ -150,10 +150,10 @@
 
       <!-- ROW 3: RETURN FLIGHTS ONLY SHOWN FOR RETURN TRIPS -->
       {% if search.tripType == "return" %}
-      <section class="flights-section">
+      <section class="flights-section" aria-labelledby="return-flights-title">
         <div class="flights-header">
           <div>
-            <h2 class="flights-title">
+            <h2 class="flights-title" id="return-flights-title">
               <span class="flights-leg-badge return">Return</span>
               {{ search.destination }} → {{ search.origin }}
             </h2>
@@ -166,9 +166,9 @@
         </div>
 
         <div class="carousel-track-wrapper">
-          <div class="carousel-track" id="return-track">
+          <div class="carousel-track" id="return-track" role="list" aria-label="Return flight options">
             {% for flight in returnFlights %}
-            <div class="flight-card">
+            <div class="flight-card" role="listitem" aria-label="Return flight {{ flight.flightNumber }} from {{ flight.originCode }} to {{ flight.destinationCode }}, departing {{ flight.departureTime }}, from £{{ flight.cheapestFare.price }}">
               <div class="flight-card-top">
                 <div class="flight-time-block">
                   <span class="flight-time">{{ flight.departureTime }}</span>
@@ -212,13 +212,13 @@
                     <input type="hidden" name="adults" value="{{ search.adults }}" />
                     <input type="hidden" name="children" value="{{ search.children }}" />
                     <input type="hidden" name="infants" value="{{ search.infants }}" />
-                    <button type="submit" class="btn-select" aria-label="Select return flight {{ flight.flightNumber }}">Select →</button>
+                    <button type="submit" class="btn-select" aria-label="Select return flight {{ flight.flightNumber }}" aria-pressed="false">Select →</button>
                   </form>
                 </div>
               </div>
             </div>
             {% else %}
-            <div class="flights-empty">
+            <div class="flights-empty" role="status">
               <span class="flights-empty-icon">✈️</span>
               <p>No return flights found around this date.</p>
               <a href="/home" class="btn-ghost">Search again</a>
@@ -230,7 +230,7 @@
       {% endif %}
     </section>
     
-    <div id="confirm-btn" class="confirm-btn">
+    <div id="confirm-btn" class="confirm-btn" aria-live="polite">
       <a href="/flights/passengers" class="btn-primary confirm-btn-inner">
           Continue to passenger information →
       </a>

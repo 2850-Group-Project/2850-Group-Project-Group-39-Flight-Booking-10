@@ -60,9 +60,13 @@ function updateUI() {
     }
     
     btn.classList.remove('selected');
+    btn.setAttribute('aria-pressed', 'false');
     if (isSelected) {
       btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
     }
+    var position = btn.getAttribute('data-seat-position') || 'seat';
+    btn.setAttribute('aria-label', 'Seat ' + seatCode + ', ' + position + ', ' + (isSelected ? 'selected' : 'available'));
   }
 
   var seatListHtml = '';
@@ -93,10 +97,13 @@ function updateUI() {
       break;
     }
   }
-  document.getElementById('continue-btn').disabled = !allAssigned;
+  var continueBtn = document.getElementById('continue-btn');
+  continueBtn.disabled = !allAssigned;
+  continueBtn.setAttribute('aria-disabled', allAssigned ? 'false' : 'true');
 
   if (allAssigned) {
     document.getElementById('hint-text').textContent = '✓ All passengers assigned! Click continue.';
+    document.getElementById('current-passenger-name').textContent = 'All passengers assigned';
   } else {
     var nextPassenger = null;
     for (var i = 0; i < passengerList.length; i++) {
@@ -106,7 +113,9 @@ function updateUI() {
       }
     }
     if (nextPassenger) {
-      document.getElementById('hint-text').textContent = 'Select a seat for ' + nextPassenger.firstName + ' ' + nextPassenger.lastName;
+      var nextPassengerName = nextPassenger.firstName + ' ' + nextPassenger.lastName;
+      document.getElementById('hint-text').textContent = 'Select a seat for ' + nextPassengerName;
+      document.getElementById('current-passenger-name').textContent = nextPassengerName;
     }
   }
 }
@@ -135,5 +144,12 @@ document.addEventListener('DOMContentLoaded', function() {
       seatSelections[passengerList[i].id] = null;
     }
     updateUI();
+  });
+
+  document.getElementById('seat-form').addEventListener('keydown', function(e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('seat')) {
+      e.preventDefault();
+      handleSeatClick(e.target);
+    }
   });
 });

@@ -85,7 +85,7 @@ private fun Application.configureServer() {
     install(StatusPages) {
         // check for 404 error (page not found)
         status(HttpStatusCode.NotFound) { call, _ ->
-            call.respond(PebbleContent("404.peb", emptyMap()))
+            call.respond(HttpStatusCode.NotFound, PebbleContent("404.peb", emptyMap()))
         }
         // any other 500 error (server error)
         exception<Throwable> { call, cause ->

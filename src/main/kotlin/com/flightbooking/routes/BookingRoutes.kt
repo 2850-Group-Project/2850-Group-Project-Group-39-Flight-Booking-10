@@ -31,8 +31,8 @@ fun Route.bookingRoutes() {
  * @param call application call
  */
 private suspend fun handlePostPassengersSubmit(call: ApplicationCall) {
-    val (_, _) = AuthService.requireUser(call)
-    val bookingSession = AuthService.requireBooking(call)
+    AuthService.requireUser(call) ?: return
+    val bookingSession = AuthService.requireBooking(call) ?: return
 
     val params = call.receiveParameters()
     val numberOfPassengers = calculatePassengerCount(bookingSession)

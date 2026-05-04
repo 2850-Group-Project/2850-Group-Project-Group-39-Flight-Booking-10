@@ -54,48 +54,56 @@ fun Route.seatSelectionRoutes() {
  * @param call request call
  */
 private suspend fun handleGetSeats(call: ApplicationCall) {
-    val bookingSession = AuthService.requireBooking(call)
-    val flightId = checkNotNull(bookingSession.outboundFlightId)
+    val auth = AuthService.requireUser(call)
 
-    val flightAccess = FlightTableAccess()
-    val airportAccess = AirportTableAccess()
+    if (auth != null) {
+        val bookingSession = AuthService.requireBooking(call)
+        val flightId = bookingSession?.outboundFlightId
+        if (bookingSession == null) {
+            return
+        } else if (flightId == null) {
+            call.respondRedirect("/flights/search")
+        } else {
+            val flightAccess = FlightTableAccess()
+            val airportAccess = AirportTableAccess()
+            val flight = flightAccess.getByAttribute(FlightTable.id, flightId).firstOrNull()
 
-    val flight = flightAccess.getByAttribute(FlightTable.id, flightId).firstOrNull()
-    if (flight == null) {
-        call.respondRedirect("/flights/search")
-        return
-    }
+            if (flight == null) {
+                call.respondRedirect("/flights/search")
+            } else {
+                val origin = airportAccess.getByAttribute(AirportTable.id, flight.originAirport).firstOrNull()
+                val dest = airportAccess.getByAttribute(AirportTable.id, flight.destinationAirport).firstOrNull()
 
-    val origin = airportAccess.getByAttribute(AirportTable.id, flight.originAirport).firstOrNull()
-    val dest = airportAccess.getByAttribute(AirportTable.id, flight.destinationAirport).firstOrNull()
+                val passengers =
+                    transaction {
+                        PassengerTable
+                            .select { PassengerTable.bookingId eq bookingSession.bookingId }
+                            .map { row -> passengersMapper(row) }
+                    }
+                val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
+                val layout = getLayout(capacity)
+                val seatStatusByCode =
+                    SeatTableAccess().getByAttribute(SeatTable.flightId, flight.id)
+                        .associate { it.seatCode to it.status }
+                val seatRows = buildSeatRows(capacity, layout, seatStatusByCode)
 
-    val passengers =
-        transaction {
-            PassengerTable
-                .select { PassengerTable.bookingId eq bookingSession.bookingId }
-                .map { row -> passengersMapper(row) }
+                val model =
+                    buildSeatsModel(
+                        SeatsModelParams(
+                            flight = flight,
+                            origin = origin,
+                            dest = dest,
+                            passengers = passengers,
+                            seatRows = seatRows,
+                            error = call.request.queryParameters["error"] ?: "",
+                            ok = call.request.queryParameters["ok"] ?: "",
+                        ),
+                    )
+
+                call.respond(PebbleContent("seat_selection.peb", model))
+            }
         }
-    val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
-    val layout = getLayout(capacity)
-    val seatStatusByCode =
-        SeatTableAccess().getByAttribute(SeatTable.flightId, flight.id)
-            .associate { it.seatCode to it.status }
-    val seatRows = buildSeatRows(capacity, layout, seatStatusByCode)
-
-    val model =
-        buildSeatsModel(
-            SeatsModelParams(
-                flight = flight,
-                origin = origin,
-                dest = dest,
-                passengers = passengers,
-                seatRows = seatRows,
-                error = call.request.queryParameters["error"] ?: "",
-                ok = call.request.queryParameters["ok"] ?: "",
-            ),
-        )
-
-    call.respond(PebbleContent("seat_selection.peb", model))
+    }
 }
 
 /**
@@ -107,26 +115,47 @@ private suspend fun handleGetSeats(call: ApplicationCall) {
  * @param call request call
  */
 private suspend fun handlePostSeats(call: ApplicationCall) {
-    val bookingSession = AuthService.requireBooking(call)
-
-    val flightId = checkNotNull(bookingSession.outboundFlightId)
-
-    val selectedSeatsJson = call.receiveParameters()["selectedSeats"]?.trim().orEmpty()
-    val selectedSeats = parseSelectedSeats(call, selectedSeatsJson) ?: return
-
-    val seatAccess = SeatTableAccess()
-    val seatRows = seatAccess.getByAttribute(SeatTable.flightId, flightId)
-    val seatMap = seatRows.associateBy { it.seatCode }
-
-    val validateSeatsError = validateSeats(selectedSeats, seatMap)
-    if (validateSeatsError != null) {
-        call.respondRedirect("/flights/seats?error=$validateSeatsError")
+    if (AuthService.requireUser(call) == null) {
         return
     }
 
-    val bookingSegmentId = createBookingSegment(bookingSession, flightId)
-    assignSeats(selectedSeats, seatMap, bookingSegmentId)
-    call.respondRedirect("/payment?ok=Seats assigned successfully")
+    val bookingSession = AuthService.requireBooking(call) ?: return
+    val flightId = bookingSession.outboundFlightId
+    if (flightId == null) {
+        call.respondRedirect("/flights/search")
+    } else {
+        submitSeatSelection(call, bookingSession, flightId)
+    }
+}
+
+/**
+ * Validates submitted seat selections, creates a booking segment, and assigns the selected seats.
+ * @param call request call
+ * @param bookingSession active booking session
+ * @param flightId selected outbound flight id
+ */
+private suspend fun submitSeatSelection(
+    call: ApplicationCall,
+    bookingSession: BookingSession,
+    flightId: Int,
+) {
+    val selectedSeatsJson = call.receiveParameters()["selectedSeats"]?.trim().orEmpty()
+    val selectedSeats = parseSelectedSeats(call, selectedSeatsJson)
+
+    if (selectedSeats != null) {
+        val seatAccess = SeatTableAccess()
+        val seatRows = seatAccess.getByAttribute(SeatTable.flightId, flightId)
+        val seatMap = seatRows.associateBy { it.seatCode }
+        val validateSeatsError = validateSeats(selectedSeats, seatMap)
+
+        if (validateSeatsError != null) {
+            call.respondRedirect("/flights/seats?error=$validateSeatsError")
+        } else {
+            val bookingSegmentId = createBookingSegment(bookingSession, flightId)
+            assignSeats(selectedSeats, seatMap, bookingSegmentId)
+            call.respondRedirect("/payment?ok=Seats assigned successfully")
+        }
+    }
 }
 
 /**

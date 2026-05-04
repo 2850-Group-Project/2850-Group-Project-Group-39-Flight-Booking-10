@@ -46,12 +46,12 @@
         <p class="sub">Enter your staff email and password to continue.</p >
 
         {% if error %}
-          <div class="error">{{ error }}</div>
+          <div class="error" role="alert">{{ error }}</div>
         {% endif %}
 
         <div class="row">
-          <button class="btn" type="button" onclick="return false;" aria-label="Sign in with SSO">SSO</button>
-          <button class="btn" type="button" onclick="return false;" aria-label="Sign in with security key">Security Key</button>
+          <button class="btn" type="button" onclick="return false;" aria-label="Sign in with SSO" aria-disabled="true" tabindex="-1">SSO</button>
+          <button class="btn" type="button" onclick="return false;" aria-label="Sign in with security key" aria-disabled="true" tabindex="-1">Security Key</button>
         </div>
 
         <div class="divider">OR CONTINUE WITH EMAIL</div>
@@ -69,10 +69,10 @@
 
           <div class="meta">
             <label style="margin:0; display:flex; align-items:center; gap:8px; font-weight:600;">
-              <input type="checkbox" onclick="return false;" />
+              <input type="checkbox" aria-label="Remember me" />
               Remember me
             </label>
-            <a href="#" onclick="return false;">Forgot password?</a >
+            <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Forgot password?</a >
           </div>
 
           <button class="primary" type="submit" aria-label="Sign in to staff portal">Sign In →</button>
@@ -84,11 +84,11 @@
         </div>
 
         <div class="footer">
-          <a href="#" onclick="return false;">Privacy Policy</a >
+          <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Privacy Policy</a >
           <span>•</span>
-          <a href="#" onclick="return false;">Terms</a >
+          <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Terms</a >
           <span>•</span>
-          <a href="#" onclick="return false;">Help</a >
+          <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Help</a >
         </div>
       </div>
     </main>
