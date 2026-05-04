@@ -155,7 +155,7 @@
                 value="{{ q }}"
                 placeholder="Search by flight number (e.g. 101)" />
         <button class="a" type="submit" style="white-space:nowrap;" aria-label="Search flights">Search</button>
-        <a class="a" href="/staff/flights" style="white-space:nowrap;">Clear</a >
+        <a class="a" onclick="clearSearch()" style="white-space:nowrap;">Clear</a >
       </form>
       <table>
         <thead>

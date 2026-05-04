@@ -33,3 +33,14 @@ document.addEventListener("keydown", function(e) {
         if (document.getElementById("deleteModal").classList.contains("open")) closeDelete();
     }
 });
+
+function clearSearch() {
+    const input = document.getElementById("flightSearch");
+    
+    if (input.value.trim() !== "" && window.location.href !== "/staff/flights") {
+        window.location.href = "/staff/flights";
+        input.value = "";
+    } else if (input.value.trim() !== "" && window.location.href === "/staff/flights") {
+        input.value = "";
+    }
+}
