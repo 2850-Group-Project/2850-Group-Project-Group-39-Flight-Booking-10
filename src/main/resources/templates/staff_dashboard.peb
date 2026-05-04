@@ -42,10 +42,6 @@
     <header class="topbar">
       <div class="right">
         <a class="top" href="#" data-large-font-toggle><span class="ico">🔤</span> Large Font</a>
-        <a class="top" href="/staff/flights"><span class="ico">✈️</span> Flight Scheduler</a>
-        <a class="top" href="/staff/bookings"><span class="ico">📑</span> Bookings</a>
-        <a class="top" href="/staff/notifications"><span class="ico">🔔</span> Notifications</a>
-        <a class="top" href="/staff/logout"><span class="ico">↩️</span> Log Out</a>
         <div class="profile">
           <div class="avatar"></div>
           <div class="name">
@@ -62,10 +58,6 @@
 
       <section class="cards">
         <div class="card">
-          <div class="top">
-            <div class="badge">✈️</div>
-            <div class="pill">Live</div>
-          </div>
           <div class="kpi">
             <span>Active Flights</span>
             <b>{{ activeFlights }}</b>
@@ -73,10 +65,6 @@
         </div>
 
         <div class="card">
-          <div class="top">
-            <div class="badge">🗓️</div>
-            <div class="pill">Today</div>
-          </div>
           <div class="kpi">
             <span>Departures Today</span>
             <b>{{ departuresToday }}</b>
@@ -84,13 +72,9 @@
         </div>
 
         <div class="card">
-          <div class="top">
-            <div class="badge">⚠️</div>
-            <div class="pill">Open</div>
-          </div>
           <div class="kpi">
-            <span>System Alerts</span>
-            <b>{{ systemAlerts }}</b>
+            <span>Customer Inquiries</span>
+            <b>{{ customerInquiries }}</b>
           </div>
         </div>
       </section>
@@ -113,7 +97,7 @@
             <div class="legend">
               <div class="tag"><span class="dot"></span> Active Flights: <b style="color:white">{{ activeFlights }}</b></div>
               <div class="tag"><span class="dot" style="background:rgba(56,189,248,.9); box-shadow:0 0 0 4px rgba(56,189,248,.18)"></span> Departures Today: <b style="color:white">{{ departuresToday }}</b></div>
-              <div class="tag"><span class="dot" style="background:rgba(239,68,68,.95); box-shadow:0 0 0 4px rgba(239,68,68,.14)"></span> Open Alerts: <b style="color:white">{{ systemAlerts }}</b></div>
+              <div class="tag"><span class="dot" style="background:rgba(239,68,68,.95); box-shadow:0 0 0 4px rgba(239,68,68,.14)"></span> Customer Inquiries: <b style="color:white">{{ customerInquiries }}</b></div>
             </div>
           </div>
         </div>
@@ -137,8 +121,8 @@
                 <td><b>{{ departuresToday }}</b></td>
               </tr>
               <tr>
-                <td class="muted">Open Alerts</td>
-                <td><b>{{ systemAlerts }}</b></td>
+                <td class="muted">Customer Inquiries</td>
+                <td><b>{{ customerInquiries }}</b></td>
               </tr>
             </tbody>
           </table>
@@ -146,8 +130,7 @@
       </section>
 
       <section class="panel">
-        <h2>Active Flight Operations</h2>
-        <p class="sub">Live flight list (no gate/crew fields because they do not exist in current schema).</p >
+        <h2>Upcoming Flights</h2>
 
         <table>
           <thead>

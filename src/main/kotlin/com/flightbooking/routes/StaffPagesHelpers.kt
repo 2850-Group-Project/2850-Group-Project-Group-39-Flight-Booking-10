@@ -211,7 +211,7 @@ fun buildStaffDashboardModel(staffEmail: String): Map<String, Any> =
                 .select { FlightTable.scheduledDepartureTime like "$todayPrefix%" }
                 .count()
 
-        val systemAlertsCount =
+        val customerInquiries =
             ComplaintTable
                 .select { ComplaintTable.status eq "open" }
                 .count()
@@ -224,7 +224,7 @@ fun buildStaffDashboardModel(staffEmail: String): Map<String, Any> =
             "staffRole" to staffRole,
             "activeFlights" to activeFlightsCount,
             "departuresToday" to departuresTodayCount,
-            "systemAlerts" to systemAlertsCount,
+            "customerInquiries" to customerInquiries,
             "flights" to flightList,
         )
     }
