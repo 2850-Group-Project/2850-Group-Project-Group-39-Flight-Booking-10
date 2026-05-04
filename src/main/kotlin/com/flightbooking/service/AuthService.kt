@@ -3,7 +3,9 @@ package com.flightbooking.service
 import com.flightbooking.access.UserTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
+import com.flightbooking.models.StaffSession
 import com.flightbooking.tables.UserTable
+import com.flightbooking.tables.StaffTable
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.sessions.get
@@ -64,6 +66,19 @@ object AuthService {
         return Pair(userSession, userId)
     }
 
+    suspend fun requireStaff(call: ApplicationCall): Pair<StaffSession, Int>? {
+        val staffSession = call.sessions.get<StaffSession>()
+
+        val staffId = staffSession?.let { fetchValidStaffId(it.staffEmail) }
+
+        if (staffSession == null || staffId == null) {
+            call.respondRedirect("/login")
+            return null
+        }
+
+        return Pair(staffSession, staffId)
+    }
+
     suspend fun requireBooking(
         call: ApplicationCall,
         requireSearch: Boolean = false,
@@ -85,5 +100,13 @@ object AuthService {
                 .select { UserTable.email eq userEmail }
                 .singleOrNull()
                 ?.get(UserTable.id)
+        }
+    
+    private fun fetchValidStaffId(staffEmail: String): Int? =
+        transaction {
+            StaffTable
+                .select { StaffTable.email eq staffEmail }
+                .singleOrNull()
+                ?.get(StaffTable.id)
         }
 }
