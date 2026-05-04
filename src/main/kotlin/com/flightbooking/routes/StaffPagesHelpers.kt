@@ -23,8 +23,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 
 private const val FLIGHT_LIST_LIMIT = 8
-private const val MIN_TIMESTAMP_LENGTH = 16
-private const val ISO_TIME_START_INDEX = 11
+private const val ISO_TIME_START_INDEX = 0
 private const val ISO_TIME_END_INDEX = 16
 private const val DEFAULT_CAPACITY = 180
 private const val STAFF_FLIGHTS_PAGE_LIMIT = 10
@@ -154,23 +153,25 @@ fun queryActiveFlightList(): List<Map<String, String>> {
             dest[AirportTable.iataCode],
         )
         .select { FlightTable.status neq "cancelled" }
-        .orderBy(FlightTable.id, SortOrder.DESC)
+        .orderBy(FlightTable.scheduledDepartureTime, SortOrder.ASC)
         .limit(FLIGHT_LIST_LIMIT)
         .map { row ->
             val no = row[FlightTable.flightNumber]?.toString() ?: row[FlightTable.id].toString()
             val destination = row[dest[AirportTable.iataCode]]
             val departureTimeRaw = row[FlightTable.scheduledDepartureTime] ?: ""
-            val depTime =
-                if (departureTimeRaw.length >= MIN_TIMESTAMP_LENGTH) {
-                    departureTimeRaw.substring(ISO_TIME_START_INDEX, ISO_TIME_END_INDEX)
-                } else {
-                    departureTimeRaw
-                }
+            var departureDate = ""
+            var departureTime = ""
+
+            departureTimeRaw.substring(ISO_TIME_START_INDEX, ISO_TIME_END_INDEX)
+            val splitDepartureTime = departureTimeRaw.split(" ")
+            departureDate = splitDepartureTime[0]
+            departureTime = splitDepartureTime[1]
 
             mapOf(
                 "no" to no,
                 "dest" to destination,
-                "dep" to depTime,
+                "depatureDate" to departureDate,
+                "depatureTime" to departureTime,
                 "status" to row[FlightTable.status],
                 "capacity" to (row[FlightTable.capacity]?.toString() ?: ""),
             )

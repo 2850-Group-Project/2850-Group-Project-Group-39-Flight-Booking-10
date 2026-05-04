@@ -81,26 +81,27 @@
       </section>
 
       <section class="panel">
-        <h2>Upcoming Flights</h2>
+        <h2>Upcoming Outbound Flights</h2>
 
         <table>
           <thead>
             <tr>
               <th>Flight No.</th>
               <th>Destination</th>
-              <th>Departure</th>
+              <th>Dep. Date</th>
+              <th>Dep. Time</th>
               <th>Status</th>
               <th>Capacity</th>
-              <th>Assigned Seats</th>
             </tr>
           </thead>
           <tbody>
             {% if flights is not empty %}
               {% for f in flights %}
-                <tr>
+                <tr onclick="window.location.href='/staff/flights?q={{ f.no }}'" style="cursor:pointer;">
                   <td><b>{{ f.no }}</b></td>
                   <td>{{ f.dest }}</td>
-                  <td>{{ f.dep }}</td>
+                  <td>{{ f.depatureDate }}</td>
+                  <td>{{ f.depatureTime }}</td>
                   <td>
                     <span class="status {{ f.status | lower }}">
                       <span class="s"></span>
@@ -108,7 +109,6 @@
                     </span>
                   </td>
                   <td>{{ f.capacity }}</td>
-                  <td>{{ f.assigned }}</td>
                 </tr>
               {% endfor %}
             {% else %}
