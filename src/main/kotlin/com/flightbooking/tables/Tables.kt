@@ -231,6 +231,8 @@ object ComplaintTable : Table("complaint") {
     override val primaryKey = PrimaryKey(id)
 }
 
+
+
 /**
  * Exposed table definition for the `notification` table.
  */
