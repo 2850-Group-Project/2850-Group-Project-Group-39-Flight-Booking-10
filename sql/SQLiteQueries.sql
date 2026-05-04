@@ -20,7 +20,7 @@
 --     created_at VARCHAR(50) NOT NULL
 -- );
 
-select * from staff;
+select * from booking_segment;
 
 -- select * from user_points;
 -- select * from points_transaction;
