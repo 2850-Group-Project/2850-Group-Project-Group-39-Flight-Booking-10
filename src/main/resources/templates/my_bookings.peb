@@ -73,7 +73,7 @@
                 <div class="meta">
                   <div class="pill {{ bs }}">
                     <span class="dot"></span>
-                    {{ b.bookingStatus }}
+                    Status: {{ b.bookingStatus }}
                   </div>
                   <div class="created-at">Ref: {{ b.bookingReference }}</div>
                   <div class="created-at">{{ b.createdAt }}</div>

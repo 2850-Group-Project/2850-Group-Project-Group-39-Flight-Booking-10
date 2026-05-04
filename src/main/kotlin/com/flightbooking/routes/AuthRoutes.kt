@@ -16,6 +16,8 @@ import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 
+private const val MIN_PASSWORD_LENGTH = 8
+
 /**
  * Authentication routes for user registration, login, and logout.
  *
@@ -38,17 +40,16 @@ fun Route.authRoutes() {
         val firstName = params["firstName"]?.trim()
         val lastName = params["lastName"]?.trim()
 
-        if (password != confirmPassword) {
+        val validationError = validateRegistrationInput(password, confirmPassword, firstName, lastName)
+
+        if (validationError != null) {
             call.respond(
                 PebbleContent(
                     "register.peb",
-                    mapOf("error" to "Passwords do not match"),
+                    mapOf("error" to validationError),
                 ),
             )
-            return@post
-        }
-
-        if (AuthService.register(email, password, firstName, lastName)) {
+        } else if (AuthService.register(email, password, firstName, lastName)) {
             call.respondRedirect("/login")
         } else {
             call.respond(PebbleContent("register.peb", mapOf("error" to "User already exists")))
@@ -90,3 +91,16 @@ fun Route.authRoutes() {
         call.respondRedirect("/")
     }
 }
+
+private fun validateRegistrationInput(
+    password: String,
+    confirmPassword: String,
+    firstName: String?,
+    lastName: String?,
+): String? =
+    when {
+        password != confirmPassword -> "Passwords do not match"
+        firstName.isNullOrBlank() || lastName.isNullOrBlank() -> "First and last name are required"
+        password.isNotBlank() && password.length < MIN_PASSWORD_LENGTH -> "Password is too weak"
+        else -> null
+    }

@@ -69,34 +69,35 @@ fun Route.changeRequestRoutes() {
  * @param call request call
  */
 private suspend fun handleGetBookingsChange(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call) ?: return
+    val auth = AuthService.requireUser(call)
 
-    val bookingId = call.request.queryParameters["bookingId"]?.toIntOrNull()
-    if (bookingId == null) {
-        call.respondRedirect("/404")
-        return
+    if (auth != null) {
+        val (userSession, _) = auth
+        val bookingId = call.request.queryParameters["bookingId"]?.toIntOrNull()
+        if (bookingId == null) {
+            call.respondRedirect("/404")
+        } else {
+            val flightQ = call.request.queryParameters["flightQ"]?.trim().orEmpty()
+            val selectedFlightId = call.request.queryParameters["selectedFlightId"]?.toIntOrNull()
+            val model =
+                getModel(
+                    BookingChangeModelParams(
+                        session = userSession,
+                        bookingId = bookingId,
+                        flightQ = flightQ,
+                        selectedFlightId = selectedFlightId,
+                        error = call.request.queryParameters["error"] ?: "",
+                        ok = call.request.queryParameters["ok"] ?: "",
+                    ),
+                )
+
+            if (model == null) {
+                call.respondRedirect("/404")
+            } else {
+                call.respond(PebbleContent("change_request.peb", model))
+            }
+        }
     }
-
-    val flightQ = call.request.queryParameters["flightQ"]?.trim().orEmpty()
-    val selectedFlightId = call.request.queryParameters["selectedFlightId"]?.toIntOrNull()
-    val model =
-        getModel(
-            BookingChangeModelParams(
-                session = userSession,
-                bookingId = bookingId,
-                flightQ = flightQ,
-                selectedFlightId = selectedFlightId,
-                error = call.request.queryParameters["error"] ?: "",
-                ok = call.request.queryParameters["ok"] ?: "",
-            ),
-        )
-
-    if (model == null) {
-        call.respondRedirect("/404")
-        return
-    }
-
-    call.respond(PebbleContent("change_request.peb", model))
 }
 
 /**
@@ -266,38 +267,39 @@ private fun getModel(params: BookingChangeModelParams): Map<String, Any>? =
  * @param call request call
  */
 private suspend fun handlePostBookingsChange(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call) ?: return
+    val auth = AuthService.requireUser(call)
 
-    val p = call.receiveParameters()
-    val bookingId = p["bookingId"]?.toIntOrNull()
-    val segmentId = p["segmentId"]?.toIntOrNull()
-    val requestedFlightId = p["requestedFlightId"]?.toIntOrNull()
-    val requestedSeatId = p["requestedSeatId"]?.toIntOrNull()
-    val reason = p["reason"]?.trim()
+    if (auth != null) {
+        val (userSession, _) = auth
+        val p = call.receiveParameters()
+        val bookingId = p["bookingId"]?.toIntOrNull()
+        val segmentId = p["segmentId"]?.toIntOrNull()
+        val requestedFlightId = p["requestedFlightId"]?.toIntOrNull()
+        val requestedSeatId = p["requestedSeatId"]?.toIntOrNull()
+        val reason = p["reason"]?.trim()
 
-    if (bookingId == null || segmentId == null || requestedFlightId == null) {
-        call.respondRedirect("/404")
-        return
+        if (bookingId == null || segmentId == null || requestedFlightId == null) {
+            call.respondRedirect("/404")
+        } else {
+            val err =
+                submitBookingChange(
+                    userSession,
+                    BookingChangeParams(
+                        bookingId,
+                        segmentId,
+                        requestedFlightId,
+                        requestedSeatId,
+                        reason,
+                    ),
+                )
+
+            if (err != null) {
+                call.respondRedirect("/profile/bookings/change?bookingId=$bookingId&error=${err.replace(" ", "+")}")
+            } else {
+                call.respondRedirect("/profile/bookings?ok=Change+request+submitted")
+            }
+        }
     }
-
-    var err =
-        submitBookingChange(
-            userSession,
-            BookingChangeParams(
-                bookingId,
-                segmentId,
-                requestedFlightId,
-                requestedSeatId,
-                reason,
-            ),
-        )
-
-    if (err != null) {
-        call.respondRedirect("/profile/bookings/change?bookingId=$bookingId&error=${err.replace(" ", "+")}")
-        return
-    }
-
-    call.respondRedirect("/profile/bookings?ok=Change+request+submitted")
 }
 
 /**
