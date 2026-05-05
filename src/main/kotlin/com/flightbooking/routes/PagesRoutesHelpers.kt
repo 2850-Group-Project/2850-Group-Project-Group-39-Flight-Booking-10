@@ -1,12 +1,13 @@
 package com.flightbooking.routes
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
-import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.FlightTable
+import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.UserTable
@@ -25,7 +26,6 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 /**
  * Helper function to handle redirects from invalid UserSession or BookingSession
@@ -193,20 +193,21 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                     items.groupBy { it["segmentId"] }
                         .map { (_, segRows) ->
                             val seg = segRows.first()
-                            val passengers = segRows
-                                .filter { it["passengerId"] != null }
-                                .map { p ->
-                                    mapOf(
-                                        "id" to p["passengerId"],
-                                        "firstName" to p["passengerFirstName"],
-                                        "lastName" to p["passengerLastName"],
-                                        "dob" to p["passengerDob"],
-                                        "nationality" to p["passengerNationality"],
-                                        "docType" to p["passengerDocType"],
-                                        "docNumber" to p["passengerDocNumber"],
-                                        "checkedIn" to p["passengerCheckedIn"],
-                                    )
-                                }
+                            val passengers =
+                                segRows
+                                    .filter { it["passengerId"] != null }
+                                    .map { p ->
+                                        mapOf(
+                                            "id" to p["passengerId"],
+                                            "firstName" to p["passengerFirstName"],
+                                            "lastName" to p["passengerLastName"],
+                                            "dob" to p["passengerDob"],
+                                            "nationality" to p["passengerNationality"],
+                                            "docType" to p["passengerDocType"],
+                                            "docNumber" to p["passengerDocNumber"],
+                                            "checkedIn" to p["passengerCheckedIn"],
+                                        )
+                                    }
 
                             mapOf(
                                 "segmentId" to seg["segmentId"],
@@ -219,7 +220,7 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                                 "destIata" to seg["destIata"],
                                 "destName" to seg["destName"],
                                 "seatCode" to seg["seatCode"],
-                                "passengers" to jacksonObjectMapper().writeValueAsString(passengers)
+                                "passengers" to jacksonObjectMapper().writeValueAsString(passengers),
                             )
                         },
             )
