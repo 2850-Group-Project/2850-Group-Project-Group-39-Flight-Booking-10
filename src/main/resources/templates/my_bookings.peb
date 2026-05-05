@@ -132,14 +132,19 @@
                         </div>
                       </div>
 
+                      <!-- Used Claude AI to generate syntax for openSeatModal params, lines 137-146 -->
                       <div class="seg-right">
-                        {% if seg.flightStatus and seg.flightStatus != "" %}
-                          <span class="mini-pill">{{ seg.flightStatus }}</span>
-                        {% endif %}
-
-                        <span class="mini-pill">
-                          Seat:
-                          {% if seg.seatCode %}{{ seg.seatCode }}{% else %}No seat{% endif %}
+                        <span class="mini-pill" style="cursor:pointer;"
+                          onclick="openSeatModal(
+                            '{% if seg.originName %}{{ seg.originName }}{% else %}{{ seg.originIata }}{% endif %}',
+                            '{% if seg.destName %}{{ seg.destName}}{% else %}{{ seg.destIata }}{% endif %}',
+                            '{{ seg.flightNumber | default('—') }}',
+                            '{{ seg.dep | default('—') }}',
+                            '{{ seg.arr | default('—') }}',
+                            '{{ seg.flightStatus | default('—') }}',
+                            '{{ seg.seatCode | default('No seat assigned') }}'
+                          )">
+                          View Ticket
                         </span>
                       </div>
                     </div>
@@ -181,6 +186,39 @@
           <input type="hidden" name="bookingId" id="deleteBookingId" />
           <button class="a red" type="submit" aria-label="Confirm delete booking">Yes, delete</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEAT DETAILS MODAL -->
+  <div class="modal-backdrop" id="seatModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="seatModalTitle" tabindex="-1">
+    <div class="modal">
+      <div class="flight-details-modal-header">
+        <div class="modal-title" id="seatModalTitle">Flight Details</div>
+        <button class="btn flight-details-modal-close" type="button" onclick="closeSeatModal()">✕</button>
+      </div>
+
+      <div id="seatModalBody" class="flight-details-modal-body">
+        <div class="flight-details-modal-row">
+          <span class="flight-details-modal-label">Route</span>
+          <span id="seatModalRoute" class="flight-details-modal-value"></span>
+        </div>
+        <div class="flight-details-modal-row">
+          <span class="flight-details-modal-label">Flight Number</span>
+          <span id="seatModalFlight" class="flight-details-modal-value"></span>
+        </div>
+        <div class="flight-details-modal-row">
+          <span class="flight-details-modal-label">Departure</span>
+          <span id="seatModalDep" class="flight-details-modal-value"></span>
+        </div>
+        <div class="flight-details-modal-row">
+          <span class="flight-details-modal-label">Arrival</span>
+          <span id="seatModalArr" class="flight-details-modal-value"></span>
+        </div>
+        <div class="flight-details-modal-row">
+          <span class="flight-details-modal-label">Seat</span>
+          <span id="seatModalSeat" class="flight-details-modal-value"></span>
+        </div>
       </div>
     </div>
   </div>

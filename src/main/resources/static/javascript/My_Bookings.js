@@ -47,3 +47,21 @@ document.addEventListener("keydown", function(e) {
         if (document.getElementById("deleteModal").classList.contains("open")) closeDelete();
     }
 });
+
+function openSeatModal(origin, dest, flightNum, dep, arr, seat) {
+  document.getElementById('seatModalRoute').textContent = origin + ' → ' + dest;
+  document.getElementById('seatModalFlight').textContent = flightNum;
+  document.getElementById('seatModalDep').textContent = dep;
+  document.getElementById('seatModalArr').textContent = arr;
+  document.getElementById('seatModalSeat').textContent = seat;
+
+  var modal = document.getElementById('seatModal');
+  modal.setAttribute('aria-hidden', 'false');
+  modal.style.display = 'flex';
+}
+
+function closeSeatModal() {
+  var modal = document.getElementById('seatModal');
+  modal.setAttribute('aria-hidden', 'true');
+  modal.style.display = 'none';
+}

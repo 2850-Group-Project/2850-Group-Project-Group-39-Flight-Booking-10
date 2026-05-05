@@ -399,6 +399,43 @@ label{
     display: contents;
 }
 
+.flight-details-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.flight-details-modal-close {
+  padding: 6px 10px;
+  font-size: 16px;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+}
+
+.flight-details-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.flight-details-modal-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.flight-details-modal-label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+}
+
+.flight-details-modal-value {
+  font-weight: 700;
+}
+
 @media (max-width: 980px){
     .filters{ grid-template-columns: 1fr; }
     h1{ font-size:34px; }
