@@ -67,7 +67,7 @@
               <div>
                 <div class="btitle">
                   {% if b.segments is not empty %}
-                    {{ b.segments[0].originIata }} → {{ b.segments[0].destIata }}
+                    {{ b.segments[0].originName }} → {{ b.segments[0].destName }}
                   {% else %}
                     Booking #{{ b.bookingReference }}
                   {% endif %}
@@ -124,13 +124,6 @@
                           →
                           {% if seg.destIata %}{{ seg.destIata }}{% else %}—{% endif %}
                           {% if seg.destName %}<span style="color:rgba(255,255,255,.55);font-weight:800;"> ({{ seg.destName }})</span>{% endif %}
-                        </div>
-
-                        <div class="seg-sub">
-                          Flight:
-                          {% if seg.flightNumber and seg.flightNumber != "" %}{{ seg.flightNumber }}{% else %}—{% endif %}
-                          • Dep: {% if seg.dep and seg.dep != "" %}{{ seg.dep }}{% else %}—{% endif %}
-                          • Arr: {% if seg.arr and seg.arr != "" %}{{ seg.arr }}{% else %}—{% endif %}
                         </div>
                       </div>
 
