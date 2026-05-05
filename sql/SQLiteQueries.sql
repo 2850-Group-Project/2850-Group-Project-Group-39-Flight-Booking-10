@@ -3,6 +3,12 @@
 --      RUN WITH CTRL+SHIFT+Q         --
 ----------------------------------------
 
+
+select * from complaint_response;
+
+
+
+
 -- CREATE TABLE IF NOT EXISTS user_points (
 --     user_points_id INTEGER PRIMARY KEY AUTOINCREMENT,
 --     user_id INTEGER NOT NULL UNIQUE REFERENCES user(user_id),
@@ -20,7 +26,6 @@
 --     created_at VARCHAR(50) NOT NULL
 -- );
 
-select * from flight;
 
 -- select * from user_points;
 -- select * from points_transaction;
