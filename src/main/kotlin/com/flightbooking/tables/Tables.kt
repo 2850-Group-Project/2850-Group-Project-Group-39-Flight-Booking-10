@@ -14,6 +14,7 @@ import com.flightbooking.constants.SHORTER_FIELD_LENGTH
 import com.flightbooking.constants.SHORTEST_FIELD_LENGTH
 import com.flightbooking.constants.SHORT_FIELD_LENGTH
 import com.flightbooking.constants.STANDARD_FIELD_LENGTH
+import com.flightbooking.constants.DEFAULT_VIEWED_STATUS
 import org.jetbrains.exposed.sql.Table
 
 /**
@@ -240,6 +241,7 @@ object ComplaintResponseTable : Table("complaint_response") {
     val staffId = integer("staff_id").references(StaffTable.id)
     val message = text("message")
     val createdAt = varchar("created_at", STANDARD_FIELD_LENGTH)
+    val viewed = integer("viewed").default(DEFAULT_VIEWED_STATUS)
 
     override val primaryKey = PrimaryKey(id)
 }
