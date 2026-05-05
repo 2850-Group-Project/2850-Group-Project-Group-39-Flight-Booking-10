@@ -60,6 +60,23 @@
             {{ c.message }}
           </div>
 
+          {% set responses = responsesByComplaint[c.id] %}
+            {% if responses is not empty %}
+              <div class="response-banner">
+                <span>💬 {{ responses | length }} response{% if responses | length > 1 %}s{% endif %} from support</span>
+                <button class="btn-response" type="button" onclick="toggleResponses({{ c.id }})">View Responses</button>
+              </div>
+
+              <div id="responses-{{ c.id }}" class="responses-panel responses-hidden" hidden>
+                {% for r in responses %}
+                  <div class="response-bubble">
+                    <div class="response-meta">Support Staff: {{ r.createdAt }}</div>
+                    <div class="response-text">{{ r.message }}</div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
           {% if c.handledByStaffId %}
             <div class="handled-by">
               <span class="handled-icon">👤</span>
@@ -85,5 +102,13 @@
 </footer>
 
   <script src="/static/javascript/Large_Font.js"></script>
+  <script>
+    function toggleResponses(id) {
+      const panel = document.getElementById('responses-' + id);
+      const btn = panel.previousElementSibling.querySelector('.btn-response');
+      panel.classList.toggle("responses-hidden");
+      btn.textContent = panel.classList.contains("responses-hidden") ? "View Responses" : "Hide Responses";      
+    }
+  </script>
 </body>
 </html>
