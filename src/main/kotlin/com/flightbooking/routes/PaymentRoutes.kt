@@ -158,18 +158,11 @@ private fun calculateTotal(bookingSession: BookingSession): Double =
                 }
             } ?: 0.0
 
-        val discountedReturnFare =
-            if (bookingSession.returnFareId != null) {
-                returnFarePrice * RETURN_FARE_DISCOUNT
-            } else {
-                returnFarePrice
-            }
         val adults = bookingSession.search?.adults?.toIntOrNull() ?: 0
         val children = bookingSession.search?.children?.toIntOrNull() ?: 0
         val infants = bookingSession.search?.infants?.toIntOrNull() ?: 0
         val passengerCount = adults + children + infants
 
-        val raw = (outboundFarePrice + discountedReturnFare) * passengerCount
-        println(raw)
+        val raw = (outboundFarePrice + returnFarePrice) * passengerCount
         return@transaction Math.round(raw * 100.0) / 100.0
     }
