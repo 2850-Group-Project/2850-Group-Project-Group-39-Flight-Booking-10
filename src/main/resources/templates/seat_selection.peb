@@ -62,7 +62,7 @@
   <section class="seat-section-container">
     <div class="seat-card">
       <div class="seat-header">
-        <div>
+        <div class="seat-header-left">
           <h1 class="seat-title">Seat Selection</h1>
           <p class="seat-subtitle">Choose a comfortable seat for your flight</p>
         </div>
@@ -121,9 +121,14 @@
         <div class="seat-status-list" id="seat-list" aria-label="Selected seat assignments">
           <!-- Filled by javascript -->
         </div>
-        <!-- RESET SEATS -->
-        <button type="button" class="btn-reset" id="reset-btn" aria-label="Reset all seats">
+        <button type="button" class="btn-reset" id="reset-btn"
+          data-has-return="{{ hasReturnFlight }}"
+          data-leg="{{ leg }}"
+          aria-label="Reset all seats">
           Reset all seats
+        </button>
+        <button type="button" class="btn-continue" id="continue-btn" style="display:none" aria-disabled="true" aria-label="Continue to next step">
+          Continue to next step →
         </button>
       </div>
       
@@ -141,7 +146,7 @@
       </script>
 
       <!-- SEAT MAP -->
-      <form id="seat-form" action="/flights/seats" method="post" class="seat-form">
+      <form id="seat-form" action="/flights/seats" method="post" class="seat-form" data-leg="{{ leg }}">
         <p class="sr-only" id="seat-instructions">
           Select one available seat for each passenger. Selected seats are announced in the status area.
         </p>
@@ -188,11 +193,7 @@
           </div>
         </div>
 
-        <!-- CONTINUE -->
         <div class="seat-actions">
-          <button type="button" class="btn-continue" id="continue-btn" disabled aria-disabled="true" aria-label="Continue to next step">
-            Continue to next step →
-          </button>
           <p class="seat-actions-hint" id="hint-text" aria-live="polite">Select a seat for {{ currentPassenger }}</p>
         </div>
 
@@ -204,6 +205,23 @@
     </div>
   </section>
 </main>
+
+<!-- FARE SUMMARY -->
+<div class="fare-summary" id="fare-summary" data-price="{{ farePrice }}" data-currency="{{ fareCurrency }}">
+  <div class="fare-summary-row">
+    <span class="fare-summary-label">Fare per passenger</span>
+    <span class="fare-summary-value">{{ fareCurrency }} {{ farePrice }}</span>
+  </div>
+  <div class="fare-summary-row">
+    <span class="fare-summary-label">Passengers</span>
+    <span class="fare-summary-value" id="fare-assigned-count">0 / {{ passengerCount }}</span>
+  </div>
+  <div class="fare-summary-divider"></div>
+  <div class="fare-summary-row fare-summary-total">
+    <span class="fare-summary-label">Flight total</span>
+    <span class="fare-summary-value" id="fare-running-total">{{ fareCurrency }} 0.00</span>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
