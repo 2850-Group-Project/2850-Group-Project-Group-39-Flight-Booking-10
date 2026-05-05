@@ -25,8 +25,8 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.Locale
 
-private const val RETURN_FARE_DISCOUNT = 0.0
 private const val PROVIDER_REFERENCE_DIGITS = 4
+private const val ROUNDING_FACTOR = 100.0
 
 /**
  * Routes for payment page
@@ -164,5 +164,5 @@ private fun calculateTotal(bookingSession: BookingSession): Double =
         val passengerCount = adults + children + infants
 
         val raw = (outboundFarePrice + returnFarePrice) * passengerCount
-        return@transaction Math.round(raw * 100.0) / 100.0
+        return@transaction Math.round(raw * ROUNDING_FACTOR) / ROUNDING_FACTOR
     }

@@ -132,11 +132,12 @@ fun createBookingSegment(
     flightId: Int,
 ): Int {
     // Check which fareId to use (from outbound or return flight Id)
-    val fareId = if (flightId == bookingSession.returnFlightId) {
-        bookingSession.returnFareId ?: bookingSession.outboundFareId ?: 0
-    } else {
-        bookingSession.outboundFareId ?: 0
-    }
+    val fareId =
+        if (flightId == bookingSession.returnFlightId) {
+            bookingSession.returnFareId ?: bookingSession.outboundFareId ?: 0
+        } else {
+            bookingSession.outboundFareId ?: 0
+        }
 
     return transaction {
         val condition =
