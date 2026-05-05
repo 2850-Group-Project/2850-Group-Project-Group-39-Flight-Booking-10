@@ -47,6 +47,9 @@ data class SeatsModelParams(
     val error: String,
     val ok: String,
     val unreadCount: Long,
+    val farePrice: Double,
+    val fareCurrency: String,
+    val passengerCount: Int,
 )
 
 /**
@@ -128,36 +131,38 @@ fun createBookingSegment(
     bookingSession: BookingSession,
     flightId: Int,
 ): Int {
-    val bookingSegmentId =
-        transaction {
-            val condition =
-                (BookingSegmentTable.bookingId eq bookingSession.bookingId) and
-                    (BookingSegmentTable.flightId eq flightId)
-
-            val existing =
-                BookingSegmentTable
-                    .select { condition }
-                    .firstOrNull()
-
-            if (existing != null) {
-                existing[BookingSegmentTable.id]
-            } else {
-                BookingSegmentTable.insert {
-                    it[BookingSegmentTable.bookingId] = bookingSession.bookingId
-                    it[BookingSegmentTable.flightId] = flightId
-                    it[BookingSegmentTable.flightFareId] =
-                        bookingSession.outboundFareId?.toInt() ?: 0
-                }
-
-                BookingSegmentTable
-                    .selectAll()
-                    .orderBy(BookingSegmentTable.id, SortOrder.DESC)
-                    .limit(1)
-                    .firstOrNull()
-                    ?.get(BookingSegmentTable.id) ?: 0
-            }
+    // Check which fareId to use (from outbound or return flight Id)
+    val fareId =
+        if (flightId == bookingSession.returnFlightId) {
+            bookingSession.returnFareId ?: bookingSession.outboundFareId ?: 0
+        } else {
+            bookingSession.outboundFareId ?: 0
         }
-    return bookingSegmentId
+
+    return transaction {
+        val condition =
+            (BookingSegmentTable.bookingId eq bookingSession.bookingId) and
+                (BookingSegmentTable.flightId eq flightId)
+
+        val existing = BookingSegmentTable.select { condition }.firstOrNull()
+
+        if (existing != null) {
+            existing[BookingSegmentTable.id]
+        } else {
+            BookingSegmentTable.insert {
+                it[BookingSegmentTable.bookingId] = bookingSession.bookingId
+                it[BookingSegmentTable.flightId] = flightId
+                it[BookingSegmentTable.flightFareId] = fareId
+            }
+
+            BookingSegmentTable
+                .selectAll()
+                .orderBy(BookingSegmentTable.id, SortOrder.DESC)
+                .limit(1)
+                .firstOrNull()
+                ?.get(BookingSegmentTable.id) ?: 0
+        }
+    }
 }
 
 /**
@@ -174,17 +179,17 @@ fun assignSeats(
 ) {
     transaction {
         selectedSeats.forEach { (passengerId, seatCode) ->
-            val seatId = seatMap[seatCode]!!.id
+            val seat = seatMap[seatCode]!!
 
             // create new seat assignment
             SeatAssignmentTable.insert {
                 it[SeatAssignmentTable.passengerId] = passengerId.toInt()
-                it[SeatAssignmentTable.seatId] = seatId
+                it[SeatAssignmentTable.seatId] = seat.id
                 it[SeatAssignmentTable.bookingSegmentId] = bookingSegmentId
             }
 
             // update seat status
-            SeatTable.update({ SeatTable.id eq seatId }) {
+            SeatTable.update({ SeatTable.id eq seat.id }) {
                 it[SeatTable.status] = "occupied"
             }
         }
@@ -270,6 +275,9 @@ fun buildSeatsModel(params: SeatsModelParams): Map<String, Any> {
         "error" to params.error,
         "ok" to params.ok,
         "unreadCount" to params.unreadCount,
+        "farePrice" to params.farePrice,
+        "fareCurrency" to params.fareCurrency,
+        "passengerCount" to params.passengerCount,
     )
 }
 

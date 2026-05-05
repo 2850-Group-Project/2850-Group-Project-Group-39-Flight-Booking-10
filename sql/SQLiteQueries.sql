@@ -4,9 +4,8 @@
 ----------------------------------------
 
 
-select * from complaint_response;
-
-
+-- select * from complaint_response;
+select * from seat_assignment;
 
 
 -- CREATE TABLE IF NOT EXISTS user_points (

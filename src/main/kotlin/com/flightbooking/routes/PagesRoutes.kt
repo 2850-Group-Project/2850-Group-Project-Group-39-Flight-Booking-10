@@ -4,6 +4,7 @@ import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.PointsTableAccess
+import com.flightbooking.models.BookingSession
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
 import com.flightbooking.service.AuthService
@@ -25,6 +26,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.alias
@@ -81,6 +83,8 @@ private suspend fun handleGetHome(call: ApplicationCall) {
     val (userSession, userId) = AuthService.requireUser(call) ?: return
     val airports = AirportTableAccess().getAll()
     val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
+
+    call.sessions.set("BOOKING_SESSION", BookingSession())
 
     call.respond(
         PebbleContent(

@@ -147,7 +147,17 @@
 
 /* ─── SEAT HEADER ─── */
 .seat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 24px;
+  gap: 24px;
+}
+
+.seat-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .seat-title {
@@ -300,6 +310,57 @@
 .legend-square.selected {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(139, 92, 246, 0.25));
   border-color: rgba(59, 130, 246, 0.5);
+}
+
+.fare-summary {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 100;
+  width: 260px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  margin-right: env(scrollbar-gutter, 0px);
+}
+
+.fare-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  font-size: 0.9rem;
+}
+
+.fare-summary-label {
+  color: rgba(226, 232, 240, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fare-summary-value {
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.fare-summary-divider {
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  margin: 0.5rem 0;
+}
+
+.fare-summary-total .fare-summary-label {
+  color: rgba(226, 232, 240, 0.8);
+  font-size: 13px;
+}
+
+.fare-summary-total .fare-summary-value {
+  font-size: 1.1rem;
+  color: #86efac;
 }
 
 /* ─── CURRENT PASSENGER ─── */

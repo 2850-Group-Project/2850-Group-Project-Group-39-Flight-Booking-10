@@ -1,6 +1,7 @@
 package com.flightbooking.routes
 
 import com.flightbooking.access.ComplaintResponseTableAccess
+import com.flightbooking.models.BookingSession
 import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
 import com.flightbooking.service.calculateEarning
@@ -10,6 +11,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
 
 /**
  * Confirmation page routes
@@ -45,5 +48,7 @@ fun Route.confirmationRoutes() {
                 ),
             ),
         )
+
+        call.sessions.set("BOOKING_SESSION", BookingSession())
     }
 }
