@@ -4,6 +4,7 @@ import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
+import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.SeatAssignmentTable
@@ -188,19 +189,21 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                 "bookingStatus" to (first["bookingStatus"] ?: ""),
                 "createdAt" to (first["createdAt"] ?: ""),
                 "segments" to
-                    items.map { row ->
-                        mapOf(
-                            "segmentId" to row["segmentId"],
-                            "flightNumber" to (row["flightNumber"] ?: ""),
-                            "flightStatus" to (row["flightStatus"] ?: ""),
-                            "dep" to (row["dep"] ?: ""),
-                            "arr" to (row["arr"] ?: ""),
-                            "originIata" to row["originIata"],
-                            "originName" to row["originName"],
-                            "destIata" to row["destIata"],
-                            "destName" to row["destName"],
-                            "seatCode" to row["seatCode"],
-                            "passengers" to segRows
+                    items.groupBy { it["segmentId"] }
+                        .map { (_, segRows) ->
+                            val seg = segRows.first()
+                            mapOf(
+                                "segmentId" to seg["segmentId"],
+                                "flightNumber" to (seg["flightNumber"] ?: ""),
+                                "flightStatus" to (seg["flightStatus"] ?: ""),
+                                "dep" to (seg["dep"] ?: ""),
+                                "arr" to (seg["arr"] ?: ""),
+                                "originIata" to seg["originIata"],
+                                "originName" to seg["originName"],
+                                "destIata" to seg["destIata"],
+                                "destName" to seg["destName"],
+                                "seatCode" to seg["seatCode"],
+                                "passengers" to segRows
                                     .filter { it["passengerId"] != null }
                                     .map { p ->
                                         mapOf(
@@ -214,7 +217,7 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                                             "checkedIn" to p["passengerCheckedIn"],
                                         )
                                     },
-                        )
-                    },
+                            )
+                        },
             )
         }
