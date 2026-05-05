@@ -60,13 +60,32 @@ async function geocodeCity(name) {
   return null;
 }
 
-async function openSeatModal(originName, destName, originIata, destIata, flightNum, dep, arr, status, seat) {
+async function openSeatModal(originName, destName, flightNum, dep, arr, status, seat, passengers) {
   document.getElementById('seatModalRoute').textContent = originName + ' -> ' + destName;
   document.getElementById('seatModalFlight').textContent = flightNum;
   document.getElementById('seatModalDep').textContent = dep;
   document.getElementById('seatModalArr').textContent = arr;
   document.getElementById('seatModalStatus').textContent = status;
   document.getElementById('seatModalSeat').textContent = seat;
+
+  // Rendering passengers
+  // Used Claude AI to generate the inline HTML/Pebble, lines 77-83
+  var passengerHtml = '';
+  if (passengers && passengers.length > 0) {
+    passengers.forEach(function(p) {
+      passengerHtml +=
+        '<div style="padding:10px 12px; border-radius:8px; background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.2);">' +
+          '<div style="font-weight:700; margin-bottom:6px;">👤 ' + (p.firstName || '') + ' ' + (p.lastName || '') + '</div>' +
+          '<div class="flight-details-modal-row"><span class="flight-details-modal-label">Date of Birth</span><span class="flight-details-modal-value">' + (p.dob || '—') + '</span></div>' +
+          '<div class="flight-details-modal-row"><span class="flight-details-modal-label">Nationality</span><span class="flight-details-modal-value">' + (p.nationality || '—') + '</span></div>' +
+          '<div class="flight-details-modal-row"><span class="flight-details-modal-label">Document</span><span class="flight-details-modal-value">' + (p.docType || '—') + ' ' + (p.docNumber || '') + '</span></div>' +
+          '<div class="flight-details-modal-row"><span class="flight-details-modal-label">Checked In</span><span class="flight-details-modal-value">' + (p.checkedIn == 1 ? '✓ Yes' : '✗ No') + '</span></div>' +
+        '</div>';
+    });
+  } else {
+    passengerHtml = '<span class="flight-details-modal-label">No passenger data available.</span>';
+  }
+  document.getElementById('seatModalPassengers').innerHTML = passengerHtml;
 
   var modal = document.getElementById('seatModal');
   modal.setAttribute('aria-hidden', 'false');
