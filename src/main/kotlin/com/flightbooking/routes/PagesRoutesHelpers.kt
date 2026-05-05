@@ -1,11 +1,13 @@
 package com.flightbooking.routes
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.UserSession
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.FlightTable
+import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.UserTable
@@ -89,6 +91,10 @@ fun fetchBookingRows(
         .join(SeatTable, JoinType.LEFT, additionalConstraint = {
             SeatTable.id eq SeatAssignmentTable.seatId
         })
+        // Used Claude AI to generate the joins for the passenger table and booking table, lines 93-106
+        .join(PassengerTable, JoinType.LEFT, additionalConstraint = {
+            PassengerTable.id eq SeatAssignmentTable.passengerId
+        })
         .slice(
             BookingTable.id, BookingTable.bookingReference, BookingTable.bookingStatus,
             BookingTable.createdAt, BookingSegmentTable.id, FlightTable.id,
@@ -97,6 +103,9 @@ fun fetchBookingRows(
             origin[AirportTable.iataCode], origin[AirportTable.name],
             dest[AirportTable.iataCode], dest[AirportTable.name],
             SeatTable.seatCode,
+            PassengerTable.id, PassengerTable.firstName, PassengerTable.lastName,
+            PassengerTable.dateOfBirth, PassengerTable.nationality, PassengerTable.documentType,
+            PassengerTable.documentNumber, PassengerTable.checkedIn,
         )
         .select { cond }
         .orderBy(BookingTable.createdAt, SortOrder.DESC)
@@ -131,6 +140,14 @@ fun mapBookingRow(
         "destIata" to r.getOrNull(dest[AirportTable.iataCode]),
         "destName" to r.getOrNull(dest[AirportTable.name]),
         "seatCode" to r.getOrNull(SeatTable.seatCode),
+        "passengerId" to r.getOrNull(PassengerTable.id),
+        "passengerFirstName" to r.getOrNull(PassengerTable.firstName),
+        "passengerLastName" to r.getOrNull(PassengerTable.lastName),
+        "passengerDob" to r.getOrNull(PassengerTable.dateOfBirth),
+        "passengerNationality" to r.getOrNull(PassengerTable.nationality),
+        "passengerDocType" to r.getOrNull(PassengerTable.documentType),
+        "passengerDocNumber" to r.getOrNull(PassengerTable.documentNumber),
+        "passengerCheckedIn" to r.getOrNull(PassengerTable.checkedIn),
     )
 
 /**
@@ -173,19 +190,38 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                 "bookingStatus" to (first["bookingStatus"] ?: ""),
                 "createdAt" to (first["createdAt"] ?: ""),
                 "segments" to
-                    items.map { row ->
-                        mapOf(
-                            "segmentId" to row["segmentId"],
-                            "flightNumber" to (row["flightNumber"] ?: ""),
-                            "flightStatus" to (row["flightStatus"] ?: ""),
-                            "dep" to (row["dep"] ?: ""),
-                            "arr" to (row["arr"] ?: ""),
-                            "originIata" to row["originIata"],
-                            "originName" to row["originName"],
-                            "destIata" to row["destIata"],
-                            "destName" to row["destName"],
-                            "seatCode" to row["seatCode"],
-                        )
-                    },
+                    items.groupBy { it["segmentId"] }
+                        .map { (_, segRows) ->
+                            val seg = segRows.first()
+                            val passengers =
+                                segRows
+                                    .filter { it["passengerId"] != null }
+                                    .map { p ->
+                                        mapOf(
+                                            "id" to p["passengerId"],
+                                            "firstName" to p["passengerFirstName"],
+                                            "lastName" to p["passengerLastName"],
+                                            "dob" to p["passengerDob"],
+                                            "nationality" to p["passengerNationality"],
+                                            "docType" to p["passengerDocType"],
+                                            "docNumber" to p["passengerDocNumber"],
+                                            "checkedIn" to p["passengerCheckedIn"],
+                                        )
+                                    }
+
+                            mapOf(
+                                "segmentId" to seg["segmentId"],
+                                "flightNumber" to (seg["flightNumber"] ?: ""),
+                                "flightStatus" to (seg["flightStatus"] ?: ""),
+                                "dep" to (seg["dep"] ?: ""),
+                                "arr" to (seg["arr"] ?: ""),
+                                "originIata" to seg["originIata"],
+                                "originName" to seg["originName"],
+                                "destIata" to seg["destIata"],
+                                "destName" to seg["destName"],
+                                "seatCode" to seg["seatCode"],
+                                "passengers" to jacksonObjectMapper().writeValueAsString(passengers),
+                            )
+                        },
             )
         }
