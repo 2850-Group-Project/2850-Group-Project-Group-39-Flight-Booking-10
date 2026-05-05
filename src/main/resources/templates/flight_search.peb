@@ -172,7 +172,6 @@
               <div class="flight-card-top">
                 <div class="flight-time-block">
                   <span class="flight-time">{{ flight.departureTime }}</span>
-                  <span class="flight-day">{{ flight.departureDay }}</span>
                   <span class="flight-airport">{{ flight.originCode }}</span>
                 </div>
                 <div class="flight-duration">
