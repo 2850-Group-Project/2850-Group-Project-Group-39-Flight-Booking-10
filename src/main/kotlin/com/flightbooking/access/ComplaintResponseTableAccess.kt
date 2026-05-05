@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.and
 
 private const val COMPLAINT_LIST_LIMIT: Int = 50
 private const val START_DATE_INDEX = 0
@@ -58,6 +59,25 @@ class ComplaintResponseTableAccess {
                         "handledByStaffEmail" to row.getOrNull(StaffTable.email),
                     )
                 }
+        }
+    
+    /**
+     * Gets total count of unread responses across all complaints for a user
+     * @param userId user id
+     * @return count of unread responses
+     */
+    fun getUnreadResponsesCountForUser(userId: Int): Long =
+        transaction {
+            ComplaintResponseTable
+                .join(ComplaintTable, JoinType.INNER, additionalConstraint = {
+                    ComplaintResponseTable.complaintId eq ComplaintTable.id
+                })
+                .select {
+                    // Used Claude AI to debug that exposed expects the and to be from then exposed library, Kotlin's version does not work
+                    (ComplaintTable.userId eq userId) and 
+                    (ComplaintResponseTable.viewed eq 0)
+                }
+                .count()
         }
 
     /**
