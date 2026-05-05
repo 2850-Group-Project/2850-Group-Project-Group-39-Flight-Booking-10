@@ -6,7 +6,6 @@ function initPassengers() {
   var passengerDataEl = document.getElementById('passenger-data');
   passengerList = JSON.parse(passengerDataEl.textContent);
   totalPassengers = passengerList.length;
-  
   for (var i = 0; i < passengerList.length; i++) {
     seatSelections[passengerList[i].id] = null;
   }
@@ -50,15 +49,10 @@ function updateUI() {
     var btn = seatButtons[i];
     var seatCode = btn.getAttribute('data-seat-code');
     var isSelected = false;
-    
     var values = Object.values(seatSelections);
     for (var j = 0; j < values.length; j++) {
-      if (values[j] === seatCode) {
-        isSelected = true;
-        break;
-      }
+      if (values[j] === seatCode) { isSelected = true; break; }
     }
-    
     btn.classList.remove('selected');
     btn.setAttribute('aria-pressed', 'false');
     if (isSelected) {
@@ -70,7 +64,6 @@ function updateUI() {
   }
 
   var seatListHtml = '';
-  var keys = Object.keys(seatSelections);
   for (var i = 0; i < keys.length; i++) {
     var pId = keys[i];
     var seatCode = seatSelections[pId];
@@ -90,38 +83,69 @@ function updateUI() {
   document.getElementById('seat-list').innerHTML = seatListHtml;
 
   var allAssigned = true;
-  var keys = Object.keys(seatSelections);
   for (var i = 0; i < keys.length; i++) {
-    if (seatSelections[keys[i]] === null) {
-      allAssigned = false;
-      break;
-    }
+    if (seatSelections[keys[i]] === null) { allAssigned = false; break; }
   }
+
+  var resetBtn = document.getElementById('reset-btn');
   var continueBtn = document.getElementById('continue-btn');
-  continueBtn.disabled = !allAssigned;
-  continueBtn.setAttribute('aria-disabled', allAssigned ? 'false' : 'true');
+  var hintText = document.getElementById('hint-text');
+  var hasReturn = resetBtn.getAttribute('data-has-return') === 'true';
+  var leg = resetBtn.getAttribute('data-leg');
 
   if (allAssigned) {
-    document.getElementById('hint-text').textContent = '✓ All passengers assigned! Click continue.';
+    if (leg === 'outbound' && hasReturn) {
+      resetBtn.textContent = 'Next flight →';
+      resetBtn.classList.add('btn-next-flight');
+      continueBtn.style.display = 'none';
+    } else {
+      resetBtn.textContent = 'Reset all seats';
+      resetBtn.classList.remove('btn-next-flight');
+      continueBtn.style.display = 'inline-flex';
+    }
+    continueBtn.disabled = false;
+    continueBtn.setAttribute('aria-disabled', 'false');
+    hintText.textContent = '✓ All passengers assigned! Click continue.';
     document.getElementById('current-passenger-name').textContent = 'All passengers assigned';
   } else {
+    resetBtn.textContent = 'Reset all seats';
+    resetBtn.classList.remove('btn-next-flight');
+    continueBtn.disabled = true;
+    continueBtn.setAttribute('aria-disabled', 'true');
+
     var nextPassenger = null;
     for (var i = 0; i < passengerList.length; i++) {
-      if (!seatSelections[passengerList[i].id]) {
-        nextPassenger = passengerList[i];
-        break;
-      }
+      if (!seatSelections[passengerList[i].id]) { nextPassenger = passengerList[i]; break; }
     }
     if (nextPassenger) {
-      var nextPassengerName = nextPassenger.firstName + ' ' + nextPassenger.lastName;
-      document.getElementById('hint-text').textContent = 'Select a seat for ' + nextPassengerName;
-      document.getElementById('current-passenger-name').textContent = nextPassengerName;
+      var name = nextPassenger.firstName + ' ' + nextPassenger.lastName;
+      hintText.textContent = 'Select a seat for ' + name;
+      document.getElementById('current-passenger-name').textContent = name;
     }
+  }
+
+  var summaryEl = document.getElementById('fare-summary');
+  var totalEl = document.getElementById('fare-running-total');
+  var assignedCountEl = document.getElementById('fare-assigned-count');
+  if (summaryEl && totalEl) {
+    var farePerPassenger = parseFloat(summaryEl.getAttribute('data-price'));
+    var currency = summaryEl.getAttribute('data-currency');
+    totalEl.textContent = currency + ' ' + (farePerPassenger * assigned).toFixed(2);
+    assignedCountEl.textContent = assigned + ' / ' + totalPassengers;
   }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   initPassengers();
+
+  // Set the correct form action based on which leg this page is for
+  var form = document.getElementById('seat-form');
+  console.log('DEBUG leg from form:', form.getAttribute('data-leg'));
+  console.log('DEBUG form action:', form.action);
+  var leg = form.getAttribute('data-leg');
+  if (leg === 'return') {
+    form.action = '/flights/seats/return';
+  }
 
   var seatButtons = document.querySelectorAll('.seat:not(.occupied)');
   for (var i = 0; i < seatButtons.length; i++) {
@@ -133,13 +157,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.getElementById('continue-btn').addEventListener('click', function(e) {
     e.preventDefault();
-    var seatInput = document.getElementById('selected-seats-input');
-    seatInput.value = JSON.stringify(seatSelections);
-    document.getElementById('seat-form').submit();
+    document.getElementById('selected-seats-input').value = JSON.stringify(seatSelections);
+    form.submit();
   });
 
   document.getElementById('reset-btn').addEventListener('click', function(e) {
     e.preventDefault();
+    var resetBtn = document.getElementById('reset-btn');
+
+    if (resetBtn.classList.contains('btn-next-flight')) {
+      document.getElementById('selected-seats-input').value = JSON.stringify(seatSelections);
+      form.action = '/flights/seats/outbound';
+      form.submit();
+      return;
+    }
+
     for (var i = 0; i < passengerList.length; i++) {
       seatSelections[passengerList[i].id] = null;
     }
