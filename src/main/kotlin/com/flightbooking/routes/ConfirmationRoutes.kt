@@ -4,6 +4,9 @@ import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
 import com.flightbooking.service.calculateEarning
+import com.flightbooking.models.BookingSession
+import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.response.respond
@@ -45,5 +48,7 @@ fun Route.confirmationRoutes() {
                 ),
             ),
         )
+
+        call.sessions.set("BOOKING_SESSION", BookingSession())
     }
 }
