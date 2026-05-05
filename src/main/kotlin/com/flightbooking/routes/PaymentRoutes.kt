@@ -1,6 +1,7 @@
 package com.flightbooking.routes
 
 import com.flightbooking.access.BookingTableAccess
+import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.access.PaymentTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.Payment
@@ -51,6 +52,8 @@ private suspend fun handleGetPayment(call: ApplicationCall) {
     val bookingTotal = calculateTotal(bookingSession)
     val (pointsAvailable, maxDiscount) = PointsService.calculateRedemption(userId, bookingTotal)
 
+    val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
+
     call.respond(
         PebbleContent(
             "payment.peb",
@@ -60,6 +63,7 @@ private suspend fun handleGetPayment(call: ApplicationCall) {
                 "pointsAvailable" to pointsAvailable,
                 "maxDiscount" to String.format(Locale.UK, "%.2f", maxDiscount),
                 "bookingTotal" to bookingTotal,
+                "unreadCount" to unreadCount,
             ),
         ),
     )

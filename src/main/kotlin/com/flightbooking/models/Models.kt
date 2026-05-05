@@ -311,6 +311,7 @@ data class ComplaintResponse(
     val staffId: Int,
     val message: String,
     val createdAt: String,
+    val viewed: Int,
 )
 
 /**

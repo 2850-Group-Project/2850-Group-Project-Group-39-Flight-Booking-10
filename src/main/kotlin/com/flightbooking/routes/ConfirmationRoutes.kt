@@ -1,5 +1,6 @@
 package com.flightbooking.routes
 
+import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
 import com.flightbooking.service.calculateEarning
@@ -32,12 +33,15 @@ fun Route.confirmationRoutes() {
                 membershipStatus = membershipStatus,
             )
 
+        val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
+
         call.respond(
             PebbleContent(
                 "confirmation.peb",
                 mapOf(
                     "bookingSession" to bookingSession,
                     "pointsEarned" to pointsEarned,
+                    "unreadCount" to unreadCount,
                 ),
             ),
         )

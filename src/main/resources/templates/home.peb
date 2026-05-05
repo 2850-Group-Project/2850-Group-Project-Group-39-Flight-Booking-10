@@ -16,7 +16,7 @@
     <div class="nav-right">
       <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
       <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
-      <a href="/profile" class="btn-primary">My Account</a>
+      <a href="/profile" class="btn-primary">My Account<span class="notif-dot {% if unreadCount > 0 %}unread{% endif %}"></span></a>
     </div>
   </nav>
 

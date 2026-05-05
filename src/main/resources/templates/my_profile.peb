@@ -33,8 +33,8 @@
         <div class="snav">
           <a class="active" href="/profile" aria-current="page"><span class="ico">👤</span> Profile</a >
           <a href="/profile/bookings"><span class="ico">🧾</span> Bookings</a >
-          <a href="/profile/complaints"><span class="ico">⚠️</span> Complaints</a >
-          <a href="/profile/notifications"><span class="ico">🔔</span> Notifications</a >
+          <a href="/profile/complaints"><span class="ico">💬</span> My Inquiries<span class="notif-dot {% if unreadCount > 0 %}unread{% endif %}"></span></a >
+          <!-- <a href="/profile/notifications"><span class="ico">🔔</span> Notifications</a > -->
         </div>
       </aside>
 
@@ -153,6 +153,8 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 1.5,
           plugins: {
             legend: {display: false},
             title: {
@@ -170,6 +172,7 @@
           scales: {
             y: {
               beginAtZero: true,
+              suggestedMax: Math.max({{totalEarned}}, {{totalRedeemed}}, {{pointsBalance}}) * 1.15,
               ticks: {font: {size: fontSize}}
               },
             x: {
