@@ -3,6 +3,7 @@ package com.flightbooking.routes
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
+import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.service.AuthService
 import com.flightbooking.tables.AirportTable
@@ -54,54 +55,54 @@ fun Route.seatSelectionRoutes() {
  * @param call request call
  */
 private suspend fun handleGetSeats(call: ApplicationCall) {
-    val auth = AuthService.requireUser(call)
+    val (_, userId) = AuthService.requireUser(call) ?: return
 
-    if (auth != null) {
-        val bookingSession = AuthService.requireBooking(call)
-        val flightId = bookingSession?.outboundFlightId
-        if (bookingSession == null) {
-            return
-        } else if (flightId == null) {
+    val bookingSession = AuthService.requireBooking(call)
+    val flightId = bookingSession?.outboundFlightId
+    if (bookingSession == null) {
+        return
+    } else if (flightId == null) {
+        call.respondRedirect("/flights/search")
+    } else {
+        val flightAccess = FlightTableAccess()
+        val airportAccess = AirportTableAccess()
+        val flight = flightAccess.getByAttribute(FlightTable.id, flightId).firstOrNull()
+
+        if (flight == null) {
             call.respondRedirect("/flights/search")
         } else {
-            val flightAccess = FlightTableAccess()
-            val airportAccess = AirportTableAccess()
-            val flight = flightAccess.getByAttribute(FlightTable.id, flightId).firstOrNull()
+            val origin = airportAccess.getByAttribute(AirportTable.id, flight.originAirport).firstOrNull()
+            val dest = airportAccess.getByAttribute(AirportTable.id, flight.destinationAirport).firstOrNull()
 
-            if (flight == null) {
-                call.respondRedirect("/flights/search")
-            } else {
-                val origin = airportAccess.getByAttribute(AirportTable.id, flight.originAirport).firstOrNull()
-                val dest = airportAccess.getByAttribute(AirportTable.id, flight.destinationAirport).firstOrNull()
+            val passengers =
+                transaction {
+                    PassengerTable
+                        .select { PassengerTable.bookingId eq bookingSession.bookingId }
+                        .map { row -> passengersMapper(row) }
+                }
+            val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
+            val layout = getLayout(capacity)
+            val seatStatusByCode =
+                SeatTableAccess().getByAttribute(SeatTable.flightId, flight.id)
+                    .associate { it.seatCode to it.status }
+            val seatRows = buildSeatRows(capacity, layout, seatStatusByCode)
+            val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
 
-                val passengers =
-                    transaction {
-                        PassengerTable
-                            .select { PassengerTable.bookingId eq bookingSession.bookingId }
-                            .map { row -> passengersMapper(row) }
-                    }
-                val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
-                val layout = getLayout(capacity)
-                val seatStatusByCode =
-                    SeatTableAccess().getByAttribute(SeatTable.flightId, flight.id)
-                        .associate { it.seatCode to it.status }
-                val seatRows = buildSeatRows(capacity, layout, seatStatusByCode)
+            val model =
+                buildSeatsModel(
+                    SeatsModelParams(
+                        flight = flight,
+                        origin = origin,
+                        dest = dest,
+                        passengers = passengers,
+                        seatRows = seatRows,
+                        error = call.request.queryParameters["error"] ?: "",
+                        ok = call.request.queryParameters["ok"] ?: "",
+                        unreadCount = unreadCount,
+                    ),
+                )
 
-                val model =
-                    buildSeatsModel(
-                        SeatsModelParams(
-                            flight = flight,
-                            origin = origin,
-                            dest = dest,
-                            passengers = passengers,
-                            seatRows = seatRows,
-                            error = call.request.queryParameters["error"] ?: "",
-                            ok = call.request.queryParameters["ok"] ?: "",
-                        ),
-                    )
-
-                call.respond(PebbleContent("seat_selection.peb", model))
-            }
+            call.respond(PebbleContent("seat_selection.peb", model))
         }
     }
 }

@@ -46,6 +46,7 @@ data class SeatsModelParams(
     val seatRows: List<Map<String, Any>>,
     val error: String,
     val ok: String,
+    val unreadCount: Long,
 )
 
 /**
@@ -268,6 +269,7 @@ fun buildSeatsModel(params: SeatsModelParams): Map<String, Any> {
         "passengers" to params.passengers,
         "error" to params.error,
         "ok" to params.ok,
+        "unreadCount" to params.unreadCount,
     )
 }
 

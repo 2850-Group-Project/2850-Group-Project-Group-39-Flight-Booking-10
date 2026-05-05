@@ -99,9 +99,9 @@ private suspend fun handleGetHome(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetFlightSearch(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call) ?: return
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
 
-    // packaging all search data into one class
+    // Packaging all search data into one class
     val search =
         FlightSearch(
             tripType = call.request.queryParameters["trip_type"],
@@ -114,8 +114,6 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
             infants = call.request.queryParameters["infants"],
         )
 
-    println(search)
-
     if (search.origin == null || search.destination == null || search.adults == "0") {
         call.respondRedirect("/home")
         return
@@ -123,18 +121,8 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
 
     val airports = AirportTableAccess()
 
-    // to do: properly handle error when the inputted airport is not found, just isnt great
-    // this should be checked beforehand however, on the home page, since we should only ever pass error free
-    // form inputs to stages further up
     val originAirportCode = airports.getAirportCodeByOrigin(search.origin) ?: ""
     val destinationAirportCode = airports.getAirportCodeByOrigin(search.destination) ?: ""
-
-    println(originAirportCode)
-    println(destinationAirportCode)
-
-    // println("FLIGHT SEARCH DATA VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV")
-    // println(search)
-    // println("FLIGHT SEARCH DATA ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
     val flightTable = FlightTableAccess()
     val outboundFlights =
@@ -154,6 +142,8 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
             )
     }
 
+    val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
+
     call.respond(
         PebbleContent(
             "flight_search.peb",
@@ -163,6 +153,7 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
                 "search" to search,
                 "outboundFlights" to outboundFlights,
                 "returnFlights" to inboundFlights,
+                "unreadCount" to unreadCount,
             ),
         ),
     )
@@ -173,7 +164,7 @@ private suspend fun handleGetFlightSearch(call: ApplicationCall) {
  * @param call application call
  */
 private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call) ?: return
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
     val bookingSession = AuthService.requireBooking(call, requireSearch = true) ?: return
 
     val search = bookingSession.search!!
@@ -194,6 +185,8 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
         (0 until infantsCount).map {
             mapOf("label" to it + 1, "idx" to adultsCount + childrenCount + it)
         }
+    
+    val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
 
     call.respond(
         PebbleContent(
@@ -205,6 +198,7 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
                 "adults" to adultsList,
                 "children" to childrenList,
                 "infants" to infantsList,
+                "unreadCount" to unreadCount,
             ),
         ),
     )
