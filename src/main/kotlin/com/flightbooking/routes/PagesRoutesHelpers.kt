@@ -25,6 +25,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 /**
  * Helper function to handle redirects from invalid UserSession or BookingSession
@@ -192,6 +193,21 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                     items.groupBy { it["segmentId"] }
                         .map { (_, segRows) ->
                             val seg = segRows.first()
+                            val passengers = segRows
+                                .filter { it["passengerId"] != null }
+                                .map { p ->
+                                    mapOf(
+                                        "id" to p["passengerId"],
+                                        "firstName" to p["passengerFirstName"],
+                                        "lastName" to p["passengerLastName"],
+                                        "dob" to p["passengerDob"],
+                                        "nationality" to p["passengerNationality"],
+                                        "docType" to p["passengerDocType"],
+                                        "docNumber" to p["passengerDocNumber"],
+                                        "checkedIn" to p["passengerCheckedIn"],
+                                    )
+                                }
+
                             mapOf(
                                 "segmentId" to seg["segmentId"],
                                 "flightNumber" to (seg["flightNumber"] ?: ""),
@@ -203,20 +219,7 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                                 "destIata" to seg["destIata"],
                                 "destName" to seg["destName"],
                                 "seatCode" to seg["seatCode"],
-                                "passengers" to segRows
-                                    .filter { it["passengerId"] != null }
-                                    .map { p ->
-                                        mapOf(
-                                            "id" to p["passengerId"],
-                                            "firstName" to p["passengerFirstName"],
-                                            "lastName" to p["passengerLastName"],
-                                            "dob" to p["passengerDob"],
-                                            "nationality" to p["passengerNationality"],
-                                            "docType" to p["passengerDocType"],
-                                            "docNumber" to p["passengerDocNumber"],
-                                            "checkedIn" to p["passengerCheckedIn"],
-                                        )
-                                    },
+                                "passengers" to jacksonObjectMapper().writeValueAsString(passengers)
                             )
                         },
             )

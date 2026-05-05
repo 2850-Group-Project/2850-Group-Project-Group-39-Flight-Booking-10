@@ -145,7 +145,7 @@
                             '{{ seg.arr | default('—') }}',
                             '{{ seg.flightStatus | default('—') }}',
                             '{{ seg.seatCode | default('No seat assigned') }}',
-                            {{ seg.passengers | json }}
+                            '{{ seg.passengers }}'
                           )">
                           View Ticket
                         </span>

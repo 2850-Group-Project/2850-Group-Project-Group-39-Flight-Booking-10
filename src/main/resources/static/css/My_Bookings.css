@@ -428,6 +428,7 @@ label{
   flex-direction: column;
   gap: 12px;
   margin-top: 12px;
+  scrollbar-width: thin;
 }
 
 .flight-details-modal-row {
@@ -443,11 +444,92 @@ label{
 
 .flight-details-modal-value {
   font-weight: 700;
+
 }
 
 #seatModal .modal {
   width: min(860px, 95vw);
   max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.passenger-detail-card {
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.05));
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.passenger-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.passenger-detail-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.15);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.passenger-detail-name {
+  font-weight: 800;
+  font-size: 15px;
+  flex: 1;
+}
+
+.passenger-detail-checkin {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+.passenger-detail-checkin.checked-in {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.12);
+  color: #86efac;
+}
+
+.passenger-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.passenger-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.passenger-detail-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.passenger-detail-field-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1f5f9;
 }
 
 @media (max-width: 980px){
