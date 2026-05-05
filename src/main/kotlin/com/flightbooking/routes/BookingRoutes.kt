@@ -76,6 +76,9 @@ private suspend fun handlePostPassengersSubmit(call: ApplicationCall) {
         }
     }
 
+    println(passengers)
+    println(bookingSession)
+
     call.sessions.set(
         bookingSession.copy(
             bookingId = bookingId,
