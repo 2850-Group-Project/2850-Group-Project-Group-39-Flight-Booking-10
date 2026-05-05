@@ -16,6 +16,8 @@ import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
+import com.flightbooking.models.BookingSession
+import io.ktor.server.sessions.sessions
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.request.receiveParameters
@@ -81,6 +83,8 @@ private suspend fun handleGetHome(call: ApplicationCall) {
     val (userSession, userId) = AuthService.requireUser(call) ?: return
     val airports = AirportTableAccess().getAll()
     val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
+
+    call.sessions.set("BOOKING_SESSION", BookingSession())
 
     call.respond(
         PebbleContent(
