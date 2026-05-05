@@ -99,7 +99,7 @@ nav {
 .notif-dot.unread {
   background: rgba(239, 68, 68, .95);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, .20);
-  padding-left: 5px;
+  margin-left: 10px;
 }
 
 .brand {

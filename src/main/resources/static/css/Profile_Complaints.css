@@ -144,36 +144,36 @@
 }
 
 .response-banner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 12px;
-    padding: 10px 14px;
-    border-radius: 12px;
-    background: rgba(63,94,251,.10);
-    border: 1px solid rgba(63,94,251,.25);
-    font-size: 13px;
-    color: rgba(255,255,255,.85);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(63,94,251,.10);
+  border: 1px solid rgba(63,94,251,.25);
+  font-size: 13px;
+  color: rgba(255,255,255,.85);
 }
 
 .btn-response {
-    padding: 7px 14px;
-    border-radius: 10px;
-    border: 1px solid rgba(63,94,251,.35);
-    background: rgba(63,94,251,.18);
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: .18s ease;
+  padding: 7px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(63,94,251,.35);
+  background: rgba(63,94,251,.18);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .18s ease;
 }
 .btn-response:hover { background: rgba(63,94,251,.28); transform: translateY(-1px); }
 
 .responses-panel {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .responses-hidden { 
@@ -181,22 +181,39 @@
 }
 
 .response-bubble {
-    padding: 12px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(255,255,255,.04);
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
 }
 
 .response-meta {
-    font-size: 11px;
-    color: rgba(255,255,255,.45);
-    margin-bottom: 6px;
+  font-size: 11px;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 6px;
 }
 
 .response-text {
-    font-size: 13px;
-    line-height: 1.55;
-    color: rgba(255,255,255,.85);
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255,255,255,.85);
+}
+
+.response-banner-unread {
+  background: rgba(63,94,251,.16);
+  border-color: rgba(63,94,251,.40);
+}
+
+.unread-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(239,68,68,.20);
+  border: 1px solid rgba(239,68,68,.35);
+  color: #ffb4b4;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 /* -- STATUS PILLS -- */

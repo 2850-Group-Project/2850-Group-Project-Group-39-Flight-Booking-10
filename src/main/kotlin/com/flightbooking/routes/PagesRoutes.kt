@@ -233,6 +233,7 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
             "Silver" -> GOLD_MEMBER_THRESHOLD
             else -> GOLD_MEMBER_THRESHOLD
         }
+    val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
 
     call.respond(
         PebbleContent(
@@ -245,6 +246,7 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
                 "totalRedeemed" to totalRedeemed,
                 "membershipStatus" to membershipStatus,
                 "nextMilestone" to nextMilestone,
+                "unreadCount" to unreadCount,
             ),
         ),
     )
