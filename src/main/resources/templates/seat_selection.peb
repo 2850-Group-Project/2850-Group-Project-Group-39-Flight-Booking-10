@@ -121,6 +121,9 @@
         <div class="seat-status-list" id="seat-list" aria-label="Selected seat assignments">
           <!-- Filled by javascript -->
         </div>
+        <div class="seat-actions">
+          <p class="seat-actions-hint" id="hint-text" aria-live="polite">Select a seat for {{ currentPassenger }}</p>
+        </div>
         <button type="button" class="btn-reset" id="reset-btn"
           data-has-return="{{ hasReturnFlight }}"
           data-leg="{{ leg }}"
@@ -191,10 +194,6 @@
               </div>
             {% endfor %}
           </div>
-        </div>
-
-        <div class="seat-actions">
-          <p class="seat-actions-hint" id="hint-text" aria-live="polite">Select a seat for {{ currentPassenger }}</p>
         </div>
 
         <!-- HIDDEN: INPUT SUBMITTED TO FORM -->
