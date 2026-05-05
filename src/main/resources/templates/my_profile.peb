@@ -153,6 +153,8 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 1.5,
           plugins: {
             legend: {display: false},
             title: {
@@ -170,6 +172,7 @@
           scales: {
             y: {
               beginAtZero: true,
+              suggestedMax: Math.max({{totalEarned}}, {{totalRedeemed}}, {{pointsBalance}}) * 1.15,
               ticks: {font: {size: fontSize}}
               },
             x: {
