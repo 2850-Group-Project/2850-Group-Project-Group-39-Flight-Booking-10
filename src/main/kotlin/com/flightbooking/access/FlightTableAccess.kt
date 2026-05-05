@@ -121,11 +121,11 @@ class FlightTableAccess {
             maxOf(
                 date.minusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW),
                 LocalDate.now(),
-            ).toString() + "T00:00:00+00:00"
+            ).toString() + " 00:00:00"
 
         val dateTo =
             date.plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW)
-                .toString() + "T23:59:59+00:00"
+                .toString() + " 23:59:59"
 
         // debugging
         println("dateFrom: $dateFrom")
@@ -176,11 +176,13 @@ class FlightTableAccess {
         val first = rows.first()
         val dep =
             first[FlightTable.scheduledDepartureTime]?.let {
-                LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                val cleaned = it.replace("T", " ").substringBefore("+")
+                LocalDateTime.parse(cleaned, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
             }
         val arr =
             first[FlightTable.scheduledArrivalTime]?.let {
-                LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                val cleaned = it.replace("T", " ").substringBefore("+")
+                LocalDateTime.parse(cleaned, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
             }
         return FlightWithFares(
             flightId = first[FlightTable.id],
