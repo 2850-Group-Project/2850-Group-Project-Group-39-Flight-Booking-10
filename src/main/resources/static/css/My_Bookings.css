@@ -398,7 +398,6 @@ label{
 .modal-actions form {
     display: contents;
 }
-
 .flight-details-modal-header {
   display: flex;
   align-items: center;
@@ -415,6 +414,15 @@ label{
   cursor: pointer;
 }
 
+.flight-details-modal-map {
+  width: 100%;
+  height: 260px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
 .flight-details-modal-body {
   display: flex;
   flex-direction: column;
@@ -425,6 +433,7 @@ label{
 .flight-details-modal-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .flight-details-modal-label {
@@ -434,6 +443,11 @@ label{
 
 .flight-details-modal-value {
   font-weight: 700;
+}
+
+#seatModal .modal {
+  width: min(860px, 95vw);
+  max-width: 95vw;
 }
 
 @media (max-width: 980px){

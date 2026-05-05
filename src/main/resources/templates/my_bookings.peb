@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>My Bookings</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <link rel="stylesheet" href="/static/css/My_Bookings.css">
   <link rel="stylesheet" href="/static/css/Home.css">
 </head>
@@ -132,12 +134,14 @@
                         </div>
                       </div>
 
-                      <!-- Used Claude AI to generate syntax for openSeatModal params, lines 137-146 -->
+                      <!-- Used Claude AI to generate syntax for openSeatModal params, lines 138-150 -->
                       <div class="seg-right">
                         <span class="mini-pill" style="cursor:pointer;"
                           onclick="openSeatModal(
                             '{% if seg.originName %}{{ seg.originName }}{% else %}{{ seg.originIata }}{% endif %}',
                             '{% if seg.destName %}{{ seg.destName}}{% else %}{{ seg.destIata }}{% endif %}',
+                            '{{ seg.originIata | default('—') }}',
+                            '{{ seg.destIata | default('—') }}',
                             '{{ seg.flightNumber | default('—') }}',
                             '{{ seg.dep | default('—') }}',
                             '{{ seg.arr | default('—') }}',
@@ -190,13 +194,15 @@
     </div>
   </div>
 
-  <!-- SEAT DETAILS MODAL -->
+  <!-- FLIGHTS DETAILS MODAL -->
   <div class="modal-backdrop" id="seatModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="seatModalTitle" tabindex="-1">
     <div class="modal">
       <div class="flight-details-modal-header">
         <div class="modal-title" id="seatModalTitle">Flight Details</div>
         <button class="btn flight-details-modal-close" type="button" onclick="closeSeatModal()">✕</button>
       </div>
+
+      <div class="flight-details-modal-map" id="flightMap"></div>
 
       <div id="seatModalBody" class="flight-details-modal-body">
         <div class="flight-details-modal-row">
@@ -214,6 +220,10 @@
         <div class="flight-details-modal-row">
           <span class="flight-details-modal-label">Arrival</span>
           <span id="seatModalArr" class="flight-details-modal-value"></span>
+        </div>
+        <div class="flight-details-modal-row">
+          <span class="flight-details-modal-label">Status</span>
+          <span id="seatModalStatus" class="flight-details-modal-value"></span>
         </div>
         <div class="flight-details-modal-row">
           <span class="flight-details-modal-label">Seat</span>
