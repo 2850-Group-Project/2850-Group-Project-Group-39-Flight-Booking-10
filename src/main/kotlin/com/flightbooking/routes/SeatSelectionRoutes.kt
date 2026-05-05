@@ -98,6 +98,7 @@ private suspend fun handleGetSeats(call: ApplicationCall, leg: String = "outboun
             .select { PassengerTable.bookingId eq bookingSession.bookingId }
             .map { row -> passengersMapper(row) }
     }
+    
     val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
     val layout = getLayout(capacity)
     val seatStatusByCode = SeatTableAccess().getByAttribute(SeatTable.flightId, flight.id)

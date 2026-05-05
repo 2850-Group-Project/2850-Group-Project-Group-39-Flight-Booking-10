@@ -170,5 +170,6 @@ private fun calculateTotal(bookingSession: BookingSession): Double =
         val passengerCount = adults + children + infants
 
         val raw = (outboundFarePrice + discountedReturnFare) * passengerCount
+        println(raw)
         return@transaction Math.round(raw * 100.0) / 100.0
     }
