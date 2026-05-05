@@ -25,7 +25,7 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.Locale
 
-private const val RETURN_FARE_DISCOUNT = 0.5
+private const val RETURN_FARE_DISCOUNT = 0.0
 private const val PROVIDER_REFERENCE_DIGITS = 4
 
 /**
@@ -169,5 +169,6 @@ private fun calculateTotal(bookingSession: BookingSession): Double =
         val infants = bookingSession.search?.infants?.toIntOrNull() ?: 0
         val passengerCount = adults + children + infants
 
-        (outboundFarePrice + discountedReturnFare) * passengerCount
+        val raw = (outboundFarePrice + discountedReturnFare) * passengerCount
+        return@transaction Math.round(raw * 100.0) / 100.0
     }
