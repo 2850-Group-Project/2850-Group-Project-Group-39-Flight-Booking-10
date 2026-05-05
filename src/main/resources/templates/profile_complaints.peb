@@ -26,17 +26,17 @@
   <div class="page-top">
     <div>
       <h1>My Requests</h1>
-      <p class="sub">Track the status of complaints you have submitted to our support team.</p>
+      <p class="sub">Track the status of requests you have submitted to our support team.</p>
     </div>
-    <a href="/complaints" class="btn-new">+ New Complaint</a>
+    <a href="/complaints" class="btn-new">+ New Request</a>
   </div>
 
   <!-- COMPLAINTS LIST -->
   {% if complaints is empty %}
     <div class="empty" role="status">
       <div class="empty-icon">📭</div>
-      <div class="empty-title">No complaints yet</div>
-      <p class="empty-sub">If you've experienced an issue, <a href="/complaints">submit a complaint</a> and we'll look into it.</p>
+      <div class="empty-title">No requests yet</div>
+      <p class="empty-sub">If you've experienced an issue, <a href="/complaints">submit a request</a> and we'll look into it.</p>
     </div>
   {% else %}
     <div class="list">

@@ -34,7 +34,7 @@
       <div class="divider"></div>
 
       {% if success == "true" %}
-        <div class="flash success">✓ Your complaint has been submitted. We'll be in touch soon.</div>
+        <div class="flash success">✓ Your request has been submitted. We'll be in touch soon.</div>
       {% endif %}
 
       {% if error == "missing_fields" %}
