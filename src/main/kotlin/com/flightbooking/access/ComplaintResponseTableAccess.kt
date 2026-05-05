@@ -85,6 +85,7 @@ class ComplaintResponseTableAccess {
                                 .toString()
                                 .formatDate()
                                 .orEmpty(),
+                        "viewed" to row[ComplaintResponseTable.viewed],
                     )
                 }
         }
@@ -102,6 +103,7 @@ class ComplaintResponseTableAccess {
         staffId: Int,
         message: String,
         createdAt: String,
+        viewed: Int = 0,
     ): Boolean =
         transaction {
             ComplaintResponseTable.insert {
@@ -109,6 +111,7 @@ class ComplaintResponseTableAccess {
                 it[ComplaintResponseTable.staffId] = staffId
                 it[ComplaintResponseTable.message] = message
                 it[ComplaintResponseTable.createdAt] = createdAt
+                it[ComplaintResponseTable.viewed] = viewed
             }
             true
         }
@@ -133,6 +136,16 @@ class ComplaintResponseTableAccess {
                 }
             rows > 0
         }
+
+    /**
+     * Updates viewed status of complaint of complaintId
+     * @param complaintId complaint Id
+     */
+    fun markResponseView(complaintId: Int) = transaction {
+        ComplaintResponseTable.update({ ComplaintResponseTable.complaintId eq complaintId }) {
+            it[viewed] = 1
+        }
+    }
 
     /**
      * Deletes a complaint response by id

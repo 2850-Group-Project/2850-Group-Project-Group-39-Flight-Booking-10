@@ -106,8 +106,20 @@
     function toggleResponses(id) {
       const panel = document.getElementById('responses-' + id);
       const btn = panel.previousElementSibling.querySelector('.btn-response');
+
       panel.classList.toggle("responses-hidden");
+      const isVisible = !panel.classList.contains('responses-hidden');
+
       btn.textContent = panel.classList.contains("responses-hidden") ? "View Responses" : "Hide Responses";      
+      
+      // Used Claude AI to generate fetch request for complaints view responses route, lines 117-120
+      if (isVisible) {
+        fetch("/profile/complaints/view-responses", {
+          method: "POST",
+          headers: {"Content-Type": "application/x-www-form-urlencoded"},
+          body: "complaintId=" + id
+        });
+      }
     }
   </script>
 </body>

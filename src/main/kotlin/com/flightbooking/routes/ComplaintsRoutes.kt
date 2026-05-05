@@ -27,6 +27,7 @@ fun Route.complaintsRoutes() {
     get("/complaints") { handleGetComplaints(call) }
     post("/complaints/submit") { handleSubmitComplaint(call) }
     get("/profile/complaints") { handleProfileComplaints(call) }
+    post("/profile/complaints/view-responses") { handleViewResponses(call) }
 }
 
 /**
@@ -92,4 +93,12 @@ private suspend fun handleProfileComplaints(call: io.ktor.server.application.App
             ),
         ),
     )
+}
+
+private suspend fun handleViewResponses(call: io.ktor.server.application.ApplicationCall) {
+    val (_, _) = AuthService.requireUser(call) ?: return
+    val params = call.receiveParameters()
+    val complaintId = params["complaintId"]?.toIntOrNull() ?: return
+    ComplaintResponseTableAccess().markResponseView(complaintId)
+    call.respond(io.ktor.http.HttpStatusCode.OK)
 }
