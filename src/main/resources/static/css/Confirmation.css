@@ -89,6 +89,10 @@
     border-bottom: 1px solid rgba(255,255,255,.05);
 }
 
+.top {
+    margin-bottom: 10px;
+}
+
 .confirm-details .row:last-child,
 .confirm-section .row:last-child {
     border-bottom: none;
