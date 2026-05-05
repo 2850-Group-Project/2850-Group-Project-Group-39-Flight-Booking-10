@@ -81,6 +81,21 @@ class ComplaintResponseTableAccess {
         }
 
     /**
+     * Gets total count of unread responses for a complant 
+     * @param complaintId complaint Id
+     * @return count of unread responses
+     */
+    fun getUnreadCountForComplaint(complaintId: Int): Long =
+        transaction {
+            ComplaintResponseTable
+                .select {
+                    (ComplaintResponseTable.complaintId eq complaintId) and
+                    (ComplaintResponseTable.viewed eq 0)
+                }
+                .count()
+        }
+
+    /**
      * Gets all responses for a given complaint
      * @param complaintId complaint id
      * @return list of response maps

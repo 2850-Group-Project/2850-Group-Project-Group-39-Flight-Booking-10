@@ -83,7 +83,7 @@ private suspend fun handleProfileComplaints(call: io.ktor.server.application.App
         complaint.id to ComplaintResponseTableAccess().getResponsesForComplaint(complaint.id)
     }
     val unreadByComplaint = complaints.associate { complaint -> 
-        complaint.id to ComplaintResponseTableAccess().getUnreadResponsesCountForUser(complaint.id)
+        complaint.id to ComplaintResponseTableAccess().getUnreadCountForComplaint(complaint.id)
     }
 
     call.respond(
