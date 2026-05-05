@@ -43,16 +43,6 @@
           <span class="summary-label">Aircraft</span>
           <span class="summary-value">{{ aircraftType }}</span>
         </div>
-        <div class="summary-item">
-          <span class="summary-label">Selected Seat</span>
-          <span class="summary-value">
-            {% if currentSeatCode %}
-              <span class="seat-badge">{{ currentSeatCode }}</span>
-            {% else %}
-              <span class="seat-badge-empty">-</span>
-            {% endif %}
-          </span>
-        </div>
       </div>
       <a href="/flights/passengers" class="btn-ghost summary-edit">← Back</a>
     </div>
