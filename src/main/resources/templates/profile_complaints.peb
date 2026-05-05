@@ -26,17 +26,17 @@
   <div class="page-top">
     <div>
       <h1>My Requests</h1>
-      <p class="sub">Track the status of complaints you have submitted to our support team.</p>
+      <p class="sub">Track the status of requests you have submitted to our support team.</p>
     </div>
-    <a href="/complaints" class="btn-new">+ New Complaint</a>
+    <a href="/complaints" class="btn-new">+ New Request</a>
   </div>
 
   <!-- COMPLAINTS LIST -->
   {% if complaints is empty %}
     <div class="empty" role="status">
       <div class="empty-icon">📭</div>
-      <div class="empty-title">No complaints yet</div>
-      <p class="empty-sub">If you've experienced an issue, <a href="/complaints">submit a complaint</a> and we'll look into it.</p>
+      <div class="empty-title">No requests yet</div>
+      <p class="empty-sub">If you've experienced an issue, <a href="/complaints">submit a request</a> and we'll look into it.</p>
     </div>
   {% else %}
     <div class="list">
@@ -60,6 +60,29 @@
             {{ c.message }}
           </div>
 
+          {% set responses = responsesByComplaint[c.id] %}
+          {% set unread = unreadByComplaint[c.id] %}
+            {% if responses is not empty %}
+              <div class="response-banner {% if unread > 0 %}response-banner-unread{% endif %}">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  💬 {{ responses | length }} response{% if responses | length > 1 %}s{% endif %} from support
+                  {% if unread > 0 %}
+                    <span class="unread-badge">{{ unread }} new</span>
+                  {% endif %}
+                </div>
+                <button class="btn-response" type="button" onclick="toggleResponses({{ c.id }})">View Responses</button>
+              </div>
+
+              <div id="responses-{{ c.id }}" class="responses-panel responses-hidden" hidden>
+                {% for r in responses %}
+                  <div class="response-bubble">
+                    <div class="response-meta">Support Staff: {{ r.createdAt }}</div>
+                    <div class="response-text">{{ r.message }}</div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
           {% if c.handledByStaffId %}
             <div class="handled-by">
               <span class="handled-icon">👤</span>
@@ -76,7 +99,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <span>© 2026 SkyBook. All rights reserved</span>
+  <span>© 2026 SkyFlow. All rights reserved</span>
   <div class="footer-links">
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
@@ -85,5 +108,25 @@
 </footer>
 
   <script src="/static/javascript/Large_Font.js"></script>
+  <script>
+    function toggleResponses(id) {
+      const panel = document.getElementById('responses-' + id);
+      const btn = panel.previousElementSibling.querySelector('.btn-response');
+
+      panel.classList.toggle("responses-hidden");
+      const isVisible = !panel.classList.contains('responses-hidden');
+
+      btn.textContent = panel.classList.contains("responses-hidden") ? "View Responses" : "Hide Responses";      
+      
+      // Used Claude AI to generate fetch request for complaints view responses route, lines 117-120
+      if (isVisible) {
+        fetch("/profile/complaints/view-responses", {
+          method: "POST",
+          headers: {"Content-Type": "application/x-www-form-urlencoded"},
+          body: "complaintId=" + id
+        });
+      }
+    }
+  </script>
 </body>
 </html>

@@ -17,7 +17,7 @@
     <div class="nav-right">
       <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
       <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
-      <a href="/profile" class="btn-primary">My Account</a>
+      <a href="/profile" class="btn-primary">My Account<span class="notif-dot {% if unreadCount > 0 %}unread{% endif %}"></span></a>
     </div>
   </nav>
 
@@ -32,7 +32,7 @@
       </p>
 
       <!-- BOOKING SUMMARY -->
-      <div class="confirm-details">
+      <div class="confirm-details top">
 
         <div class="row">
           <span>Booking ID</span>
@@ -66,7 +66,7 @@
       </div>
 
       <!-- OUTBOUND -->
-      <div class="confirm-section">
+      <div class="confirm-section top">
         <div class="section-title">Outbound Flight</div>
 
         <div class="row">
@@ -80,16 +80,6 @@
         <div class="row">
           <span>Departure</span>
           <strong>{{ bookingSession.search.departureDate }}</strong>
-        </div>
-
-        <div class="row">
-          <span>Flight ID</span>
-          <strong>{{ bookingSession.outboundFlightId }}</strong>
-        </div>
-
-        <div class="row">
-          <span>Fare</span>
-          <strong>{{ bookingSession.outboundFareId }}</strong>
         </div>
       </div>
 
@@ -109,11 +99,6 @@
         <div class="row">
           <span>Return Date</span>
           <strong>{{ bookingSession.search.returnDate }}</strong>
-        </div>
-
-        <div class="row">
-          <span>Flight ID</span>
-          <strong>{{ bookingSession.returnFlightId }}</strong>
         </div>
       </div>
       {% endif %}
@@ -144,7 +129,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved</span>
+    <span>© 2026 SkyFlow. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

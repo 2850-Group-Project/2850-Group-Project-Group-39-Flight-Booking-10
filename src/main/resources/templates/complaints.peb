@@ -34,7 +34,7 @@
       <div class="divider"></div>
 
       {% if success == "true" %}
-        <div class="flash success">✓ Your complaint has been submitted. We'll be in touch soon.</div>
+        <div class="flash success">✓ Your request has been submitted. We'll be in touch soon.</div>
       {% endif %}
 
       {% if error == "missing_fields" %}
@@ -93,7 +93,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved</span>
+    <span>© 2026 SkyFlow. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

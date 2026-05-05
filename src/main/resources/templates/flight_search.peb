@@ -21,7 +21,7 @@
     <div class="nav-right">
       <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
       <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
-      <a href="/profile" class="btn-primary">My Account</a>
+      <a href="/profile" class="btn-primary">My Account<span class="notif-dot {% if unreadCount > 0 %}unread{% endif %}"></a>
     </div>
   </nav>
 
@@ -172,7 +172,6 @@
               <div class="flight-card-top">
                 <div class="flight-time-block">
                   <span class="flight-time">{{ flight.departureTime }}</span>
-                  <span class="flight-day">{{ flight.departureDay }}</span>
                   <span class="flight-airport">{{ flight.originCode }}</span>
                 </div>
                 <div class="flight-duration">
@@ -240,7 +239,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2026 SkyBook. All rights reserved</span>
+    <span>© 2026 SkyFlow. All rights reserved</span>
     <div class="footer-links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

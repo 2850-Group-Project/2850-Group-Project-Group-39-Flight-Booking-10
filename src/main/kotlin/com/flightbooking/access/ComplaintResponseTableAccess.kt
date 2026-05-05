@@ -7,6 +7,7 @@ import com.flightbooking.tables.UserTable
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -61,6 +62,40 @@ class ComplaintResponseTableAccess {
         }
 
     /**
+     * Gets total count of unread responses across all complaints for a user
+     * @param userId user id
+     * @return count of unread responses
+     */
+    fun getUnreadResponsesCountForUser(userId: Int): Long =
+        transaction {
+            ComplaintResponseTable
+                .join(ComplaintTable, JoinType.INNER, additionalConstraint = {
+                    ComplaintResponseTable.complaintId eq ComplaintTable.id
+                })
+                .select {
+                    // Used Claude AI to debug 'and' import, lines 77-79,10
+                    (ComplaintTable.userId eq userId) and
+                        (ComplaintResponseTable.viewed eq 0)
+                }
+                .count()
+        }
+
+    /**
+     * Gets total count of unread responses for a complant
+     * @param complaintId complaint Id
+     * @return count of unread responses
+     */
+    fun getUnreadCountForComplaint(complaintId: Int): Long =
+        transaction {
+            ComplaintResponseTable
+                .select {
+                    (ComplaintResponseTable.complaintId eq complaintId) and
+                        (ComplaintResponseTable.viewed eq 0)
+                }
+                .count()
+        }
+
+    /**
      * Gets all responses for a given complaint
      * @param complaintId complaint id
      * @return list of response maps
@@ -85,6 +120,7 @@ class ComplaintResponseTableAccess {
                                 .toString()
                                 .formatDate()
                                 .orEmpty(),
+                        "viewed" to row[ComplaintResponseTable.viewed],
                     )
                 }
         }
@@ -102,6 +138,7 @@ class ComplaintResponseTableAccess {
         staffId: Int,
         message: String,
         createdAt: String,
+        viewed: Int = 0,
     ): Boolean =
         transaction {
             ComplaintResponseTable.insert {
@@ -109,6 +146,7 @@ class ComplaintResponseTableAccess {
                 it[ComplaintResponseTable.staffId] = staffId
                 it[ComplaintResponseTable.message] = message
                 it[ComplaintResponseTable.createdAt] = createdAt
+                it[ComplaintResponseTable.viewed] = viewed
             }
             true
         }
@@ -132,6 +170,17 @@ class ComplaintResponseTableAccess {
                     it[ComplaintTable.handledByStaffId] = handledByStaffId
                 }
             rows > 0
+        }
+
+    /**
+     * Updates viewed status of complaint of complaintId
+     * @param complaintId complaint Id
+     */
+    fun markResponseView(complaintId: Int) =
+        transaction {
+            ComplaintResponseTable.update({ ComplaintResponseTable.complaintId eq complaintId }) {
+                it[viewed] = 1
+            }
         }
 
     /**

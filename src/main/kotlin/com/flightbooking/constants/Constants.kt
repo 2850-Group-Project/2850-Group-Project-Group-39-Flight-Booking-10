@@ -15,6 +15,7 @@ const val SHORTER_FIELD_LENGTH: Int = 20
 const val SHORTEST_FIELD_LENGTH: Int = 10
 
 const val DEFAULT_CARRY_ON_WEIGHT_ALLOWED: Int = 7
+const val DEFAULT_VIEWED_STATUS: Int = 0
 
 const val MIN_AGE = 18
 const val MAX_AGE = 80

@@ -126,7 +126,7 @@
 
   <!-- FOOTER -->
   <footer class="bottombar">
-    <div>© 2026 SkyBook. All rights reserved</div>
+    <div>© 2026 SkyFlow. All rights reserved</div>
     <div class="links">
       <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Privacy Policy</a >
       <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Terms of Service</a >

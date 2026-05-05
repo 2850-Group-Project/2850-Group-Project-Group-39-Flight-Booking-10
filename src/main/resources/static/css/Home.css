@@ -89,6 +89,19 @@ nav {
   z-index: 100;
 }
 
+.notif-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.notif-dot.unread {
+  background: rgba(239, 68, 68, .95);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .20);
+  margin-left: 10px;
+}
+
 .brand {
   display: flex;
   align-items: center;

@@ -1,6 +1,7 @@
 package com.flightbooking.routes
 
 import com.flightbooking.access.BookingTableAccess
+import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.access.PaymentTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.Payment
@@ -24,8 +25,8 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.Locale
 
-private const val RETURN_FARE_DISCOUNT = 0.5
 private const val PROVIDER_REFERENCE_DIGITS = 4
+private const val ROUNDING_FACTOR = 100.0
 
 /**
  * Routes for payment page
@@ -51,6 +52,8 @@ private suspend fun handleGetPayment(call: ApplicationCall) {
     val bookingTotal = calculateTotal(bookingSession)
     val (pointsAvailable, maxDiscount) = PointsService.calculateRedemption(userId, bookingTotal)
 
+    val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
+
     call.respond(
         PebbleContent(
             "payment.peb",
@@ -60,6 +63,7 @@ private suspend fun handleGetPayment(call: ApplicationCall) {
                 "pointsAvailable" to pointsAvailable,
                 "maxDiscount" to String.format(Locale.UK, "%.2f", maxDiscount),
                 "bookingTotal" to bookingTotal,
+                "unreadCount" to unreadCount,
             ),
         ),
     )
@@ -154,16 +158,11 @@ private fun calculateTotal(bookingSession: BookingSession): Double =
                 }
             } ?: 0.0
 
-        val discountedReturnFare =
-            if (bookingSession.returnFareId != null) {
-                returnFarePrice * RETURN_FARE_DISCOUNT
-            } else {
-                returnFarePrice
-            }
         val adults = bookingSession.search?.adults?.toIntOrNull() ?: 0
         val children = bookingSession.search?.children?.toIntOrNull() ?: 0
         val infants = bookingSession.search?.infants?.toIntOrNull() ?: 0
         val passengerCount = adults + children + infants
 
-        (outboundFarePrice + discountedReturnFare) * passengerCount
+        val raw = (outboundFarePrice + returnFarePrice) * passengerCount
+        return@transaction Math.round(raw * ROUNDING_FACTOR) / ROUNDING_FACTOR
     }

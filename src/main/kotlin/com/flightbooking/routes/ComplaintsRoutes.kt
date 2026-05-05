@@ -1,5 +1,6 @@
 package com.flightbooking.routes
 
+import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.access.ComplaintTableAccess
 import com.flightbooking.access.UserTableAccess
 import com.flightbooking.service.AuthService
@@ -26,6 +27,7 @@ fun Route.complaintsRoutes() {
     get("/complaints") { handleGetComplaints(call) }
     post("/complaints/submit") { handleSubmitComplaint(call) }
     get("/profile/complaints") { handleProfileComplaints(call) }
+    post("/profile/complaints/view-responses") { handleViewResponses(call) }
 }
 
 /**
@@ -76,14 +78,33 @@ private suspend fun handleProfileComplaints(call: io.ktor.server.application.App
     val (userSession, _) = AuthService.requireUser(call) ?: return
 
     val user = UserTableAccess().findByEmail(userSession.userEmail) ?: return call.respondRedirect("/login")
+    val complaints = ComplaintTableAccess().findByUserId(user.id)
+    val responsesByComplaint =
+        complaints.associate { complaint ->
+            complaint.id to ComplaintResponseTableAccess().getResponsesForComplaint(complaint.id)
+        }
+    val unreadByComplaint =
+        complaints.associate { complaint ->
+            complaint.id to ComplaintResponseTableAccess().getUnreadCountForComplaint(complaint.id)
+        }
 
     call.respond(
         PebbleContent(
             "profile_complaints.peb",
             mapOf<String, Any>(
                 "userSession" to userSession,
-                "complaints" to ComplaintTableAccess().findByUserId(user.id),
+                "complaints" to complaints,
+                "responsesByComplaint" to responsesByComplaint,
+                "unreadByComplaint" to unreadByComplaint,
             ),
         ),
     )
+}
+
+private suspend fun handleViewResponses(call: io.ktor.server.application.ApplicationCall) {
+    val (_, _) = AuthService.requireUser(call) ?: return
+    val params = call.receiveParameters()
+    val complaintId = params["complaintId"]?.toIntOrNull() ?: return
+    ComplaintResponseTableAccess().markResponseView(complaintId)
+    call.respond(io.ktor.http.HttpStatusCode.OK)
 }

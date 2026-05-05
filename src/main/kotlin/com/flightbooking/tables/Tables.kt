@@ -3,6 +3,7 @@ package com.flightbooking.tables
 import com.flightbooking.constants.CLASS_CODE_LENGTH
 import com.flightbooking.constants.CURRENCY_LENGTH
 import com.flightbooking.constants.DEFAULT_CARRY_ON_WEIGHT_ALLOWED
+import com.flightbooking.constants.DEFAULT_VIEWED_STATUS
 import com.flightbooking.constants.DOB_LENGTH
 import com.flightbooking.constants.DOCUMENT_COUNTRY_LENGTH
 import com.flightbooking.constants.DOCUMENT_EXPIRY_LENGTH
@@ -193,7 +194,7 @@ object SeatTable : Table("seat") {
  */
 object SeatAssignmentTable : Table("seat_assignment") {
     val id = integer("seat_assignment_id").autoIncrement()
-    val passengerId = integer("passenger_id").references(PassengerTable.id).uniqueIndex()
+    val passengerId = integer("passenger_id").references(PassengerTable.id)
     val bookingSegmentId = integer("booking_segment_id").references(BookingSegmentTable.id)
     val seatId = integer("seat_id").references(SeatTable.id).nullable()
 
@@ -240,6 +241,7 @@ object ComplaintResponseTable : Table("complaint_response") {
     val staffId = integer("staff_id").references(StaffTable.id)
     val message = text("message")
     val createdAt = varchar("created_at", STANDARD_FIELD_LENGTH)
+    val viewed = integer("viewed").default(DEFAULT_VIEWED_STATUS)
 
     override val primaryKey = PrimaryKey(id)
 }

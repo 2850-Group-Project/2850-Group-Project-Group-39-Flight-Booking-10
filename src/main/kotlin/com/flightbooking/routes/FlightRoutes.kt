@@ -51,17 +51,15 @@ fun Route.flightSelectRoutes() {
             when (leg) {
                 "outbound" ->
                     booking.copy(
-                        bookingId = bookingId,
+                        bookingId = if (booking.bookingId == 0) bookingId else booking.bookingId,
                         outboundFlightId = flightId,
                         outboundFareId = fareId,
                         search = search,
                     )
                 "return" ->
                     booking.copy(
-                        bookingId = bookingId,
                         returnFlightId = flightId,
                         returnFareId = fareId,
-                        search = search,
                     )
                 else -> {
                     call.respond(HttpStatusCode.BadRequest, "Invalid leg")
