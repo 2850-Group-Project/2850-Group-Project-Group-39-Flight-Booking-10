@@ -1,7 +1,7 @@
 package com.flightbooking.routes
 
-import com.flightbooking.access.ComplaintTableAccess
 import com.flightbooking.access.ComplaintResponseTableAccess
+import com.flightbooking.access.ComplaintTableAccess
 import com.flightbooking.access.UserTableAccess
 import com.flightbooking.service.AuthService
 import io.ktor.server.application.call
@@ -79,12 +79,14 @@ private suspend fun handleProfileComplaints(call: io.ktor.server.application.App
 
     val user = UserTableAccess().findByEmail(userSession.userEmail) ?: return call.respondRedirect("/login")
     val complaints = ComplaintTableAccess().findByUserId(user.id)
-    val responsesByComplaint = complaints.associate { complaint->
-        complaint.id to ComplaintResponseTableAccess().getResponsesForComplaint(complaint.id)
-    }
-    val unreadByComplaint = complaints.associate { complaint -> 
-        complaint.id to ComplaintResponseTableAccess().getUnreadCountForComplaint(complaint.id)
-    }
+    val responsesByComplaint =
+        complaints.associate { complaint ->
+            complaint.id to ComplaintResponseTableAccess().getResponsesForComplaint(complaint.id)
+        }
+    val unreadByComplaint =
+        complaints.associate { complaint ->
+            complaint.id to ComplaintResponseTableAccess().getUnreadCountForComplaint(complaint.id)
+        }
 
     call.respond(
         PebbleContent(
@@ -92,7 +94,7 @@ private suspend fun handleProfileComplaints(call: io.ktor.server.application.App
             mapOf<String, Any>(
                 "userSession" to userSession,
                 "complaints" to complaints,
-                "responsesByComplaint" to responsesByComplaint, 
+                "responsesByComplaint" to responsesByComplaint,
                 "unreadByComplaint" to unreadByComplaint,
             ),
         ),

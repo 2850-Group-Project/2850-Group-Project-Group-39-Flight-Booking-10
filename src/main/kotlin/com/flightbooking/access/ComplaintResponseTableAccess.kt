@@ -7,12 +7,12 @@ import com.flightbooking.tables.UserTable
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.and
 
 private const val COMPLAINT_LIST_LIMIT: Int = 50
 private const val START_DATE_INDEX = 0
@@ -60,7 +60,7 @@ class ComplaintResponseTableAccess {
                     )
                 }
         }
-    
+
     /**
      * Gets total count of unread responses across all complaints for a user
      * @param userId user id
@@ -73,15 +73,15 @@ class ComplaintResponseTableAccess {
                     ComplaintResponseTable.complaintId eq ComplaintTable.id
                 })
                 .select {
-                    // Used Claude AI to debug that exposed expects the and to be from then exposed library, Kotlin's version does not work
-                    (ComplaintTable.userId eq userId) and 
-                    (ComplaintResponseTable.viewed eq 0)
+                    // Used Claude AI to debug 'and' import, lines 77-79,10 
+                    (ComplaintTable.userId eq userId) and
+                        (ComplaintResponseTable.viewed eq 0)
                 }
                 .count()
         }
 
     /**
-     * Gets total count of unread responses for a complant 
+     * Gets total count of unread responses for a complant
      * @param complaintId complaint Id
      * @return count of unread responses
      */
@@ -90,7 +90,7 @@ class ComplaintResponseTableAccess {
             ComplaintResponseTable
                 .select {
                     (ComplaintResponseTable.complaintId eq complaintId) and
-                    (ComplaintResponseTable.viewed eq 0)
+                        (ComplaintResponseTable.viewed eq 0)
                 }
                 .count()
         }
@@ -176,11 +176,12 @@ class ComplaintResponseTableAccess {
      * Updates viewed status of complaint of complaintId
      * @param complaintId complaint Id
      */
-    fun markResponseView(complaintId: Int) = transaction {
-        ComplaintResponseTable.update({ ComplaintResponseTable.complaintId eq complaintId }) {
-            it[viewed] = 1
+    fun markResponseView(complaintId: Int) =
+        transaction {
+            ComplaintResponseTable.update({ ComplaintResponseTable.complaintId eq complaintId }) {
+                it[viewed] = 1
+            }
         }
-    }
 
     /**
      * Deletes a complaint response by id

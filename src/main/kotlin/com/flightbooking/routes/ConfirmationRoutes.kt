@@ -32,7 +32,7 @@ fun Route.confirmationRoutes() {
                 fareEarnRate = PointsService.fetchMilesEarnRate(bookingSession.outboundFareId),
                 membershipStatus = membershipStatus,
             )
-        
+
         val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
 
         call.respond(
@@ -41,7 +41,7 @@ fun Route.confirmationRoutes() {
                 mapOf(
                     "bookingSession" to bookingSession,
                     "pointsEarned" to pointsEarned,
-                    "unreadCount" to unreadCount
+                    "unreadCount" to unreadCount,
                 ),
             ),
         )

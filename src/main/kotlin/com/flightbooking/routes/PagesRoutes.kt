@@ -1,9 +1,9 @@
 package com.flightbooking.routes
 
 import com.flightbooking.access.AirportTableAccess
+import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.PointsTableAccess
-import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
 import com.flightbooking.service.AuthService
@@ -185,7 +185,7 @@ private suspend fun handleGetFlightPassengers(call: ApplicationCall) {
         (0 until infantsCount).map {
             mapOf("label" to it + 1, "idx" to adultsCount + childrenCount + it)
         }
-    
+
     val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
 
     call.respond(
