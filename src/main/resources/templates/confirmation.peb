@@ -32,7 +32,7 @@
       </p>
 
       <!-- BOOKING SUMMARY -->
-      <div class="confirm-details">
+      <div class="confirm-details top">
 
         <div class="row">
           <span>Booking ID</span>
@@ -66,7 +66,7 @@
       </div>
 
       <!-- OUTBOUND -->
-      <div class="confirm-section">
+      <div class="confirm-section top">
         <div class="section-title">Outbound Flight</div>
 
         <div class="row">
@@ -80,16 +80,6 @@
         <div class="row">
           <span>Departure</span>
           <strong>{{ bookingSession.search.departureDate }}</strong>
-        </div>
-
-        <div class="row">
-          <span>Flight ID</span>
-          <strong>{{ bookingSession.outboundFlightId }}</strong>
-        </div>
-
-        <div class="row">
-          <span>Fare</span>
-          <strong>{{ bookingSession.outboundFareId }}</strong>
         </div>
       </div>
 
@@ -109,11 +99,6 @@
         <div class="row">
           <span>Return Date</span>
           <strong>{{ bookingSession.search.returnDate }}</strong>
-        </div>
-
-        <div class="row">
-          <span>Flight ID</span>
-          <strong>{{ bookingSession.returnFlightId }}</strong>
         </div>
       </div>
       {% endif %}

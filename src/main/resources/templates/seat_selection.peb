@@ -43,16 +43,6 @@
           <span class="summary-label">Aircraft</span>
           <span class="summary-value">{{ aircraftType }}</span>
         </div>
-        <div class="summary-item">
-          <span class="summary-label">Selected Seat</span>
-          <span class="summary-value">
-            {% if currentSeatCode %}
-              <span class="seat-badge">{{ currentSeatCode }}</span>
-            {% else %}
-              <span class="seat-badge-empty">-</span>
-            {% endif %}
-          </span>
-        </div>
       </div>
       <a href="/flights/passengers" class="btn-ghost summary-edit">← Back</a>
     </div>
@@ -120,6 +110,9 @@
         </div>
         <div class="seat-status-list" id="seat-list" aria-label="Selected seat assignments">
           <!-- Filled by javascript -->
+        </div>
+        <div class="seat-actions">
+          <p class="seat-actions-hint" id="hint-text" aria-live="polite">Select a seat for {{ currentPassenger }}</p>
         </div>
         <button type="button" class="btn-reset" id="reset-btn"
           data-has-return="{{ hasReturnFlight }}"
@@ -191,10 +184,6 @@
               </div>
             {% endfor %}
           </div>
-        </div>
-
-        <div class="seat-actions">
-          <p class="seat-actions-hint" id="hint-text" aria-live="polite">Select a seat for {{ currentPassenger }}</p>
         </div>
 
         <!-- HIDDEN: INPUT SUBMITTED TO FORM -->

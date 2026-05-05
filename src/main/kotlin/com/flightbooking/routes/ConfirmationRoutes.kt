@@ -38,6 +38,8 @@ fun Route.confirmationRoutes() {
 
         val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
 
+        call.sessions.set("BOOKING_SESSION", BookingSession())
+
         call.respond(
             PebbleContent(
                 "confirmation.peb",
@@ -48,7 +50,5 @@ fun Route.confirmationRoutes() {
                 ),
             ),
         )
-
-        call.sessions.set("BOOKING_SESSION", BookingSession())
     }
 }
