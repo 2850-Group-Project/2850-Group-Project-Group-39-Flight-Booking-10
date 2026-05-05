@@ -3,6 +3,7 @@ package com.flightbooking.routes
 import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.PointsTableAccess
+import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.models.FlightSearch
 import com.flightbooking.models.FlightWithFares
 import com.flightbooking.service.AuthService
@@ -77,11 +78,9 @@ fun Route.pagesRoutes() {
  * @param call application call
  */
 private suspend fun handleGetHome(call: ApplicationCall) {
-    val (userSession, _) = AuthService.requireUser(call) ?: return
+    val (userSession, userId) = AuthService.requireUser(call) ?: return
     val airports = AirportTableAccess().getAll()
-
-    println("------------------------------------")
-    println(userSession)
+    val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
 
     call.respond(
         PebbleContent(
@@ -89,6 +88,7 @@ private suspend fun handleGetHome(call: ApplicationCall) {
             mapOf(
                 "userSession" to userSession,
                 "airports" to airports,
+                "unreadCount" to unreadCount,
             ),
         ),
     )

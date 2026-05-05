@@ -82,6 +82,9 @@ private suspend fun handleProfileComplaints(call: io.ktor.server.application.App
     val responsesByComplaint = complaints.associate { complaint->
         complaint.id to ComplaintResponseTableAccess().getResponsesForComplaint(complaint.id)
     }
+    val unreadByComplaint = complaints.associate { complaint -> 
+        complaint.id to ComplaintResponseTableAccess().getUnreadResponsesCountForUser(complaint.id)
+    }
 
     call.respond(
         PebbleContent(
@@ -90,6 +93,7 @@ private suspend fun handleProfileComplaints(call: io.ktor.server.application.App
                 "userSession" to userSession,
                 "complaints" to complaints,
                 "responsesByComplaint" to responsesByComplaint, 
+                "unreadByComplaint" to unreadByComplaint,
             ),
         ),
     )
