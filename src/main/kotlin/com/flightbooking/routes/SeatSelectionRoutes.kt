@@ -87,7 +87,6 @@ private suspend fun handleGetSeats(call: ApplicationCall, leg: String = "outboun
     val origin = airportAccess.getByAttribute(AirportTable.id, flight.originAirport).firstOrNull()
     val dest = airportAccess.getByAttribute(AirportTable.id, flight.destinationAirport).firstOrNull()
 
-    // fetch fare price
     val flightFare = fareId?.let {
         FlightFareTableAccess().getByAttribute(FlightFareTable.id, it).firstOrNull()
     }
@@ -125,7 +124,7 @@ private suspend fun handleGetSeats(call: ApplicationCall, leg: String = "outboun
         put("hasReturnFlight", bookingSession.returnFlightId != null)
         put("leg", leg)
     }
-
+    
     call.respond(PebbleContent("seat_selection.peb", model))
 }
 
