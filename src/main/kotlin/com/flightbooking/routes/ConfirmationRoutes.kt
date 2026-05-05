@@ -37,7 +37,7 @@ fun Route.confirmationRoutes() {
             )
 
         val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
-        
+
         call.sessions.set("BOOKING_SESSION", BookingSession())
 
         call.respond(
