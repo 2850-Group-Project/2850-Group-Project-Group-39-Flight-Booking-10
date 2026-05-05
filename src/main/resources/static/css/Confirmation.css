@@ -71,7 +71,6 @@
     border: 1px solid rgba(255,255,255,.07);
     border-radius: var(--radius2);
     padding: 2px 16px;
-    margin-bottom: 12px;
     transition: border-color .2s ease;
 }
 
