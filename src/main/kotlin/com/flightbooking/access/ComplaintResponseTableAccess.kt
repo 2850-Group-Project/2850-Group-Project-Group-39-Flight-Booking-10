@@ -73,7 +73,7 @@ class ComplaintResponseTableAccess {
                     ComplaintResponseTable.complaintId eq ComplaintTable.id
                 })
                 .select {
-                    // Used Claude AI to debug 'and' import, lines 77-79,10 
+                    // Used Claude AI to debug 'and' import, lines 77-79,10
                     (ComplaintTable.userId eq userId) and
                         (ComplaintResponseTable.viewed eq 0)
                 }
