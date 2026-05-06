@@ -156,12 +156,10 @@
                         data-seat-code="{{ s.code }}"
                         data-seat-position="{{ s.position }}"
                         data-seat-status="{{ s.status }}"
-                        data-passenger-id=""
-                        data-passenger-name="{{ currentPassenger }}"
-                        aria-label="Seat {{ s.code }}, {{ s.position }}, {{ s.status }}"
+                        data-price="{% if s.hasPrice %}£{{ s.price }}{% endif %}"
+                        aria-label="Seat {{ s.code }}, {{ s.position }}, {{ s.status }}{% if s.hasPrice %}, £{{ s.price }}{% endif %}"
                         aria-pressed="false"
                         {% if s.status == "occupied" %}disabled{% endif %}
-                        title="{{ s.code }} ({{ s.position }})"
                       >
                         {{ s.letter }}
                       </button>
@@ -196,6 +194,23 @@
   <div class="fare-summary-row fare-summary-total">
     <span class="fare-summary-label">Flight total</span>
     <span class="fare-summary-value" id="fare-running-total">{{ fareCurrency }} 0.00</span>
+  </div>
+</div>
+
+<!-- SEAT TOOLTIP -->
+<div id="seat-tooltip" class="seat-tooltip" aria-hidden="true">
+  <div class="seat-tooltip-code" id="tooltip-code"></div>
+  <div class="seat-tooltip-row">
+    <span class="seat-tooltip-label">Position</span>
+    <span class="seat-tooltip-value" id="tooltip-position"></span>
+  </div>
+  <div class="seat-tooltip-row">
+    <span class="seat-tooltip-label">Price</span>
+    <span class="seat-tooltip-value" id="tooltip-price"></span>
+  </div>
+  <div class="seat-tooltip-row">
+    <span class="seat-tooltip-label">Status</span>
+    <span class="seat-tooltip-value" id="tooltip-status"></span>
   </div>
 </div>
 
