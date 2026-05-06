@@ -137,7 +137,6 @@
                             '{{ seg.dep | default('—') }}',
                             '{{ seg.arr | default('—') }}',
                             '{{ seg.flightStatus | default('—') }}',
-                            '{{ seg.seatCode | default('No seat assigned') }}',
                             '{{ seg.passengers }}'
                           )">
                           View Ticket
@@ -216,10 +215,6 @@
         <div class="flight-details-modal-row">
           <span class="flight-details-modal-label">Status</span>
           <span id="seatModalStatus" class="flight-details-modal-value"></span>
-        </div>
-        <div class="flight-details-modal-row">
-          <span class="flight-details-modal-label">Seat</span>
-          <span id="seatModalSeat" class="flight-details-modal-value"></span>
         </div>
         <div class="flight-details-modal-row" style="margin-top:8px;">
           <span class="flight-details-modal-label">Passengers</span>

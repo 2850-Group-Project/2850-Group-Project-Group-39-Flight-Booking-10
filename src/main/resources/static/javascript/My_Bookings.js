@@ -60,18 +60,15 @@ async function geocodeCity(name) {
   return null;
 }
 
-async function openSeatModal(originName, destName, flightNum, dep, arr, status, seat, passengers) {
-  document.getElementById('seatModalRoute').textContent = originName + ' -> ' + destName;
+async function openSeatModal(originName, destName, flightNum, dep, arr, status, passengers) {
+  document.getElementById('seatModalRoute').textContent = originName + ' → ' + destName;
   document.getElementById('seatModalFlight').textContent = flightNum;
   document.getElementById('seatModalDep').textContent = dep;
   document.getElementById('seatModalArr').textContent = arr;
   document.getElementById('seatModalStatus').textContent = status;
-  document.getElementById('seatModalSeat').textContent = seat;
 
   const JSONpassengers = JSON.parse(passengers);
 
-  console.log(passengers);
-  console.log(JSONpassengers);
   // Rendering passengers
   // Used Claude AI to generate the inline HTML/Pebble, lines 81-108
   var passengerHtml = '';
@@ -82,6 +79,10 @@ async function openSeatModal(originName, destName, flightNum, dep, arr, status, 
             '<div class="passenger-detail-header">' +
                 '<span class="passenger-detail-icon">👤</span>' +
                 '<span class="passenger-detail-name">' + (p.firstName || '') + ' ' + (p.lastName || '') + '</span>' +
+                '<div class="seat-code mini-pill">' +
+                  '<span class="passenger-detail-field-label">Seat</span>' +
+                  '<span class="passenger-detail-field-value">' + (p.seatCode || '-') + '</span>' +
+                '</div>' +
                 '<span class="passenger-detail-checkin ' + (p.checkedIn == 1 ? 'checked-in' : '') + '">' +
                 (p.checkedIn == 1 ? '✓ Checked In' : '○ Not Checked In') +
                 '</span>' +
