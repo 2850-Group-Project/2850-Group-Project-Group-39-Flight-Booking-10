@@ -26,6 +26,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
+import io.ktor.server.sessions.set
 import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
@@ -84,7 +85,8 @@ private suspend fun handleGetHome(call: ApplicationCall) {
     val airports = AirportTableAccess().getAll()
     val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(userId)
 
-    call.sessions.set("BOOKING_SESSION", BookingSession())
+    // Used Claude AI to debug why the call sessions was causing rendering error, line 89
+    call.sessions.set(BookingSession())
 
     call.respond(
         PebbleContent(
