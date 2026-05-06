@@ -1,5 +1,14 @@
 # Flight Booking System
 
+**Group:** Group 39 / Flight Booking 10
+
+## Team Members
+
+- Weiming Chen
+- Patrick N. Butuza
+- Ephraim G. Chen
+- Dima Ivanovs
+
 A Kotlin/Ktor web application for searching flights, booking seats, taking payments, managing loyalty points, and supporting staff workflows for a flight booking service.
 
 ## Overview
