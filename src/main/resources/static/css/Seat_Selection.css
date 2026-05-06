@@ -314,7 +314,6 @@
 
 .fare-summary {
   position: fixed;
-  top: 80px;
   right: 24px;
   z-index: 100;
   width: 260px;
@@ -325,6 +324,9 @@
   padding: 1rem 1.25rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   margin-right: env(scrollbar-gutter, 0px);
+  left: 24px;
+  bottom: 24px;
+  transform: translateY(-50%);
 }
 
 .fare-summary-row {
@@ -667,6 +669,57 @@
   margin: 0;
   text-align: center;
   min-height: 20px;
+}
+
+/* Used Claude AI to generate css for seat tooltip that appears when hovering above seat, lines 673-719 */
+.seat-tooltip {
+  position: fixed;
+  z-index: 200;
+  background: rgba(15, 23, 42, 0.97);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  min-width: 140px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  right: 24px;
+  bottom: 88px;
+}
+
+.seat-tooltip.visible {
+  opacity: 1;
+}
+
+.seat-tooltip-code {
+  font-size: 16px;
+  font-weight: 900;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.seat-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 3px 0;
+}
+
+.seat-tooltip-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.seat-tooltip-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1f5f9;
 }
 
 /* ─── RESPONSIVE ─── */
