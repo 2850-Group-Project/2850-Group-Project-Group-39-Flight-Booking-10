@@ -78,7 +78,7 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             val response = client.get("/complaints?success=true")
 
             assertEquals(HttpStatusCode.OK, response.status)
-            assertTrue(response.bodyAsText().contains("Your complaint has been submitted"))
+            assertTrue(response.bodyAsText().contains("Your request has been submitted"))
         }
 
     // Error queries should show the matching validation or server error message.
@@ -184,8 +184,8 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
-            assertTrue(body.contains("No complaints yet"))
-            assertTrue(body.contains("submit a complaint"))
+            assertTrue(body.contains("No requests yet"))
+            assertTrue(body.contains("submit a request"))
         }
 
     // The profile complaints page should list complaints for the logged-in user.

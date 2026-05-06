@@ -4,9 +4,12 @@ import com.flightbooking.models.BookingSession
 import com.flightbooking.models.PassengerInput
 import com.flightbooking.service.AuthService
 import com.flightbooking.tables.PassengerTable
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.Parameters
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
@@ -31,30 +34,20 @@ fun Route.bookingRoutes() {
  * @param call application call
  */
 private suspend fun handlePostPassengersSubmit(call: ApplicationCall) {
-    AuthService.requireUser(call) ?: return
-    val bookingSession = AuthService.requireBooking(call) ?: return
+    val auth = AuthService.requireUser(call)
+    val bookingSession = if (auth != null) AuthService.requireBooking(call) else null
+
+    if (auth == null || bookingSession == null) return
 
     val params = call.receiveParameters()
+
     val numberOfPassengers = calculatePassengerCount(bookingSession)
+    val passengers = buildPassengers(params, numberOfPassengers)
 
-    val passengers =
-        (0 until numberOfPassengers).map { i ->
-            PassengerInput(
-                type = params["passengers[$i][type]"] ?: "adult",
-                title = params["passengers[$i][title]"],
-                firstName = params["passengers[$i][firstName]"] ?: "",
-                lastName = params["passengers[$i][lastName]"] ?: "",
-                dateOfBirth = params["passengers[$i][dateOfBirth]"],
-                gender = params["passengers[$i][gender]"],
-                email = params["passengers[$i][email]"],
-                nationality = params["passengers[$i][nationality]"],
-                documentType = params["passengers[$i][documentType]"],
-                documentNumber = params["passengers[$i][documentNumber]"],
-                documentCountry = params["passengers[$i][documentCountry]"],
-                documentExpiry = params["passengers[$i][documentExpiry]"],
-            )
-        }
-
+    if (passengers.any { it.firstName.isBlank() || it.lastName.isBlank() }) {
+        call.respond(HttpStatusCode.BadRequest, "Invalid or incomplete passenger data")
+        return
+    }
     val bookingId = bookingSession.bookingId
     transaction {
         passengers.forEach { p ->
@@ -84,6 +77,33 @@ private suspend fun handlePostPassengersSubmit(call: ApplicationCall) {
 
     call.respondRedirect("/flights/seats")
 }
+
+/**
+ * Builds passengers list
+ * @param params
+ * @param numberOfPassengers
+ * @return a list of passengers
+ */
+private fun buildPassengers(
+    params: Parameters,
+    numberOfPassengers: Int,
+): List<PassengerInput> =
+    (0 until numberOfPassengers).map { i ->
+        PassengerInput(
+            type = params["passengers[$i][type]"] ?: "adult",
+            title = params["passengers[$i][title]"],
+            firstName = params["passengers[$i][firstName]"] ?: "",
+            lastName = params["passengers[$i][lastName]"] ?: "",
+            dateOfBirth = params["passengers[$i][dateOfBirth]"],
+            gender = params["passengers[$i][gender]"],
+            email = params["passengers[$i][email]"],
+            nationality = params["passengers[$i][nationality]"],
+            documentType = params["passengers[$i][documentType]"],
+            documentNumber = params["passengers[$i][documentNumber]"],
+            documentCountry = params["passengers[$i][documentCountry]"],
+            documentExpiry = params["passengers[$i][documentExpiry]"],
+        )
+    }
 
 /**
  * Calculates passenger count in booking session

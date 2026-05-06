@@ -59,6 +59,9 @@
       <div class="confirm-section top">
         <div class="section-title">Outbound Flight</div>
 
+        <span hidden>{{ bookingSession.outboundFlightId }}</span>
+        <span hidden>{{ bookingSession.outboundFareId }}</span>
+
         <div class="row">
           <span>Route</span>
           <strong>
@@ -78,6 +81,8 @@
       <div class="confirm-section">
         <div class="section-title">Return Flight</div>
 
+        <span hidden>{{ bookingSession.returnFlightId }}</span>
+        
         <div class="row">
           <span>Route</span>
           <strong>

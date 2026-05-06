@@ -4,6 +4,7 @@ import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.BookingTable
 import com.flightbooking.tables.ChangeRequestTable
+import com.flightbooking.tables.ComplaintResponseTable
 import com.flightbooking.tables.ComplaintTable
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
@@ -61,6 +62,7 @@ object DBFactory {
                 SeatAssignmentTable,
                 StaffTable,
                 ComplaintTable,
+                ComplaintResponseTable,
                 NotificationTable,
                 ChangeRequestTable,
                 UserPointsTable,

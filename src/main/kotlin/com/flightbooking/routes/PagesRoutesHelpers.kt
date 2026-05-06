@@ -153,16 +153,19 @@ fun mapBookingRow(
 /**
  * Helper function that creates cond, which is a filtered BookingTable
  * @param userId user id
- * @param q search text
  * @param qId parsed search id
  * @param statusFilter status filter
  * @return booking condition
  */
 fun buildBookingCondition(
     userId: Int,
+    qId: Int?,
     statusFilter: String,
 ): Op<Boolean> {
     var cond: Op<Boolean> = BookingTable.userId eq userId
+    if (qId != null) {
+        cond = cond and (BookingTable.id eq qId)
+    }
     if (statusFilter.isNotBlank()) {
         cond = cond and (BookingTable.bookingStatus.lowerCase() eq statusFilter)
     }
