@@ -210,6 +210,7 @@ private suspend fun submitSeatSelection(
 
     if (validateSeatsError != null) {
         call.respondRedirect("/flights/seats?error=$validateSeatsError")
+        return
     }
 
     val bookingSegmentId = createBookingSegment(bookingSession, flightId)

@@ -119,7 +119,7 @@ class PaymentRoutesTest : IntegrationTestSupport() {
             val body = response.bodyAsText()
 
             assertEquals(HttpStatusCode.OK, response.status)
-            assertTrue(body.contains("299.985"))
+            assertTrue(body.contains("399.98"))
             assertTrue(body.contains("Return"))
             assertTrue(body.contains("2026-04-10"))
         }

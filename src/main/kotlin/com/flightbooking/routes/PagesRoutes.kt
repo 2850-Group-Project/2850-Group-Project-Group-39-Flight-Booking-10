@@ -285,6 +285,7 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
     val (userSession, userId) = AuthService.requireUser(call) ?: return
 
     val q = call.request.queryParameters["q"]?.trim().orEmpty()
+    val qId = q.toIntOrNull()
     val statusFilter = call.request.queryParameters["status"]?.trim()?.lowercase().orEmpty()
 
     val origin = AirportTable.alias("origin")
@@ -292,9 +293,9 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
 
     val bookings =
         transaction {
-            val cond = buildBookingCondition(userId, statusFilter)
+            val cond = buildBookingCondition(userId, qId, statusFilter)
             val rows = fetchBookingRows(cond, origin, dest)
-            groupIntoBookings(filterRowsByAirport(rows, q))
+            groupIntoBookings(if (qId != null) rows else filterRowsByAirport(rows, q))
         }
 
     call.respond(
