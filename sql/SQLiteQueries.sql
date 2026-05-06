@@ -4,8 +4,30 @@
 ----------------------------------------
 
 
+----------------------------------------
+--            TABLE NAMES             --
+----------------------------------------
+
+-- airport
+-- flight
+-- fare_class
+-- flight_fare
+-- user
+-- booking
+-- payment
+-- passenger
+-- booking_segment
+-- change_request
+-- seat
+-- seat_assignment
+-- staff
+-- complaint
+-- notification
+-- complaint_response
+
 -- select * from complaint_response;
-select * from seat_assignment;
+select * from flight_fare where flight_id = 999992;
+select * from flight_fare;
 
 
 -- CREATE TABLE IF NOT EXISTS user_points (
