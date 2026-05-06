@@ -100,17 +100,24 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
         testApplication {
             configureApp()
             val client = createAuthenticatedStaffClient()
-            val request = seedStaffChangeRequest(reason = "First request")
+            val request =
+                seedStaffChangeRequest(
+                    StaffChangeRequestSeedOptions().apply {
+                        reason = "First request"
+                    },
+                )
             val otherRequest =
                 seedStaffChangeRequest(
-                    email = "other@example.com",
-                    reason = "Second request",
-                    originCode = "CDG",
-                    destinationCode = "JFK",
-                    flightNumber = 710,
-                    requestedFlightNumber = 711,
-                    seatCode = "3A",
-                    fareClassId = request.fareClassId,
+                    StaffChangeRequestSeedOptions().apply {
+                        email = "other@example.com"
+                        reason = "Second request"
+                        originCode = "CDG"
+                        destinationCode = "JFK"
+                        flightNumber = 710
+                        requestedFlightNumber = 711
+                        seatCode = "3A"
+                        fareClassId = request.fareClassId
+                    },
                 )
 
             val response = client.get("/staff/notifications?q=${request.requestId}")
@@ -128,7 +135,11 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
         testApplication {
             configureApp()
             val client = createAuthenticatedStaffClient()
-            seedStaffChangeRequest(reason = "Visible request")
+            seedStaffChangeRequest(
+                StaffChangeRequestSeedOptions().apply {
+                    reason = "Visible request"
+                },
+            )
 
             val response = client.get("/staff/notifications?q=not-a-number")
             val body = response.bodyAsText()
@@ -211,7 +222,10 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
                 )
 
             assertEquals(HttpStatusCode.Found, missingIdResponse.status)
-            assertEquals("/staff/notifications?error=Missing requestId/status", missingIdResponse.headers[HttpHeaders.Location])
+            assertEquals(
+                "/staff/notifications?error=Missing requestId/status",
+                missingIdResponse.headers[HttpHeaders.Location],
+            )
             assertEquals(HttpStatusCode.Found, missingStatusResponse.status)
             assertEquals(
                 "/staff/notifications?error=Missing requestId/status",
@@ -265,15 +279,17 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
         }
 
     private fun seedStaffChangeRequest(
-        email: String = "passenger@example.com",
-        reason: String = "Earlier flight preferred",
-        originCode: String = "LHR",
-        destinationCode: String = "DXB",
-        flightNumber: Int = 700,
-        requestedFlightNumber: Int = 701,
-        seatCode: String = "2A",
-        fareClassId: Int? = null,
+        options: StaffChangeRequestSeedOptions = StaffChangeRequestSeedOptions(),
     ): SeededStaffChangeRequest {
+        val email = options.email
+        val reason = options.reason
+        val originCode = options.originCode
+        val destinationCode = options.destinationCode
+        val flightNumber = options.flightNumber
+        val requestedFlightNumber = options.requestedFlightNumber
+        val seatCode = options.seatCode
+        val fareClassId = options.fareClassId
+
         val originAirportId = seedAirport(originCode, "$originCode Airport")
         val destinationAirportId = seedAirport(destinationCode, "$destinationCode Airport")
         val currentFlightId =
@@ -319,6 +335,17 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             segmentId = segmentId,
             fareClassId = actualFareClassId,
         )
+    }
+
+    private class StaffChangeRequestSeedOptions {
+        var email: String = "passenger@example.com"
+        var reason: String = "Earlier flight preferred"
+        var originCode: String = "LHR"
+        var destinationCode: String = "DXB"
+        var flightNumber: Int = 700
+        var requestedFlightNumber: Int = 701
+        var seatCode: String = "2A"
+        var fareClassId: Int? = null
     }
 
     private fun changeRequestStatus(requestId: Int): String =
