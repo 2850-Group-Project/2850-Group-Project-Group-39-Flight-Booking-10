@@ -50,6 +50,7 @@ data class SeatsModelParams(
     val farePrice: Double,
     val fareCurrency: String,
     val passengerCount: Int,
+    val bookingTotal: Double,
 )
 
 /**
@@ -281,6 +282,7 @@ fun buildSeatsModel(params: SeatsModelParams): Map<String, Any> {
     )
 }
 
+// Used Claude AI to understand what was happening in buildSeatRows and buildSeatRow
 /**
  * Builds seat rows, a list of SeatRow, based on capacity and layout
  * @param capacity seat capacity
@@ -292,9 +294,10 @@ fun buildSeatRows(
     capacity: Int,
     layout: SeatLayout,
     seatStatusByCode: Map<String, String>,
+    seatPriceMap: Map<String, Double> = emptyMap(),
 ): List<Map<String, Any>> {
     val totalRows = ceil(capacity / layout.seatsPerRow.toDouble()).toInt().coerceAtLeast(1)
-    return (1..totalRows).map { buildSeatRow(it, layout, seatStatusByCode) }
+    return (1..totalRows).map { buildSeatRow(it, layout, seatStatusByCode, seatPriceMap) }
 }
 
 /**
@@ -308,11 +311,12 @@ fun buildSeatRow(
     rowNum: Int,
     layout: SeatLayout,
     seatStatusByCode: Map<String, String>,
+    seatPriceMap: Map<String, Double> = emptyMap(),
 ): Map<String, Any> {
     val seats = mutableListOf<Map<String, Any>>()
 
     layout.letters.forEachIndexed { idx, letter ->
-        seats.add(buildSeat(rowNum, letter, idx, layout, seatStatusByCode))
+        seats.add(buildSeat(rowNum, letter, idx, layout, seatStatusByCode, seatPriceMap))
 
         val after = idx + 1
         if (layout.aisleGapsAfterIndex.contains(after)) {
@@ -341,13 +345,17 @@ fun buildSeat(
     idx: Int,
     layout: SeatLayout,
     seatStatusByCode: Map<String, String>,
+    seatPriceMap: Map<String, Double> = emptyMap(),
 ): Map<String, Any> {
     val code = "$rowNum$letter"
+    val price = seatPriceMap[code]
     return mapOf(
         "code" to code,
         "letter" to letter,
         "position" to layout.positionFor(idx),
         "status" to (seatStatusByCode[code] ?: "available"),
         "isAisleGap" to false,
+        "price" to (price ?: 0.0),
+        "hasPrice" to (price != null),
     )
 }
