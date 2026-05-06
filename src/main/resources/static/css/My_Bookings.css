@@ -398,6 +398,15 @@ label{
 .modal-actions form {
     display: contents;
 }
+
+.seat-code {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
 .flight-details-modal-header {
   display: flex;
   align-items: center;

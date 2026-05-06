@@ -13,17 +13,7 @@
 </head>
 <body>
   <!-- NAV -->
-  <nav>
-    <a href="/home" class="brand">
-      <div class="brand-badge">✈️</div>
-      <span class="brand-title">SkyFlow</span>
-    </a>
-    <div class="nav-right">
-      <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
-      <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
-      <a href="/profile" class="btn-primary">My Account<span class="notif-dot {% if unreadCount > 0 %}unread{% endif %}"></span></a>
-    </div>
-  </nav>
+  {% include "nav.peb" %}
 
   <main>
     <!-- SEARCH SUMMARY -->
@@ -146,14 +136,7 @@
   </main>
 
   <!-- FOOTER -->
-  <footer>
-    <span>© 2026 SkyFlow. All rights reserved</span>
-    <div class="footer-links">
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
-      <a href="/complaints">Help</a>
-    </div>
-  </footer>
+  {% include "footer.peb" %}
 
   <script>
     let pointsActive = false;

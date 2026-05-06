@@ -206,6 +206,7 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                                             "docType" to p["passengerDocType"],
                                             "docNumber" to p["passengerDocNumber"],
                                             "checkedIn" to p["passengerCheckedIn"],
+                                            "seatCode" to p["seatCode"],
                                         )
                                     }
 
