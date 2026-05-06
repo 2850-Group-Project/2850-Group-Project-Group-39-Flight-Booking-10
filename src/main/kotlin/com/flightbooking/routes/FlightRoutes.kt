@@ -81,7 +81,6 @@ fun Route.flightSelectRoutes() {
 fun Route.airportSearchRoutes() {
     get("/airports/search") {
         val query = call.request.queryParameters["q"]?.trim() ?: ""
-        println(query)
 
         // only start returning flights after more than 1 character entered
         if (query.length < 2) {

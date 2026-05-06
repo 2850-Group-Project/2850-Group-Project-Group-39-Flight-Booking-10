@@ -87,7 +87,6 @@ fun Route.authRoutes() {
 
     get("/logout") {
         call.sessions.clear<UserSession>()
-        println("logged out")
         call.respondRedirect("/")
     }
 }

@@ -6,6 +6,7 @@ import com.flightbooking.access.FlightFareTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
 import com.flightbooking.models.BookingSession
+import com.flightbooking.models.Seat
 import com.flightbooking.service.AuthService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FareClassTable
@@ -62,7 +63,6 @@ fun Route.seatSelectionRoutes() {
         handleGetSeats(call, leg = "return")
     }
     post("/flights/seats/return") {
-        println("DEBUG /flights/seats/return was hit")
         handlePostSeats(call, leg = "return")
     }
 }
@@ -153,7 +153,7 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
  * @param flightId The ID of the flight to look up fares for.
  * @return A map of seat codes to their corresponding fare prices, e.g. `{"1A" to 49.99}`.
  */
-private suspend fun getSeatPriceMap(
+private fun getSeatPriceMap(
     seats: List<Seat>,
     flightId: Int,
 ): Map<String, Double> =
@@ -166,7 +166,7 @@ private suspend fun getSeatPriceMap(
                         FlightFareTable.fareClassId eq FareClassTable.id
                     })
                     .select {
-                        (FlightFareTable.flightId eq flight.id) and
+                        (FlightFareTable.flightId eq flightId) and
                             (FareClassTable.cabinClass eq seat.cabinClass)
                     }
                     .firstOrNull()

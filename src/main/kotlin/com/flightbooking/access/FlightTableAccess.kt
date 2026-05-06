@@ -127,12 +127,6 @@ class FlightTableAccess {
             date.plusDays(DAYS_BEFORE_AND_AFTER_TO_SHOW)
                 .toString() + " 23:59:59"
 
-        // debugging
-        println("dateFrom: $dateFrom")
-        println("dateTo: $dateTo")
-        println("originCode: $originCode")
-        println("destinationCode: $destinationCode")
-
         val originAirport = AirportTable.alias("origin")
         val destinationAirport = AirportTable.alias("destination")
 

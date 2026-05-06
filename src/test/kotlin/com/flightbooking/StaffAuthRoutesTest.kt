@@ -1,5 +1,6 @@
 package com.flightbooking
 
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -189,7 +190,11 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
     fun logoutClearsSessionAndRedirectsToStaffLogin() =
         testApplication {
             configureApp()
-            val client = createClient { followRedirects = false }
+            val client =
+                createClient {
+                    followRedirects = false
+                    install(HttpCookies)
+                }
 
             client.registerStaff()
             val loginResponse = client.loginStaff()

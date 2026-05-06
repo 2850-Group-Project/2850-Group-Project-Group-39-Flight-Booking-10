@@ -72,7 +72,7 @@ object AuthService {
         val staffId = staffSession?.let { fetchValidStaffId(it.staffEmail) }
 
         if (staffSession == null || staffId == null) {
-            call.respondRedirect("/login")
+            call.respondRedirect("/staff/login")
             return null
         }
 

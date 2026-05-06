@@ -101,7 +101,6 @@ class SeatAssignmentTableAccess {
      */
     fun assignSeats() =
         transaction {
-            println("assigning seats")
             val assignments = SeatAssignmentTable.selectAll().toList()
             assignments.forEach { assignment ->
                 val assignmentId = assignment[SeatAssignmentTable.id]
@@ -121,6 +120,5 @@ class SeatAssignmentTableAccess {
                     }
                 }
             }
-            println("done assigning seats")
         }
 }
