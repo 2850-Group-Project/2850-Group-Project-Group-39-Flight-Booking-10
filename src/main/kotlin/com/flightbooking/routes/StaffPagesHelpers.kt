@@ -3,6 +3,8 @@ package com.flightbooking.routes
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.ComplaintTable
+import com.flightbooking.tables.FareClassTable
+import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
@@ -118,6 +120,29 @@ fun buildStaffFlightsModel(
         val airports = queryAirports()
         val flights = queryFlightList(q)
         val editFlight = if (editId != null) flights.firstOrNull { (it["id"] as Int) == editId } else null
+        val fareClasses =
+            FareClassTable.selectAll().map {
+                mapOf(
+                    "id" to it[FareClassTable.id],
+                    "displayName" to (it[FareClassTable.displayName] ?: ""),
+                    "cabinClass" to (it[FareClassTable.cabinClass] ?: ""),
+                    "classCode" to it[FareClassTable.classCode],
+                )
+            }
+
+        val editFares =
+            if (editId != null) {
+                FlightFareTable.select { FlightFareTable.flightId eq editId }.map {
+                    mapOf(
+                        "fareClassId" to it[FlightFareTable.fareClassId],
+                        "price" to it[FlightFareTable.price],
+                        "seatsAvailable" to it[FlightFareTable.seatsAvailable],
+                        "currency" to it[FlightFareTable.currency],
+                    )
+                }
+            } else {
+                emptyList()
+            }
 
         mapOf(
             "airports" to airports,
@@ -125,6 +150,8 @@ fun buildStaffFlightsModel(
             "q" to q,
             "editId" to (editId ?: 0),
             "editFlight" to (editFlight ?: mapOf<String, Any>()),
+            "fareClasses" to fareClasses,
+            "editFares" to editFares,
             "error" to urlError,
             "ok" to urlOk,
         )
@@ -250,25 +277,38 @@ fun buildStaffDashboardModel(staffEmail: String): Map<String, Any> =
 fun createSeatsForFlight(
     flightId: Int,
     capacity: Int?,
+    fareAllocations: List<Pair<String, Int>> = emptyList(),
 ) {
     val existing = SeatTable.select { SeatTable.flightId eq flightId }.count()
     if (existing > 0L) return
 
     val total = (capacity ?: DEFAULT_CAPACITY).coerceAtLeast(1)
     val letters = listOf("A", "B", "C", "D", "E", "F")
-    val seatMaps = ArrayList<Map<String, Any>>(total)
 
+    val cabinPerSeat = mutableListOf<String?>()
+    for ((cabinClass, count) in fareAllocations) {
+        repeat(count) { cabinPerSeat.add(cabinClass) }
+    }
+
+    while (cabinPerSeat.size < total) cabinPerSeat.add(null)
+
+    val seatMaps = ArrayList<Map<String, Any?>>(total)
     for (i in 0 until total) {
         val row = (i / letters.size) + 1
         val col = letters[i % letters.size]
-        val code = "$row$col"
-        seatMaps.add(mapOf("flightId" to flightId, "seatCode" to code))
+        seatMaps.add(
+            mapOf(
+                "flightId" to flightId,
+                "seatCode" to "$row$col",
+                "cabinClass" to cabinPerSeat.getOrNull(i),
+            ),
+        )
     }
 
     SeatTable.batchInsert(seatMaps) { s ->
         this[SeatTable.flightId] = s["flightId"] as Int
         this[SeatTable.seatCode] = s["seatCode"] as String
-        this[SeatTable.cabinClass] = null
+        this[SeatTable.cabinClass] = s["cabinClass"] as String?
         this[SeatTable.position] = null
         this[SeatTable.extraLegroom] = 0
         this[SeatTable.exitRow] = 0

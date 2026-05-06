@@ -44,3 +44,10 @@ function clearSearch() {
         input.value = "";
     }
 }
+
+function toggleFareInputs(fareClassId, checked) {
+    var inputs = document.getElementById("fare-inputs-" + fareClassId);
+    if (inputs) {
+        inputs.style.display = checked ? "grid" : "none";
+    }
+}

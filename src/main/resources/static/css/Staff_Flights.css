@@ -199,6 +199,60 @@ label{
     border-color: rgba(34, 197, 94, 0.30);
     color: #b6f7c2;
 }
+
+/* Used Claude AI to generate CSS for fare class form, lines 204-254 */
+.fare-classes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.fare-row {
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.04);
+}
+
+.fare-row-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fare-row-header label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin: 0;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fare-cabin {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(63,94,251,.2);
+  border: 1px solid rgba(63,94,251,.3);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+
+.fare-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
 tbody tr:hover td{
     background: rgba(255,255,255,.07);
     transition: background .15s ease;

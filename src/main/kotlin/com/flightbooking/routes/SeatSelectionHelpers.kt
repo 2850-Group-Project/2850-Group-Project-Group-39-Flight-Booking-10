@@ -50,6 +50,7 @@ data class SeatsModelParams(
     val farePrice: Double,
     val fareCurrency: String,
     val passengerCount: Int,
+    val bookingTotal: Double,
 )
 
 /**
@@ -281,6 +282,8 @@ fun buildSeatsModel(params: SeatsModelParams): Map<String, Any> {
     )
 }
 
+// Used Claude AI to understand what was happening in buildSeatRows and buildSeatRow
+
 /**
  * Builds seat rows, a list of SeatRow, based on capacity and layout
  * @param capacity seat capacity
@@ -292,9 +295,10 @@ fun buildSeatRows(
     capacity: Int,
     layout: SeatLayout,
     seatStatusByCode: Map<String, String>,
+    seatPriceMap: Map<String, Double> = emptyMap(),
 ): List<Map<String, Any>> {
     val totalRows = ceil(capacity / layout.seatsPerRow.toDouble()).toInt().coerceAtLeast(1)
-    return (1..totalRows).map { buildSeatRow(it, layout, seatStatusByCode) }
+    return (1..totalRows).map { buildSeatRow(it, layout, seatStatusByCode, seatPriceMap) }
 }
 
 /**
@@ -308,11 +312,23 @@ fun buildSeatRow(
     rowNum: Int,
     layout: SeatLayout,
     seatStatusByCode: Map<String, String>,
+    seatPriceMap: Map<String, Double> = emptyMap(),
 ): Map<String, Any> {
     val seats = mutableListOf<Map<String, Any>>()
 
     layout.letters.forEachIndexed { idx, letter ->
-        seats.add(buildSeat(rowNum, letter, idx, layout, seatStatusByCode))
+        seats.add(
+            buildSeat(
+                SeatBuildParams(
+                    rowNum = rowNum,
+                    letter = letter,
+                    idx = idx,
+                    layout = layout,
+                    seatStatusByCode = seatStatusByCode,
+                    seatPriceMap = seatPriceMap,
+                ),
+            ),
+        )
 
         val after = idx + 1
         if (layout.aisleGapsAfterIndex.contains(after)) {
@@ -327,6 +343,18 @@ fun buildSeatRow(
 }
 
 /**
+ * Data class that holds params to pass to seatBuild()
+ */
+data class SeatBuildParams(
+    val rowNum: Int,
+    val letter: String,
+    val idx: Int,
+    val layout: SeatLayout,
+    val seatStatusByCode: Map<String, String>,
+    val seatPriceMap: Map<String, Double> = emptyMap(),
+)
+
+/**
  * Builds a single seat model for seat selection page
  * @param rowNum row number
  * @param letter seat letter
@@ -335,19 +363,16 @@ fun buildSeatRow(
  * @param seatStatusByCode seatCode→status map
  * @return seat model
  */
-fun buildSeat(
-    rowNum: Int,
-    letter: String,
-    idx: Int,
-    layout: SeatLayout,
-    seatStatusByCode: Map<String, String>,
-): Map<String, Any> {
-    val code = "$rowNum$letter"
+fun buildSeat(params: SeatBuildParams): Map<String, Any> {
+    val code = "${params.rowNum}${params.letter}"
+    val price = params.seatPriceMap[code]
     return mapOf(
         "code" to code,
-        "letter" to letter,
-        "position" to layout.positionFor(idx),
-        "status" to (seatStatusByCode[code] ?: "available"),
+        "letter" to params.letter,
+        "position" to params.layout.positionFor(params.idx),
+        "status" to (params.seatStatusByCode[code] ?: "available"),
         "isAisleGap" to false,
+        "price" to (price ?: 0.0),
+        "hasPrice" to (price != null),
     )
 }

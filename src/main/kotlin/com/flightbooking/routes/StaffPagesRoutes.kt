@@ -1,6 +1,9 @@
 package com.flightbooking.routes
 
 import com.flightbooking.models.StaffSession
+import com.flightbooking.service.AuthService
+import com.flightbooking.tables.FareClassTable
+import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FlightTable
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -20,6 +23,7 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -51,51 +55,27 @@ import org.jetbrains.exposed.sql.update
  */
 fun Route.staffPagesRoutes() {
     get("/staff/dashboard") {
-        val session = call.sessions.get<StaffSession>()
-        if (session == null) {
-            call.respondRedirect("/staff/login")
-            return@get
-        }
+        val (_, _) = AuthService.requireStaff(call)
         handleGetStaffDashboard(call)
     }
+
     get("/staff/flights") { handleGetStaffFlights(call) }
 
     post("/staff/flights/create") {
-        val session = call.sessions.get<StaffSession>()
-        if (session == null) {
-            call.respondRedirect("/staff/login")
-            return@post
-        }
+        val (_, _) = AuthService.requireStaff(call)
 
-        val p = call.receiveParameters()
-
-        val flightNumberText = p["flightNumber"]?.trim().orEmpty()
-        val flightNumberIntOrNull = flightNumberText.toIntOrNull()
-        val originId = p["originId"]?.toIntOrNull()
-        val destId = p["destId"]?.toIntOrNull()
-        val dep = p["dep"]?.trim().orEmpty()
-        val arr = p["arr"]?.trim().orEmpty()
-        val status = p["status"]?.trim().orEmpty().ifBlank { "scheduled" }
-        val capacityIntOrNull = p["capacity"]?.trim()?.takeIf { it.isNotEmpty() }?.toIntOrNull()
-
-        if (originId == null || destId == null) {
-            call.respondRedirect("/staff/flights?error=Please select origin and destination")
-            return@post
-        }
-        if (originId == destId) {
-            call.respondRedirect("/staff/flights?error=Origin and destination cannot be the same")
-            return@post
-        }
+        val params = call.receiveParameters()
+        val capacityIntOrNull = params["capacity"]?.toIntOrNull()
 
         transaction {
             val stmt =
                 FlightTable.insert {
-                    it[FlightTable.flightNumber] = flightNumberIntOrNull
-                    it[FlightTable.originAirport] = originId
-                    it[FlightTable.destinationAirport] = destId
-                    it[FlightTable.scheduledDepartureTime] = if (dep.isBlank()) null else dep
-                    it[FlightTable.scheduledArrivalTime] = if (arr.isBlank()) null else arr
-                    it[FlightTable.status] = status
+                    it[FlightTable.flightNumber] = params["flightNumber"]?.toIntOrNull()
+                    it[FlightTable.originAirport] = params["originId"]!!.toInt()
+                    it[FlightTable.destinationAirport] = params["destId"]!!.toInt()
+                    it[FlightTable.scheduledDepartureTime] = params["dep"]
+                    it[FlightTable.scheduledArrivalTime] = params["arr"]
+                    it[FlightTable.status] = params["status"] ?: "scheduled"
                     it[FlightTable.capacity] = capacityIntOrNull
                 }
 
@@ -103,7 +83,33 @@ fun Route.staffPagesRoutes() {
                 stmt.resultedValues?.firstOrNull()?.get(FlightTable.id)
                     ?: FlightTable.selectAll().orderBy(FlightTable.id, SortOrder.DESC).limit(1).first()[FlightTable.id]
 
-            createSeatsForFlight(newFlightId, capacityIntOrNull)
+            val fareClassIds = params.getAll("fareClassId")?.mapNotNull { it.toIntOrNull() } ?: emptyList()
+
+            // Used Claude AI to generate fareAllocations mapping, lines 96-103
+            val fareAllocations =
+                fareClassIds.mapNotNull { fareClassId ->
+                    val cabinClass =
+                        FareClassTable
+                            .select { FareClassTable.id eq fareClassId }
+                            .firstOrNull()
+                            ?.get(FareClassTable.cabinClass) ?: return@mapNotNull null
+                    val seats = params["seats_$fareClassId"]?.toIntOrNull() ?: 0
+                    cabinClass to seats
+                }
+
+            createSeatsForFlight(newFlightId, capacityIntOrNull, fareAllocations)
+
+            fareClassIds.forEach { fareClassId ->
+                val price = params["price_$fareClassId"]?.toDoubleOrNull() ?: 0.0
+                val seats = params["seats_$fareClassId"]?.toIntOrNull() ?: 0
+                FlightFareTable.insert {
+                    it[FlightFareTable.flightId] = newFlightId
+                    it[FlightFareTable.fareClassId] = fareClassId
+                    it[FlightFareTable.price] = price
+                    it[FlightFareTable.seatsAvailable] = seats
+                    it[FlightFareTable.currency] = "GBP"
+                }
+            }
         }
 
         call.respondRedirect("/staff/flights?ok=Flight created")
@@ -112,6 +118,7 @@ fun Route.staffPagesRoutes() {
     post("/staff/flights/update") { handlePostStaffFlightsUpdate(call) }
 
     post("/staff/flights/delete") { handlePostStaffFlightsDelete(call) }
+
     get("/staff/logout") {
         call.sessions.clear<StaffSession>()
         call.respondRedirect("/staff/login")
@@ -194,47 +201,42 @@ private suspend fun handlePostStaffFlightsUpdate(call: ApplicationCall) {
         return
     }
 
-    val p = call.receiveParameters()
-
-    val id = p["id"]?.toIntOrNull()
-    val flightNumberText = p["flightNumber"]?.trim().orEmpty()
-    val flightNumberIntOrNull = flightNumberText.toIntOrNull()
-    val originId = p["originId"]?.toIntOrNull()
-    val destId = p["destId"]?.toIntOrNull()
-    val dep = p["dep"]?.trim().orEmpty()
-    val arr = p["arr"]?.trim().orEmpty()
-    val status = p["status"]?.trim().orEmpty().ifBlank { "scheduled" }
-    val capacityIntOrNull = p["capacity"]?.trim()?.takeIf { it.isNotEmpty() }?.toIntOrNull()
-    var redirect = ""
-    if (id == null) {
-        redirect = "/staff/flights?error=Missing flight id"
-    }
-    if (originId == null || destId == null) {
-        redirect = "/staff/flights?error=Please select origin and destination&edit=$id"
-    }
-    if (originId == destId) {
-        redirect = "/staff/flights?error=Origin and destination cannot be the same&edit=$id"
-    }
-    if (redirect.isNotEmpty()) {
-        call.respondRedirect(redirect)
-        return
-    }
-    checkNotNull(id)
-    checkNotNull(originId)
-    checkNotNull(destId)
+    val params = call.receiveParameters()
+    val id =
+        params["id"]?.toIntOrNull() ?: run {
+            call.respondRedirect("/staff/flights?error=Invalid flight ID")
+            return
+        }
 
     transaction {
         FlightTable.update({ FlightTable.id eq id }) {
-            it[FlightTable.flightNumber] = flightNumberIntOrNull
-            it[FlightTable.originAirport] = originId
-            it[FlightTable.destinationAirport] = destId
-            it[FlightTable.scheduledDepartureTime] = if (dep.isBlank()) null else dep
-            it[FlightTable.scheduledArrivalTime] = if (arr.isBlank()) null else arr
-            it[FlightTable.status] = status
-            it[FlightTable.capacity] = capacityIntOrNull
-        }
+            it[flightNumber] = params["flightNumber"]?.toIntOrNull()
+            it[originAirport] = params["originId"]!!.toInt()
+            it[destinationAirport] = params["destId"]!!.toInt()
+            it[scheduledDepartureTime] = params["dep"]
+            it[scheduledArrivalTime] = params["arr"]
+            it[status] = params["status"] ?: "scheduled"
+            it[capacity] = params["capacity"]?.toIntOrNull()
 
-        createSeatsForFlight(id, capacityIntOrNull)
+            // Deletes all flight fares connected to that flight
+            // Imporant since patching updates is hard
+            // So just remove them all and replace them
+            FlightFareTable.deleteWhere { FlightFareTable.flightId eq id }
+
+            val fareClassIds = params.getAll("fareClassId")?.mapNotNull { it.toIntOrNull() } ?: emptyList()
+
+            fareClassIds.forEach { fareClassId ->
+                val price = params["price_$fareClassId"]?.toDoubleOrNull() ?: 0.0
+                val seats = params["seats_$fareClassId"]?.toIntOrNull() ?: 0
+                FlightFareTable.insert {
+                    it[FlightFareTable.flightId] = id
+                    it[FlightFareTable.fareClassId] = fareClassId
+                    it[FlightFareTable.price] = price
+                    it[FlightFareTable.seatsAvailable] = seats
+                    it[FlightFareTable.currency] = "GBP"
+                }
+            }
+        }
     }
 
     call.respondRedirect("/staff/flights?ok=Flight updated")

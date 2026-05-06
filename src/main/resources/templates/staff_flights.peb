@@ -138,6 +138,63 @@
             </div>
           </div>
 
+          <!-- CUSTOM FARE CLASSES -->
+          <!-- Used Claude AI to generate fare classes form, lines 143-196 -->
+          <h3 style="margin: 18px 0 10px; font-size:15px; color:rgba(255,255,255,.8);">Fare Classes</h3>
+          <div class="fare-classes-grid">
+            {% for fc in fareClasses %}
+              {% set existing = null %}
+              {% for ef in editFares %}
+                {% if ef.fareClassId == fc.id %}
+                  {% set existing = ef %}
+                {% endif %}
+              {% endfor %}
+              <div class="fare-row">
+                <div class="fare-row-header">
+                  <input 
+                    type="checkbox" 
+                    name="fareClassId" 
+                    value="{{ fc.id }}" 
+                    id="fc_{{ fc.id }}"
+                    {% if existing %}checked{% endif %}
+                    onchange="toggleFareInputs('{{ fc.id }}', this.checked)"
+                  />
+                  <label for="fc_{{ fc.id }}">
+                    <span class="fare-cabin">{{ fc.cabinClass }}</span>
+                    {{ fc.displayName }}
+                  </label>
+                </div>
+                <div class="fare-inputs" id="fare-inputs-{{ fc.id }}" {% if not existing %}style="display:none"{% endif %}>
+                  <div>
+                    <label for="price_{{ fc.id }}">Price (£)</label>
+                    <input 
+                      class="input" 
+                      id="price_{{ fc.id }}"
+                      name="price_{{ fc.id }}" 
+                      type="number" 
+                      step="0.01"
+                      min="0"
+                      placeholder="e.g. 199.99"
+                      value="{{ existing.price | default('') }}"
+                    />
+                  </div>
+                  <div>
+                    <label for="seats_{{ fc.id }}">Seats Available</label>
+                    <input 
+                      class="input"
+                      id="seats_{{ fc.id }}"
+                      name="seats_{{ fc.id }}" 
+                      type="number"
+                      min="0"
+                      placeholder="e.g. 50"
+                      value="{{ existing.seatsAvailable | default('') }}"
+                    />
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
           <button class="btn" type="submit" aria-label="Create flight">Create Flight</button>
         </form>
       {% endif %}

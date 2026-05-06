@@ -184,4 +184,27 @@ document.addEventListener('DOMContentLoaded', function() {
       handleSeatClick(e.target);
     }
   });
+  
+  // SEAT TOOLTIP
+  var tooltip = document.getElementById('seat-tooltip');
+  
+  document.querySelectorAll('.seat').forEach(function(btn) {
+    btn.addEventListener('mouseenter', function(e) {
+      var code = btn.getAttribute('data-seat-code');
+      var position = btn.getAttribute('data-seat-position') || '—';
+      var status = btn.getAttribute('data-seat-status') || '—';
+      var price = btn.getAttribute('data-price') || 'Not available';
+  
+      document.getElementById('tooltip-code').textContent = 'Seat ' + code;
+      document.getElementById('tooltip-position').textContent = position;
+      document.getElementById('tooltip-status').textContent = status;
+      document.getElementById('tooltip-price').textContent = price;
+  
+      tooltip.classList.add('visible');
+    });
+  
+    btn.addEventListener('mouseleave', function() {
+      tooltip.classList.remove('visible');
+    });
+  });
 });

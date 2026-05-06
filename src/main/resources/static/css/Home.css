@@ -90,13 +90,14 @@ nav {
 }
 
 .notif-dot {
-  width: 8px;
+  width: 0px;
   height: 8px;
   border-radius: 50%;
   display: inline-block;
 }
 
 .notif-dot.unread {
+  width: 8px;
   background: rgba(239, 68, 68, .95);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, .20);
   margin-left: 10px;
