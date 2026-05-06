@@ -160,17 +160,11 @@ fun mapBookingRow(
  */
 fun buildBookingCondition(
     userId: Int,
-    q: String,
-    qId: Int?,
     statusFilter: String,
 ): Op<Boolean> {
-    println(q)
     var cond: Op<Boolean> = BookingTable.userId eq userId
     if (statusFilter.isNotBlank()) {
         cond = cond and (BookingTable.bookingStatus.lowerCase() eq statusFilter)
-    }
-    if (qId != null) {
-        cond = cond and (BookingTable.id eq qId)
     }
     return cond
 }
@@ -226,3 +220,27 @@ fun groupIntoBookings(rows: List<Map<String, Any?>>): List<Map<String, Any?>> =
                         },
             )
         }
+
+/**
+ * Filters booking rows by airport search query against origin/dest iata, city, and name
+ * @param rows flat booking rows
+ * @param qSearchQuery search query
+ * @return filtered rows
+ */
+fun filterRowsByAirport(
+    rows: List<Map<String, Any?>>,
+    qSearchQuery: String,
+): List<Map<String, Any?>> {
+    if (qSearchQuery.isBlank()) return rows
+    val pattern = qSearchQuery.lowercase()
+    println("DEBUG filterRowsByAirport query=$pattern rows=${rows.size}")
+    println("HEREEEEEEEEEEEEEEEEEEEEEEEEE")
+    return rows.filter { row ->
+        listOf(
+            row["originIata"],
+            row["originName"],
+            row["destIata"],
+            row["destName"],
+        ).any { it?.toString()?.lowercase()?.contains(pattern) == true }
+    }
+}
