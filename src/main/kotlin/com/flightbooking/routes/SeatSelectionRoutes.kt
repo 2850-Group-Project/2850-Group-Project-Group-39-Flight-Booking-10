@@ -9,6 +9,7 @@ import com.flightbooking.models.BookingSession
 import com.flightbooking.service.AuthService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FlightFareTable
+import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.SeatTable
@@ -25,7 +26,10 @@ import io.ktor.server.sessions.get
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.JoinType
+
 
 private const val PAYMENT_REDIRECT = "/payment?ok=Seats assigned successfully"
 private const val SEARCH_REDIRECT = "/flights/search"
@@ -105,11 +109,32 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
 
     val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
     val layout = getLayout(capacity)
+
+    val seats = SeatTableAccess().getByAttribute(SeatTable.flightId, flight.id)
     val seatStatusByCode =
         SeatTableAccess()
             .getByAttribute(SeatTable.flightId, flight.id)
             .associate { it.seatCode to it.status }
-    val seatRows = buildSeatRows(capacity, layout, seatStatusByCode)
+
+    // Builds seat price map to pass to pebble
+    val seatPriceMap = transaction {
+        seats.mapNotNull { seat ->
+            if (seat.cabinClass == null) return@mapNotNull null
+            val price = FlightFareTable
+                .join(FareClassTable, JoinType.INNER, additionalConstraint = {
+                    FlightFareTable.fareClassId eq FareClassTable.id
+                })
+                .select {
+                    (FlightFareTable.flightId eq flight.id) and
+                    (FareClassTable.cabinClass eq seat.cabinClass)
+                }
+                .firstOrNull()
+                ?.get(FlightFareTable.price) ?: return@mapNotNull null
+            seat.seatCode to price
+        }.toMap()
+    }
+
+    val seatRows = buildSeatRows(capacity, layout, seatStatusByCode, seatPriceMap)
     val unreadCount =
         ComplaintResponseTableAccess()
             .getUnreadResponsesCountForUser(params.userId)
@@ -128,6 +153,7 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
                 farePrice = farePrice,
                 fareCurrency = fareCurrency,
                 passengerCount = passengers.size,
+                bookingTotal = 0.0,
             ),
         )
 
