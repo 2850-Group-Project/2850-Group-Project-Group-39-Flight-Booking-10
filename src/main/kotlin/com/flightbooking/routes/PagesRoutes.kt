@@ -287,7 +287,6 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
     val q = call.request.queryParameters["q"]?.trim().orEmpty()
     val statusFilter = call.request.queryParameters["status"]?.trim()?.lowercase().orEmpty()
 
-
     val origin = AirportTable.alias("origin")
     val dest = AirportTable.alias("dest")
 
@@ -297,7 +296,6 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
             val rows = fetchBookingRows(cond, origin, dest)
             groupIntoBookings(filterRowsByAirport(rows, q))
         }
-    
 
     call.respond(
         PebbleContent(
