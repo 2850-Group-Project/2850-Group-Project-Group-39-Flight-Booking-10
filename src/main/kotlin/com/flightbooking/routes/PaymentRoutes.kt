@@ -62,7 +62,7 @@ private suspend fun handleGetPayment(call: ApplicationCall) {
                 "bookingSession" to bookingSession,
                 "pointsAvailable" to pointsAvailable,
                 "maxDiscount" to String.format(Locale.UK, "%.2f", maxDiscount),
-                "bookingTotal" to bookingTotal,
+                "bookingTotal" to bookingSession.totalPrice,
                 "unreadCount" to unreadCount,
             ),
         ),
@@ -84,6 +84,8 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
     // val expiry = params["expiry"]?.trim()
     // val cvv = params["cvv"]?.trim()
     var finalTotal = calculateTotal(bookingSession)
+
+    // println("Expiry: $expiry\nCVV: $cvv")
 
     val pointsToRedeem = params["pointsToRedeem"]?.toIntOrNull() ?: 0
 

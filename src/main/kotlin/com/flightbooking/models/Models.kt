@@ -93,6 +93,8 @@ data class BookingSession(
     val returnFareId: Int? = null,
     val search: FlightSearch? = null,
     val totalPrice: Double = 0.0,
+    val outboundTotal: Double = 0.0,
+    val returnTotal: Double = 0.0,
 )
 
 /**

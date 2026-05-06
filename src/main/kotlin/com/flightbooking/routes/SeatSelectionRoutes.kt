@@ -24,6 +24,8 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -237,8 +239,10 @@ private suspend fun submitSeatSelection(
     flightId: Int,
     redirectTo: String = PAYMENT_REDIRECT,
 ) {
-    val selectedSeatsJson = call.receiveParameters()["selectedSeats"]?.trim().orEmpty()
+    val params = call.receiveParameters()
+    val selectedSeatsJson = params["selectedSeats"]?.trim().orEmpty()
     val selectedSeats = parseSelectedSeats(call, selectedSeatsJson) ?: return
+    val bookingTotal = params["bookingTotal"]?.toDoubleOrNull() ?: 0.0
 
     val seatAccess = SeatTableAccess()
 
@@ -253,6 +257,16 @@ private suspend fun submitSeatSelection(
 
     val bookingSegmentId = createBookingSegment(bookingSession, flightId)
     assignSeats(selectedSeats, seatMap, bookingSegmentId)
+
+    val currentSession = call.sessions.get<BookingSession>() ?: bookingSession
+    val updatedSession =
+        if (redirectTo.contains("return")) {
+            currentSession.copy(outboundTotal = bookingTotal, totalPrice = bookingTotal)
+        } else {
+            currentSession.copy(returnTotal = bookingTotal, totalPrice = currentSession.outboundTotal + bookingTotal)
+        }
+
+    call.sessions.set(updatedSession)
     call.respondRedirect(redirectTo)
 }
 
