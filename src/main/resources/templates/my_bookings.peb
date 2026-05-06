@@ -45,8 +45,8 @@
         </div>
 
         <div>
-          <label for="bookingIdFilter">Booking ID</label>
-          <input class="input" id="bookingIdFilter" name="q" value="{{ q | default('') }}" placeholder="e.g. 4" />
+          <label for="bookingIdFilter">Airport</label>
+          <input class="input" id="bookingIdFilter" name="q" value="{{ q | default('') }}" placeholder="e.g. Heathrow" />
         </div>
 
         <button class="btn" type="submit" aria-label="Apply booking filters">Apply</button>

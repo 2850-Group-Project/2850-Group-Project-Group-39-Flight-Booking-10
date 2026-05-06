@@ -285,32 +285,19 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
     val (userSession, userId) = AuthService.requireUser(call) ?: return
 
     val q = call.request.queryParameters["q"]?.trim().orEmpty()
-    val qId = q.toIntOrNull()
     val statusFilter = call.request.queryParameters["status"]?.trim()?.lowercase().orEmpty()
 
-    if (q.isNotBlank() && qId == null) {
-        call.respond(
-            PebbleContent(
-                "my_bookings.peb",
-                mapOf(
-                    "userSession" to userSession,
-                    "q" to q,
-                    "statusFilter" to statusFilter,
-                    "bookings" to emptyList<Map<String, Any>>(),
-                ),
-            ),
-        )
-        return
-    }
 
     val origin = AirportTable.alias("origin")
     val dest = AirportTable.alias("dest")
 
     val bookings =
         transaction {
-            val cond = buildBookingCondition(userId, q, qId, statusFilter)
-            groupIntoBookings(fetchBookingRows(cond, origin, dest))
+            val cond = buildBookingCondition(userId, statusFilter)
+            val rows = fetchBookingRows(cond, origin, dest)
+            groupIntoBookings(filterRowsByAirport(rows, q))
         }
+    
 
     call.respond(
         PebbleContent(

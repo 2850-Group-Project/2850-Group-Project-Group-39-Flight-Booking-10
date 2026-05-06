@@ -90,6 +90,7 @@ private fun Application.configureServer() {
         }
         // any other 500 error (server error)
         exception<Throwable> { call, cause ->
+            cause.printStackTrace()
             call.application.log.error("Unhandled exception", cause)
             call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
         }
