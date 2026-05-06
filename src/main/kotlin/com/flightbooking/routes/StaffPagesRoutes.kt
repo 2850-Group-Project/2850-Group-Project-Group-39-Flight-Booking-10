@@ -1,9 +1,10 @@
 package com.flightbooking.routes
 
 import com.flightbooking.models.StaffSession
-import com.flightbooking.tables.FlightTable
+import com.flightbooking.service.AuthService
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
+import com.flightbooking.tables.FlightTable
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.pebble.PebbleContent
@@ -22,10 +23,10 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.select
 
 /**
  * Registers the staff page routes (dashboard + flight management UI).
@@ -54,21 +55,14 @@ import org.jetbrains.exposed.sql.select
  */
 fun Route.staffPagesRoutes() {
     get("/staff/dashboard") {
-        val session = call.sessions.get<StaffSession>()
-        if (session == null) {
-            call.respondRedirect("/staff/login")
-            return@get
-        }
+        val (_, _) = AuthService.requireStaff(call)
         handleGetStaffDashboard(call)
     }
+
     get("/staff/flights") { handleGetStaffFlights(call) }
 
     post("/staff/flights/create") {
-        val session = call.sessions.get<StaffSession>()
-        if (session == null) {
-            call.respondRedirect("/staff/login")
-            return@post
-        }
+        val (_, _) = AuthService.requireStaff(call)
 
         val params = call.receiveParameters()
         val capacityIntOrNull = params["capacity"]?.toIntOrNull()
@@ -89,26 +83,25 @@ fun Route.staffPagesRoutes() {
                 stmt.resultedValues?.firstOrNull()?.get(FlightTable.id)
                     ?: FlightTable.selectAll().orderBy(FlightTable.id, SortOrder.DESC).limit(1).first()[FlightTable.id]
 
-
             val fareClassIds = params.getAll("fareClassId")?.mapNotNull { it.toIntOrNull() } ?: emptyList()
-            println("DEBUG fareClassIds=$fareClassIds")
 
             // Used Claude AI to generate fareAllocations mapping, lines 96-103
-            val fareAllocations = fareClassIds.mapNotNull { fareClassId ->
-                val cabinClass = FareClassTable
-                    .select { FareClassTable.id eq fareClassId }
-                    .firstOrNull()
-                    ?.get(FareClassTable.cabinClass) ?: return@mapNotNull null
-                val seats = params["seats_$fareClassId"]?.toIntOrNull() ?: 0
-                cabinClass to seats
-            }
+            val fareAllocations =
+                fareClassIds.mapNotNull { fareClassId ->
+                    val cabinClass =
+                        FareClassTable
+                            .select { FareClassTable.id eq fareClassId }
+                            .firstOrNull()
+                            ?.get(FareClassTable.cabinClass) ?: return@mapNotNull null
+                    val seats = params["seats_$fareClassId"]?.toIntOrNull() ?: 0
+                    cabinClass to seats
+                }
 
             createSeatsForFlight(newFlightId, capacityIntOrNull, fareAllocations)
 
             fareClassIds.forEach { fareClassId ->
                 val price = params["price_$fareClassId"]?.toDoubleOrNull() ?: 0.0
                 val seats = params["seats_$fareClassId"]?.toIntOrNull() ?: 0
-                println("DEBUG inserting fare: flightId=$newFlightId fareClassId=$fareClassId price=$price seats=$seats")
                 FlightFareTable.insert {
                     it[FlightFareTable.flightId] = newFlightId
                     it[FlightFareTable.fareClassId] = fareClassId
@@ -116,7 +109,6 @@ fun Route.staffPagesRoutes() {
                     it[FlightFareTable.seatsAvailable] = seats
                     it[FlightFareTable.currency] = "GBP"
                 }
-                println("DEBUG fare inserted for fareClassId=$fareClassId")
             }
         }
 
@@ -126,6 +118,7 @@ fun Route.staffPagesRoutes() {
     post("/staff/flights/update") { handlePostStaffFlightsUpdate(call) }
 
     post("/staff/flights/delete") { handlePostStaffFlightsDelete(call) }
+
     get("/staff/logout") {
         call.sessions.clear<StaffSession>()
         call.respondRedirect("/staff/login")
@@ -209,10 +202,11 @@ private suspend fun handlePostStaffFlightsUpdate(call: ApplicationCall) {
     }
 
     val params = call.receiveParameters()
-    val id = params["id"]?.toIntOrNull() ?: run {
-        call.respondRedirect("/staff/flights?error=Invalid flight ID")
-        return
-    }
+    val id =
+        params["id"]?.toIntOrNull() ?: run {
+            call.respondRedirect("/staff/flights?error=Invalid flight ID")
+            return
+        }
 
     transaction {
         FlightTable.update({ FlightTable.id eq id }) {

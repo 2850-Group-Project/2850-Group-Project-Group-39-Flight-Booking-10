@@ -3,9 +3,9 @@ package com.flightbooking.routes
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.BookingSegmentTable
 import com.flightbooking.tables.ComplaintTable
-import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
+import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.flightbooking.tables.StaffTable
@@ -120,25 +120,29 @@ fun buildStaffFlightsModel(
         val airports = queryAirports()
         val flights = queryFlightList(q)
         val editFlight = if (editId != null) flights.firstOrNull { (it["id"] as Int) == editId } else null
-        val fareClasses = FareClassTable.selectAll().map {
-            mapOf(
-                "id" to it[FareClassTable.id],
-                "displayName" to (it[FareClassTable.displayName] ?: ""),
-                "cabinClass" to (it[FareClassTable.cabinClass] ?: ""),
-                "classCode" to it[FareClassTable.classCode],
-            )
-        }
-
-        val editFares = if (editId != null) {
-            FlightFareTable.select { FlightFareTable.flightId eq editId }.map {
+        val fareClasses =
+            FareClassTable.selectAll().map {
                 mapOf(
-                    "fareClassId" to it[FlightFareTable.fareClassId],
-                    "price" to it[FlightFareTable.price],
-                    "seatsAvailable" to it[FlightFareTable.seatsAvailable],
-                    "currency" to it[FlightFareTable.currency],
+                    "id" to it[FareClassTable.id],
+                    "displayName" to (it[FareClassTable.displayName] ?: ""),
+                    "cabinClass" to (it[FareClassTable.cabinClass] ?: ""),
+                    "classCode" to it[FareClassTable.classCode],
                 )
             }
-        } else emptyList()
+
+        val editFares =
+            if (editId != null) {
+                FlightFareTable.select { FlightFareTable.flightId eq editId }.map {
+                    mapOf(
+                        "fareClassId" to it[FlightFareTable.fareClassId],
+                        "price" to it[FlightFareTable.price],
+                        "seatsAvailable" to it[FlightFareTable.seatsAvailable],
+                        "currency" to it[FlightFareTable.currency],
+                    )
+                }
+            } else {
+                emptyList()
+            }
 
         mapOf(
             "airports" to airports,
@@ -292,11 +296,13 @@ fun createSeatsForFlight(
     for (i in 0 until total) {
         val row = (i / letters.size) + 1
         val col = letters[i % letters.size]
-        seatMaps.add(mapOf(
-            "flightId" to flightId,
-            "seatCode" to "$row$col",
-            "cabinClass" to cabinPerSeat.getOrNull(i),
-        ))
+        seatMaps.add(
+            mapOf(
+                "flightId" to flightId,
+                "seatCode" to "$row$col",
+                "cabinClass" to cabinPerSeat.getOrNull(i),
+            ),
+        )
     }
 
     SeatTable.batchInsert(seatMaps) { s ->
