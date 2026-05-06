@@ -23,7 +23,6 @@ class FlightImportService(
      * Imports all flights from the AviationStack API and saves them to the database.
      */
     suspend fun importAllFlights() {
-        println("importAllFlights running")
         val airports = airportAccess.getAll()
         val iataToID = airports.associate { it.iataCode to it.id }
         transaction { FlightTable.deleteAll() }
@@ -40,10 +39,6 @@ class FlightImportService(
             insertFlight(validated)
             inserted++
         }
-        println("Fetched: $fetched")
-        println("Skipped: $skipped")
-        println("Inserted: $inserted")
-        println("importAllFlights done")
     }
 
     /**

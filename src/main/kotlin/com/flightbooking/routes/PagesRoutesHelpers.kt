@@ -236,8 +236,7 @@ fun filterRowsByAirport(
 ): List<Map<String, Any?>> {
     if (qSearchQuery.isBlank()) return rows
     val pattern = qSearchQuery.lowercase()
-    println("DEBUG filterRowsByAirport query=$pattern rows=${rows.size}")
-    println("HEREEEEEEEEEEEEEEEEEEEEEEEEE")
+    
     return rows.filter { row ->
         listOf(
             row["originIata"],
