@@ -172,6 +172,7 @@
         </div>
 
         <!-- HIDDEN: INPUT SUBMITTED TO FORM -->
+        <input type="hidden" id="booking-total-input" name="bookingTotal" value="0.00">
         <input type="hidden" id="selected-seats-input" name="selectedSeats" value="{}">
       </form>
 
@@ -183,7 +184,7 @@
 <!-- FARE SUMMARY -->
 <div class="fare-summary" id="fare-summary" data-price="{{ farePrice }}" data-currency="{{ fareCurrency }}">
   <div class="fare-summary-row">
-    <span class="fare-summary-label">Fare per passenger</span>
+    <span class="fare-summary-label">Base Fare per passenger</span>
     <span class="fare-summary-value">{{ fareCurrency }} {{ farePrice }}</span>
   </div>
   <div class="fare-summary-row">

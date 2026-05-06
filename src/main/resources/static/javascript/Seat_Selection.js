@@ -1,6 +1,7 @@
 var seatSelections = {};
 var passengerList = [];
 var totalPassengers = 0;
+var runningTotal = 0;
 
 function initPassengers() {
   var passengerDataEl = document.getElementById('passenger-data');
@@ -127,11 +128,24 @@ function updateUI() {
   var summaryEl = document.getElementById('fare-summary');
   var totalEl = document.getElementById('fare-running-total');
   var assignedCountEl = document.getElementById('fare-assigned-count');
+
   if (summaryEl && totalEl) {
-    var farePerPassenger = parseFloat(summaryEl.getAttribute('data-price'));
-    var currency = summaryEl.getAttribute('data-currency');
-    totalEl.textContent = currency + ' ' + (farePerPassenger * assigned).toFixed(2);
-    assignedCountEl.textContent = assigned + ' / ' + totalPassengers;
+    var currency = summaryEl.getAttribute("data-currency");
+    var baseFare = parseFloat(summaryEl.getAttribute("data-price"));
+    runningTotal = 0
+
+    var keys = Object.keys(seatSelections);
+    for (var i = 0; i < keys.length; i++) {
+      var seatCode = seatSelections[keys[i]];
+      if (!seatCode) continue;
+
+      var seatBtn = document.querySelector('[data-seat-code="' + seatCode + '"]');
+        var seatPrice = seatBtn ? parseFloat(seatBtn.getAttribute("data-price")?.replace("£", "")) : NaN;
+        runningTotal += isNaN(seatPrice) ? baseFare : seatPrice;
+    }
+
+    totalEl.textContent = currency + " " + runningTotal.toFixed(2);
+    assignedCountEl.textContent = assigned + " / " + totalPassengers;
   }
 }
 
@@ -158,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('continue-btn').addEventListener('click', function(e) {
     e.preventDefault();
     document.getElementById('selected-seats-input').value = JSON.stringify(seatSelections);
+    document.getElementById('booking-total-input').value = runningTotal.toFixed(2);
     form.submit();
   });
 
@@ -167,6 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (resetBtn.classList.contains('btn-next-flight')) {
       document.getElementById('selected-seats-input').value = JSON.stringify(seatSelections);
+      document.getElementById('booking-total-input').value = runningTotal.toFixed(2);
       form.action = '/flights/seats/outbound';
       form.submit();
       return;
