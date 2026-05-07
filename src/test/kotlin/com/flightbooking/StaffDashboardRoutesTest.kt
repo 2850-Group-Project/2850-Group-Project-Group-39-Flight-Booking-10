@@ -20,7 +20,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class StaffDashboardRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated staff users should be redirected to the staff login page.
+    /**
+     * Unauthenticated staff users should be redirected to the staff login page.
+     */
     @Test
     fun unauthenticatedDashboardRedirectsToStaffLogin() =
         testApplication {
@@ -32,7 +34,9 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/login", response.headers[HttpHeaders.Location])
         }
 
-    // An authenticated staff user should be able to load the dashboard page.
+    /**
+     * An authenticated staff user should be able to load the dashboard page.
+     */
     @Test
     fun authenticatedDashboardLoads() =
         testApplication {
@@ -44,7 +48,9 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Staff Dashboard"))
         }
 
-    // Dashboard should show the count of flights that are not cancelled.
+    /**
+     * Dashboard should show the count of flights that are not cancelled.
+     */
     @Test
     fun dashboardShowsActiveFlightCount() =
         testApplication {
@@ -62,7 +68,9 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertDashboardKpi(body, "Active Flights", "2")
         }
 
-    // Dashboard should show how many flights depart today.
+    /**
+     * Dashboard should show how many flights depart today.
+     */
     @Test
     fun dashboardShowsDeparturesTodayCount() =
         testApplication {
@@ -81,7 +89,9 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertDashboardKpi(body, "Departures Today", "2")
         }
 
-    // Dashboard should show the count of open customer complaints.
+    /**
+     * Dashboard should show the count of open customer complaints.
+     */
     @Test
     fun dashboardShowsOpenComplaintCount() =
         testApplication {
@@ -100,7 +110,9 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertDashboardKpi(body, "Customer Inquiries", "2")
         }
 
-    // Dashboard should list active flights in the outbound flights table.
+    /**
+     * Dashboard should list active flights in the outbound flights table.
+     */
     @Test
     fun dashboardListsActiveFlights() =
         testApplication {
@@ -120,7 +132,9 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Dubai (DXB)"))
         }
 
-    // Cancelled flights should not appear in the active dashboard list.
+    /**
+     * Cancelled flights should not appear in the active dashboard list.
+     */
     @Test
     fun dashboardExcludesCancelledFlightsFromActiveList() =
         testApplication {
@@ -139,7 +153,9 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains(">cancelled<"))
         }
 
-    // A stale staff session should show a staff-not-found response.
+    /**
+     * A stale staff session should show a staff-not-found response.
+     */
     @Test
     fun dashboardShowsStaffNotFoundMessageWhenSessionUserIsMissing() =
         testApplication {
@@ -153,12 +169,18 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Staff not found, please login again."))
         }
 
-    // Remove the backing staff row to simulate a stale dashboard session.
+    /**
+     * Remove the backing staff row to simulate a stale dashboard session.
+     */
     private fun deleteStaffByEmail(email: String) =
         transaction {
             StaffTable.deleteWhere { StaffTable.email eq email }
         }
 
+    /**
+     * Seeds aiports into staff dashboard
+     * @return the 2 airports
+     */
     private fun seedDashboardAirports(): DashboardAirports {
         val originAirportId = seedAirport("LHR", "London Heathrow")
         val destinationAirportId = seedAirport("DXB", "Dubai International")
@@ -175,6 +197,14 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
         return DashboardAirports(originAirportId, destinationAirportId)
     }
 
+    /**
+     * Creates the seeded flights
+     * @param airports
+     * @param flightNumber
+     * @param status
+     * @param departureDate
+     * @return the flight id
+     */
     private fun seedDashboardFlight(
         airports: DashboardAirports,
         flightNumber: Int,
@@ -201,6 +231,11 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
         return flightId
     }
 
+    /**
+     * Updates a complaint's status field
+     * @param complaintId
+     * @param status
+     */
     private fun updateComplaintStatus(
         complaintId: Int,
         status: String,
@@ -212,6 +247,12 @@ class StaffDashboardRoutesTest : IntegrationTestSupport() {
         }
     }
 
+    /**
+     * Check html contains KPI
+     * @param body
+     * @param label
+     * @param value
+     */
     private fun assertDashboardKpi(
         body: String,
         label: String,

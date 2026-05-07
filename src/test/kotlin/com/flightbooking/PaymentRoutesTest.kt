@@ -14,7 +14,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class PaymentRoutesTest : IntegrationTestSupport() {
-    // Users without a booking session should be redirected home from the payment page.
+    /**
+     * Users without a booking session should be redirected home from the payment page.
+     */
     @Test
     fun paymentPageRedirectsHomeWhenBookingSessionMissing() =
         testApplication {
@@ -27,7 +29,9 @@ class PaymentRoutesTest : IntegrationTestSupport() {
             assertEquals("/home", response.headers[HttpHeaders.Location])
         }
 
-    // Posting payment without a booking session should also redirect home.
+    /**
+     * Posting payment without a booking session should also redirect home.
+     */
     @Test
     fun paymentSubmitRedirectsHomeWhenBookingSessionMissing() =
         testApplication {
@@ -40,7 +44,9 @@ class PaymentRoutesTest : IntegrationTestSupport() {
             assertEquals("/home", response.headers[HttpHeaders.Location])
         }
 
-    // Authenticated users with a booking session should see the payment page total.
+    /**
+     * Authenticated users with a booking session should see the payment page total.
+     */
     @Test
     fun authenticatedPaymentPageRendersBookingTotal() =
         testApplication {
@@ -62,7 +68,9 @@ class PaymentRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("DXB"))
         }
 
-    // One-way payment totals should multiply the fare by the passenger count.
+    /**
+     * One-way payment totals should multiply the fare by the passenger count.
+     */
     @Test
     fun paymentPageCalculatesOneWayTotal() =
         testApplication {
@@ -85,7 +93,9 @@ class PaymentRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("1 child"))
         }
 
-    // Return trips should apply the route's return fare discount before rendering the total.
+    /**
+     * Return trips should apply the route's return fare discount before rendering the total.
+     */
     @Test
     fun paymentPageAppliesReturnFareDiscount() =
         testApplication {
@@ -126,7 +136,9 @@ class PaymentRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("DXB"))
         }
 
-    // Payment should show the user's available points and maximum discount.
+    /**
+     * Payment should show the user's available points and maximum discount.
+     */
     @Test
     fun paymentPageShowsAvailablePointsDiscount() =
         testApplication {
@@ -154,6 +166,14 @@ class PaymentRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("10.00"))
         }
 
+    /**
+     * Submits form for post /flights/select for one way
+     * @param flightId
+     * @param fareId
+     * @param adults
+     * @param children
+     * @param infants
+     */
     private suspend fun HttpClient.selectOneWayTrip(
         flightId: Int,
         fareId: Int,
@@ -179,6 +199,13 @@ class PaymentRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Submits post form for return trip
+     * @param outboundFlightId
+     * @param outboundFareId
+     * @param returnFlightId
+     * @param returnFareId
+     */
     private suspend fun HttpClient.selectReturnTrip(
         outboundFlightId: Int,
         outboundFareId: Int,
@@ -222,6 +249,11 @@ class PaymentRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Seeds a bookable flight into db
+     * @param flightNumber
+     * @return seeded flight
+     */
     private fun seedBookableFlight(flightNumber: Int = 700): SeededPaymentFlight {
         val originAirportId = seedAirport("LHR", "London Heathrow")
         val destinationAirportId = seedAirport("DXB", "Dubai International")
@@ -235,6 +267,13 @@ class PaymentRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Creates the bookable flight to seed
+     *  @param originAirportId
+     *  @param destinationAirportId
+     *  @param fareClassId
+     *  @param flightNumber
+     */
     private fun seedBookableFlight(
         originAirportId: Int,
         destinationAirportId: Int,
@@ -252,6 +291,9 @@ class PaymentRoutesTest : IntegrationTestSupport() {
         return SeededPaymentFlight(flightId, fareId)
     }
 
+    /**
+     * Data class definition for a seeded flight with fare
+     */
     private data class SeededPaymentFlight(
         val flightId: Int,
         val fareId: Int,

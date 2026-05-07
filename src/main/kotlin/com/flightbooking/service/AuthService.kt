@@ -22,8 +22,11 @@ object AuthService {
 
     /**
      * Registers a user with email and password
-     * Parameters: email, password, firstName, lastName
-     * Returns: false if email or password is blank, true if registration successful
+     * @param email
+     * @param password
+     * @param firstName
+     * @param lastName
+     * @return false if email or password is blank, true if registration successful
      */
     fun register(
         email: String,
@@ -38,8 +41,9 @@ object AuthService {
 
     /**
      * Logs in user with email and password
-     * Parameters: email, password
-     * Returns: true if login successful, false if not
+     * @param email
+     * @param password
+     * @return true if login successful, false if not
      */
     fun login(
         email: String,
@@ -53,6 +57,11 @@ object AuthService {
         return BCrypt.checkpw(password, storedHash)
     }
 
+    /**
+     * Checks for user session
+     * @param call: request call
+     * @return the user session and userId
+     */
     suspend fun requireUser(call: ApplicationCall): Pair<UserSession, Int>? {
         val userSession = call.sessions.get<UserSession>()
 
@@ -66,6 +75,11 @@ object AuthService {
         return Pair(userSession, userId)
     }
 
+    /**
+     * Checks for staff session
+     * @param call: request call
+     * @return the staff session and userId
+     */
     suspend fun requireStaff(call: ApplicationCall): Pair<StaffSession, Int>? {
         val staffSession = call.sessions.get<StaffSession>()
 
@@ -79,6 +93,11 @@ object AuthService {
         return Pair(staffSession, staffId)
     }
 
+    /**
+     * Checks for booking session
+     * @param call: request call
+     * @return the booking session and userId
+     */
     suspend fun requireBooking(
         call: ApplicationCall,
         requireSearch: Boolean = false,
@@ -94,6 +113,11 @@ object AuthService {
         return bookingSession
     }
 
+    /**
+     * Searches User table for userId with email
+     * @param userEmail
+     * @return userId
+     */
     private fun fetchValidUserId(userEmail: String): Int? =
         transaction {
             UserTable
@@ -102,6 +126,11 @@ object AuthService {
                 ?.get(UserTable.id)
         }
 
+    /**
+     * Searches Staff table for staffId with email
+     * @param staffEmail
+     * @return staffId
+     */
     private fun fetchValidStaffId(staffEmail: String): Int? =
         transaction {
             StaffTable

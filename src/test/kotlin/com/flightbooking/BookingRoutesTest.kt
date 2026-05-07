@@ -17,7 +17,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class BookingRoutesTest : IntegrationTestSupport() {
-    // Check that submitting passenger details without logging in redirects to login.
+    /**
+     * Check that submitting passenger details without logging in redirects to login.
+     */
     @Test
     fun unauthenticatedPassengerSubmitRedirectsToLogin() =
         testApplication {
@@ -38,7 +40,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Check that submitting passenger details without a booking session redirects home.
+    /**
+     * Check that submitting passenger details without a booking session redirects home.
+     */
     @Test
     fun passengerSubmitRedirectsHomeWhenBookingSessionMissing() =
         testApplication {
@@ -59,7 +63,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertEquals("/home", response.headers[HttpHeaders.Location])
         }
 
-    // Check that submitting one passenger saves their details in the booking session.
+    /**
+     * Check that submitting one passenger saves their details in the booking session.
+     */
     @Test
     fun passengerSubmitStoresPassengerDataInBookingSession() =
         testApplication {
@@ -92,7 +98,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertTrue(passengerExists("Alex", "Student", "A1234567"))
         }
 
-    // Check that submitting multiple passengers saves all of their details in the booking session.
+    /**
+     * Check that submitting multiple passengers saves all of their details in the booking session.
+     */
     @Test
     fun passengerSubmitHandlesMultiplePassengers() =
         testApplication {
@@ -138,7 +146,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertTrue(passengerExists("Ben", "Taylor", "P2222222"))
         }
 
-    // Passenger submission should reject missing required passenger fields.
+    /**
+     * Passenger submission should reject missing required passenger fields.
+     */
     @Test
     fun passengerSubmitRejectsMissingRequiredPassengerFields() =
         testApplication {
@@ -162,7 +172,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertEquals(0, passengerCount())
         }
 
-    // Passenger submission should save adults, children, and infants from the booking search.
+    /**
+     * Passenger submission should save adults, children, and infants from the booking search.
+     */
     @Test
     fun passengerSubmitHandlesChildrenAndInfants() =
         testApplication {
@@ -189,7 +201,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertTrue(passengerExists("Ivy", "Infant", "INFANT1"))
         }
 
-    // Extra passenger form rows should not be saved beyond the booking search count.
+    /**
+     * Extra passenger form rows should not be saved beyond the booking search count.
+     */
     @Test
     fun passengerSubmitDoesNotSaveExtraPassengerRows() =
         testApplication {
@@ -214,7 +228,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertFalse(passengerExists("Extra", "Passenger", "EXTRA1"))
         }
 
-    // Submitted passenger fields should be preserved exactly in the passenger row.
+    /**
+     * Submitted passenger fields should be preserved exactly in the passenger row.
+     */
     @Test
     fun passengerSubmitPreservesDocumentFields() =
         testApplication {
@@ -256,7 +272,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertEquals("2035-08-08", passenger.documentExpiry)
         }
 
-    // Invalid passenger indexes should not create blank passenger records.
+    /**
+     * Invalid passenger indexes should not create blank passenger records.
+     */
     @Test
     fun passengerSubmitRejectsInvalidPassengerIndexes() =
         testApplication {
@@ -277,7 +295,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
             assertEquals(0, passengerCount())
         }
 
-    // Check whether a submitted passenger row was persisted to the database.
+    /**
+     * Check whether a submitted passenger row was persisted to the database.
+     */
     private fun passengerExists(
         firstName: String,
         lastName: String,
@@ -293,11 +313,20 @@ class BookingRoutesTest : IntegrationTestSupport() {
                 .any()
         }
 
+    /**
+     * Helper function to count number passengers in passenger table
+     * @return total count
+     */
     private fun passengerCount(): Int =
         transaction {
             PassengerTable.selectAll().count().toInt()
         }
 
+    /**
+     * Searches passenger table by documentNumber
+     * @param documentNumber
+     * @return the passenger object found
+     */
     private fun passengerByDocumentNumber(documentNumber: String): TestPassenger =
         transaction {
             PassengerTable
@@ -320,6 +349,12 @@ class BookingRoutesTest : IntegrationTestSupport() {
                 }
         }
 
+    /**
+     * Post form submits to /flights/select
+     * @param adults
+     * @param children
+     * @param infants
+     */
     private suspend fun io.ktor.client.HttpClient.seedBookingSession(
         adults: String,
         children: String,
@@ -346,6 +381,14 @@ class BookingRoutesTest : IntegrationTestSupport() {
         assertEquals(HttpStatusCode.OK, response.status)
     }
 
+    /**
+     * Adds passenger details to a form body
+     * @param index
+     * @param type
+     * @param firstName
+     * @param lastNae
+     * @param documentNumber
+     */
     private fun io.ktor.http.ParametersBuilder.appendPassenger(
         index: Int,
         type: String,
@@ -367,6 +410,9 @@ class BookingRoutesTest : IntegrationTestSupport() {
         append("passengers[$index][documentExpiry]", "2030-01-01")
     }
 
+    /**
+     * Data class definition for test passenger
+     */
     private data class TestPassenger(
         val title: String?,
         val firstName: String?,

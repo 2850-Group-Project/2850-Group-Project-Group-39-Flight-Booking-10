@@ -20,7 +20,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ChangeRequestRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated users should be redirected to login from the change request page.
+    /**
+     * Unauthenticated users should be redirected to login from the change request page.
+     */
     @Test
     fun unauthenticatedChangeRequestPageRedirectsToLogin() =
         testApplication {
@@ -33,7 +35,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unauthenticated change request submissions should be redirected to login.
+    /**
+     * Unauthenticated change request submissions should be redirected to login.
+     */
     @Test
     fun unauthenticatedChangeRequestSubmitRedirectsToLogin() =
         testApplication {
@@ -46,7 +50,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Missing booking ids should redirect to the shared not-found page.
+    /**
+     * Missing booking ids should redirect to the shared not-found page.
+     */
     @Test
     fun changeRequestPageRedirectsToNotFoundWhenBookingIdMissing() =
         testApplication {
@@ -59,7 +65,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals("/404", response.headers[HttpHeaders.Location])
         }
 
-    // Authenticated users should be able to open the change page for their own booking.
+    /**
+     * Authenticated users should be able to open the change page for their own booking.
+     */
     @Test
     fun changeRequestPageLoadsForOwnedBooking() =
         testApplication {
@@ -77,7 +85,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("1A"))
         }
 
-    // Unknown bookings should redirect to the shared not-found page.
+    /**
+     * Unknown bookings should redirect to the shared not-found page.
+     */
     @Test
     fun changeRequestPageRedirectsToNotFoundForUnknownBooking() =
         testApplication {
@@ -90,7 +100,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals("/404", response.headers[HttpHeaders.Location])
         }
 
-    // Users should not be able to open the change page for another user's booking.
+    /**
+     * Users should not be able to open the change page for another user's booking.
+     */
     @Test
     fun changeRequestPageRedirectsToNotFoundForAnotherUsersBooking() =
         testApplication {
@@ -105,7 +117,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals("/404", response.headers[HttpHeaders.Location])
         }
 
-    // Flight search should show matching requested flights.
+    /**
+     * Flight search should show matching requested flights.
+     */
     @Test
     fun changeRequestPageFlightSearchShowsMatchingFlights() =
         testApplication {
@@ -125,7 +139,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("802"))
         }
 
-    // Selecting a requested flight should show its available seats.
+    /**
+     * Selecting a requested flight should show its available seats.
+     */
     @Test
     fun changeRequestPageSelectedFlightShowsAvailableSeats() =
         testApplication {
@@ -150,7 +166,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("2B"))
         }
 
-    // Missing required submit ids should redirect to the shared not-found page.
+    /**
+     * Missing required submit ids should redirect to the shared not-found page.
+     */
     @Test
     fun changeRequestSubmitRedirectsToNotFoundWhenRequiredIdsMissing() =
         testApplication {
@@ -189,7 +207,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             )
         }
 
-    // A valid change request should be stored for staff review.
+    /**
+     * A valid change request should be stored for staff review.
+     */
     @Test
     fun changeRequestSubmitCreatesPendingRequest() =
         testApplication {
@@ -225,7 +245,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals("pending", request.status)
         }
 
-    // Requested flights must exist before a change request is created.
+    /**
+     * Requested flights must exist before a change request is created.
+     */
     @Test
     fun changeRequestSubmitRejectsUnknownRequestedFlight() =
         testApplication {
@@ -252,7 +274,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals(0, changeRequestCount())
         }
 
-    // Requested seats must exist before a change request is created.
+    /**
+     * Requested seats must exist before a change request is created.
+     */
     @Test
     fun changeRequestSubmitRejectsUnknownRequestedSeat() =
         testApplication {
@@ -281,7 +305,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals(0, changeRequestCount())
         }
 
-    // A requested seat must belong to the selected requested flight.
+    /**
+     * A requested seat must belong to the selected requested flight.
+     */
     @Test
     fun changeRequestSubmitRejectsSeatForDifferentFlight() =
         testApplication {
@@ -312,7 +338,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals(0, changeRequestCount())
         }
 
-    // Requested seats must be available before a change request is created.
+    /**
+     * Requested seats must be available before a change request is created.
+     */
     @Test
     fun changeRequestSubmitRejectsUnavailableRequestedSeat() =
         testApplication {
@@ -343,7 +371,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals(0, changeRequestCount())
         }
 
-    // Users should not be able to submit change requests for another user's booking.
+    /**
+     * Users should not be able to submit change requests for another user's booking.
+     */
     @Test
     fun changeRequestSubmitRejectsAnotherUsersBooking() =
         testApplication {
@@ -372,11 +402,20 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             assertEquals(0, changeRequestCount())
         }
 
+    /**
+     * Verifies response redirects to /404
+     * @param reponse
+     */
     private fun assertMissingSubmitIdRedirectsToNotFound(response: io.ktor.client.statement.HttpResponse) {
         assertEquals(HttpStatusCode.Found, response.status)
         assertEquals("/404", response.headers[HttpHeaders.Location])
     }
 
+    /**
+     * Creates change request booking with test values
+     * @param userId
+     * @return the change request booking
+     */
     private fun seedChangeRequestBooking(userId: Int = userIdByEmail()): SeededChangeRequestBooking {
         val originAirportId = seedOrGetAirport("LHR", "London Heathrow")
         val destinationAirportId = seedOrGetAirport("DXB", "Dubai International")
@@ -399,6 +438,12 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Find or create helper for airport
+     * @param iataCode
+     * @param name
+     * @return the id of the airport
+     */
     private fun seedOrGetAirport(
         iataCode: String,
         name: String,
@@ -411,6 +456,10 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
                 ?.get(AirportTable.id)
         } ?: seedAirport(iataCode, name)
 
+    /**
+     * Find or create helper for fare class
+     * @return the id of the fare class
+     */
     private fun seedOrGetFareClass(): Int =
         transaction {
             FareClassTable
@@ -420,6 +469,10 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
                 ?.get(FareClassTable.id)
         } ?: seedFareClass()
 
+    /**
+     * Marks seat as occupied
+     * @param seatId: to search
+     */
     private fun markSeatUnavailable(seatId: Int) =
         transaction {
             SeatTable.update({ SeatTable.id eq seatId }) {
@@ -427,6 +480,9 @@ class ChangeRequestRoutesTest : IntegrationTestSupport() {
             }
         }
 
+    /**
+     * Data class definition for seaded change request booking
+     */
     private data class SeededChangeRequestBooking(
         val bookingId: Int,
         val segmentId: Int,

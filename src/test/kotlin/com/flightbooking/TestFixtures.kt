@@ -31,7 +31,9 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.test.assertEquals
 
-// Creates a client, registers a user, logs them in, and keeps session cookies.
+/**
+ * Creates a client, registers a user, logs them in, and keeps session cookies.
+ */
 suspend fun ApplicationTestBuilder.createAuthenticatedUserClient(
     email: String = "student@example.com",
     password: String = "Password123!",
@@ -48,7 +50,9 @@ suspend fun ApplicationTestBuilder.createAuthenticatedUserClient(
     return client
 }
 
-// Creates a client, registers staff, logs them in, and keeps session cookies.
+/**
+ * Creates a client, registers staff, logs them in, and keeps session cookies.
+ */
 suspend fun ApplicationTestBuilder.createAuthenticatedStaffClient(
     email: String = "staff@example.com",
     password: String = "StrongPass123!",
@@ -65,7 +69,9 @@ suspend fun ApplicationTestBuilder.createAuthenticatedStaffClient(
     return client
 }
 
-// Submit a valid user registration form.
+/**
+ * Submit a valid user registration form.
+ */
 suspend fun HttpClient.registerUser(
     email: String = "student@example.com",
     password: String = "Password123!",
@@ -82,7 +88,9 @@ suspend fun HttpClient.registerUser(
     )
 }
 
-// Submit a valid user login form.
+/**
+ * Submit a valid user login form.
+ */
 suspend fun HttpClient.loginUser(
     email: String = "student@example.com",
     password: String = "Password123!",
@@ -96,7 +104,9 @@ suspend fun HttpClient.loginUser(
     )
 }
 
-// Submit a valid staff registration form.
+/**
+ * Submit a valid staff registration form.
+ */
 suspend fun HttpClient.registerStaff(
     email: String = "staff@example.com",
     password: String = "StrongPass123!",
@@ -114,7 +124,9 @@ suspend fun HttpClient.registerStaff(
         },
 )
 
-// Submit a valid staff login form.
+/**
+ * Submit a valid staff login form.
+ */
 suspend fun HttpClient.loginStaff(
     email: String = "staff@example.com",
     password: String = "StrongPass123!",
@@ -127,7 +139,9 @@ suspend fun HttpClient.loginStaff(
         },
 )
 
-// Seed a booking session through the flight selection route.
+/**
+ * Seed a booking session through the flight selection route.
+ */
 suspend fun HttpClient.seedBookingSession(adults: String = "1") {
     val response =
         submitForm(
@@ -148,7 +162,9 @@ suspend fun HttpClient.seedBookingSession(adults: String = "1") {
     assertEquals(HttpStatusCode.OK, response.status)
 }
 
-// Insert an airport row for route tests that need valid airport ids.
+/**
+ * Insert an airport row for route tests that need valid airport ids.
+ */
 fun seedAirport(
     iataCode: String,
     name: String,
@@ -162,7 +178,9 @@ fun seedAirport(
         }.resultedValues!!.first()[AirportTable.id]
     }
 
-// Insert a flight row for route tests.
+/**
+ * Insert a flight row for route tests.
+ */
 fun seedFlight(
     originAirportId: Int,
     destinationAirportId: Int,
@@ -181,7 +199,9 @@ fun seedFlight(
         }.resultedValues!!.first()[FlightTable.id]
     }
 
-// Insert a minimal fare class so a flight fare can reference it.
+/**
+ * Insert a minimal fare class so a flight fare can reference it.
+ */
 fun seedFareClass(): Int =
     transaction {
         FareClassTable.insert {
@@ -206,7 +226,9 @@ fun seedFareClass(): Int =
         }.resultedValues!!.first()[FareClassTable.id]
     }
 
-// Insert the flight fare row required by booking routes.
+/**
+ * Insert the flight fare row required by booking routes.
+ */
 fun seedFlightFare(
     flightId: Int,
     fareClassId: Int,
@@ -223,7 +245,9 @@ fun seedFlightFare(
         }.resultedValues!!.first()[FlightFareTable.id]
     }
 
-// Insert a user record for tests that need an existing passenger account.
+/**
+ * Insert a user record for tests that need an existing passenger account.
+ */
 fun seedUser(
     email: String,
     firstName: String,
@@ -242,7 +266,9 @@ fun seedUser(
         }.resultedValues!!.first()[UserTable.id]
     }
 
-// Read a seeded or registered user id by email.
+/**
+ * Read a seeded or registered user id by email.
+ */
 fun userIdByEmail(email: String = "student@example.com"): Int =
     transaction {
         UserTable
@@ -251,7 +277,9 @@ fun userIdByEmail(email: String = "student@example.com"): Int =
             .first()[UserTable.id]
     }
 
-// Insert a booking row for page and booking-management tests.
+/**
+ * Insert a booking row for page and booking-management tests.
+ */
 fun seedBooking(
     userId: Int,
     bookingReference: String = "TESTREF",
@@ -269,7 +297,9 @@ fun seedBooking(
         }.resultedValues!!.first()[BookingTable.id]
     }
 
-// Insert a passenger row for a booking.
+/**
+ * Insert a passenger row for a booking.
+ */
 fun seedPassenger(
     bookingId: Int,
     firstName: String = "Pat",
@@ -293,7 +323,9 @@ fun seedPassenger(
         }.resultedValues!!.first()[PassengerTable.id]
     }
 
-// Insert a booking segment row for a booking and flight.
+/**
+ * Insert a booking segment row for a booking and flight.
+ */
 fun seedBookingSegment(
     bookingId: Int,
     flightId: Int,
@@ -307,7 +339,9 @@ fun seedBookingSegment(
         }.resultedValues!!.first()[BookingSegmentTable.id]
     }
 
-// Insert a seat assignment row.
+/**
+ * Insert a seat assignment row.
+ */
 fun seedSeatAssignment(
     passengerId: Int,
     bookingSegmentId: Int,
@@ -321,7 +355,9 @@ fun seedSeatAssignment(
         }.resultedValues!!.first()[SeatAssignmentTable.id]
     }
 
-// Insert an available seat row.
+/**
+ * Insert an available seat row.
+ */
 fun seedSeat(
     flightId: Int,
     seatCode: String,
@@ -339,7 +375,9 @@ fun seedSeat(
         }.resultedValues!!.first()[SeatTable.id]
     }
 
-// Fetch the most recently created flight id.
+/**
+ * Fetch the most recently created flight id.
+ */
 fun latestFlightId(): Int =
     transaction {
         FlightTable
@@ -349,7 +387,9 @@ fun latestFlightId(): Int =
             .first()[FlightTable.id]
     }
 
-// Fetch the most recently created booking id.
+/**
+ * Fetch the most recently created booking id.
+ */
 fun latestBookingId(): Int =
     transaction {
         BookingTable
@@ -359,7 +399,9 @@ fun latestBookingId(): Int =
             .first()[BookingTable.id]
     }
 
-// Read the current status for a booking.
+/**
+ * Read the current status for a booking.
+ */
 fun bookingStatus(bookingId: Int): String =
     transaction {
         BookingTable
@@ -368,7 +410,9 @@ fun bookingStatus(bookingId: Int): String =
             .first()[BookingTable.bookingStatus]
     }
 
-// Check whether a booking row still exists.
+/**
+ * Check whether a booking row still exists.
+ */
 fun bookingExists(bookingId: Int): Boolean =
     transaction {
         BookingTable
@@ -376,7 +420,9 @@ fun bookingExists(bookingId: Int): Boolean =
             .any()
     }
 
-// Check whether a booking segment row still exists for a booking.
+/**
+ * Check whether a booking segment row still exists for a booking.
+ */
 fun bookingSegmentExists(bookingId: Int): Boolean =
     transaction {
         BookingSegmentTable
@@ -384,7 +430,9 @@ fun bookingSegmentExists(bookingId: Int): Boolean =
             .any()
     }
 
-// Check whether a seat assignment row still exists for a segment.
+/**
+ * Check whether a seat assignment row still exists for a segment.
+ */
 fun seatAssignmentExists(bookingSegmentId: Int): Boolean =
     transaction {
         SeatAssignmentTable
@@ -392,13 +440,17 @@ fun seatAssignmentExists(bookingSegmentId: Int): Boolean =
             .any()
     }
 
-// Count submitted change request rows.
+/**
+ * Count submitted change request rows.
+ */
 fun changeRequestCount(): Int =
     transaction {
         ChangeRequestTable.selectAll().count().toInt()
     }
 
-// Read the most recently submitted change request.
+/**
+ * Read the most recently submitted change request.
+ */
 fun latestChangeRequest(): TestChangeRequest =
     transaction {
         ChangeRequestTable
@@ -420,7 +472,9 @@ fun latestChangeRequest(): TestChangeRequest =
             }
     }
 
-// Insert a complaint row for profile complaint tests.
+/**
+ * Insert a complaint row for profile complaint tests.
+ */
 fun seedComplaint(
     userId: Int,
     type: String = "service",
@@ -437,13 +491,17 @@ fun seedComplaint(
         }.resultedValues!!.first()[ComplaintTable.id]
     }
 
-// Count complaint rows.
+/**
+ * Count complaint rows.
+ */
 fun complaintCount(): Int =
     transaction {
         ComplaintTable.selectAll().count().toInt()
     }
 
-// Read the most recently submitted complaint.
+/**
+ * Read the most recently submitted complaint.
+ */
 fun latestComplaint(): TestComplaint =
     transaction {
         ComplaintTable
@@ -461,7 +519,9 @@ fun latestComplaint(): TestComplaint =
             }
     }
 
-// Read generated seat codes for a flight in creation order.
+/**
+ * Read generated seat codes for a flight in creation order.
+ */
 fun seatCodesForFlight(flightId: Int): List<String> =
     transaction {
         SeatTable
@@ -470,7 +530,9 @@ fun seatCodesForFlight(flightId: Int): List<String> =
             .map { it[SeatTable.seatCode] }
     }
 
-// Read the seat currently assigned to the booking's first segment.
+/**
+ * Read the seat currently assigned to the booking's first segment.
+ */
 fun assignedSeatIdForBooking(bookingId: Int): Int? =
     transaction {
         val segmentId =
@@ -486,7 +548,9 @@ fun assignedSeatIdForBooking(bookingId: Int): Int? =
             ?.get(SeatAssignmentTable.seatId)
     }
 
-// Read the current flight id from the booking's first segment.
+/**
+ * Read the current flight id from the booking's first segment.
+ */
 fun segmentFlightIdForBooking(bookingId: Int): Int =
     transaction {
         BookingSegmentTable
@@ -495,7 +559,9 @@ fun segmentFlightIdForBooking(bookingId: Int): Int =
             .first()[BookingSegmentTable.flightId]
     }
 
-// Read the current seat status after reassignment operations.
+/**
+ * Read the current seat status after reassignment operations.
+ */
 fun seatStatus(seatId: Int): String =
     transaction {
         SeatTable
@@ -504,6 +570,9 @@ fun seatStatus(seatId: Int): String =
             .first()[SeatTable.status]
     }
 
+/**
+ * Data class definition for change request testing
+ */
 data class TestChangeRequest(
     val userId: Int,
     val bookingId: Int,
@@ -515,6 +584,9 @@ data class TestChangeRequest(
     val status: String,
 )
 
+/**
+ * Data class definition for complaint testing
+ */
 data class TestComplaint(
     val userId: Int?,
     val type: String?,
