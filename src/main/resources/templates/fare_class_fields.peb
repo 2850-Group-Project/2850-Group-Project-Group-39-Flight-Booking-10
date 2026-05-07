@@ -1,0 +1,166 @@
+{#
+  Partial: fare_class_fields.peb
+  Variables (set in parent before include):
+    fc      – the fare class map, or null for create
+    isEdit  – boolean
+#}
+
+<!-- FARE CLASS IDENTIFIERS -->
+<fieldset class="fc-fieldset">
+  <legend>Identity</legend>
+
+  <div class="fc-row-identity">
+    {% if not isEdit %}
+    <div class="fc-field">
+      <label for="classCode">Class Code <span class="req">*</span></label>
+      <input id="classCode" name="classCode" type="text" maxlength="8"
+             placeholder="e.g. ECO" required>
+      <span class="fc-hint">Max 8 chars</span>
+    </div>
+    {% endif %}
+    <div class="fc-field">
+      <label for="displayName">Display Name</label>
+      <input id="displayName" name="displayName" type="text" maxlength="100"
+             placeholder="e.g. Economy Flex"
+             value="{% if fc is not null %}{{ fc.displayName }}{% endif %}">
+    </div>
+    <div class="fc-field">
+      <label for="cabinClass">Cabin Class</label>
+      <select id="cabinClass" name="cabinClass">
+        <option value="">— select —</option>
+        <option value="economy"         {% if fc is not null and fc.cabinClass == "economy" %}selected{% endif %}>Economy</option>
+        <option value="premium_economy" {% if fc is not null and fc.cabinClass == "premium_economy" %}selected{% endif %}>Premium Economy</option>
+        <option value="business"        {% if fc is not null and fc.cabinClass == "business" %}selected{% endif %}>Business</option>
+        <option value="first"           {% if fc is not null and fc.cabinClass == "first" %}selected{% endif %}>First</option>
+      </select>
+    </div>
+    <div class="fc-field fc-colour-row">
+      <label for="colour">Colour</label>
+      <div class="fc-colour-wrap">
+        <input id="colour" name="colour" type="color"
+               value="{% if fc is not null %}{{ fc.colour }}{% else %}#6366f1{% endif %}"
+               class="fc-colour-input">
+        <span class="fc-colour-preview"
+              style="background:{% if fc is not null %}{{ fc.colour }}{% else %}#6366f1{% endif %}"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fc-field">
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="2"
+              placeholder="Optional notes about this fare class…">{% if fc is not null %}{{ fc.description }}{% endif %}</textarea>
+  </div>
+</fieldset>
+
+<!-- CANCELLATION AND AMENDS -->
+<fieldset class="fc-fieldset">
+  <legend>Cancellation &amp; Flexibility</legend>
+
+  <div class="fc-row-2">
+    <div class="fc-field fc-field--toggle">
+      <label>Refundable</label>
+      <label class="fc-toggle">
+        <input type="checkbox" name="refundable" value="1"
+               {% if fc is not null and fc.refundable == 1 %}checked{% endif %}>
+        <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+      </label>
+    </div>
+    <div class="fc-field">
+      <label for="cancelProtocol">Cancellation Protocol</label>
+      <input id="cancelProtocol" name="cancelProtocol" type="text" maxlength="100"
+             placeholder="e.g. free cancellation"
+             value="{% if fc is not null %}{{ fc.cancelProtocol }}{% else %}free cancellation{% endif %}">
+    </div>
+  </div>
+</fieldset>
+
+<!-- PERKS -->
+<fieldset class="fc-fieldset">
+  <legend>Perks</legend>
+
+  <div class="fc-toggles-grid">
+    <div class="fc-field fc-field--toggle">
+      <label>Advance Seat Selection</label>
+      <label class="fc-toggle">
+        <input type="checkbox" name="advanceSeatSelection" value="1"
+               {% if fc is not null and fc.advanceSeatSelection == 1 %}checked{% endif %}>
+        <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+      </label>
+    </div>
+    <div class="fc-field fc-field--toggle">
+      <label>Priority Check-in</label>
+      <label class="fc-toggle">
+        <input type="checkbox" name="priorityCheckin" value="1"
+               {% if fc is not null and fc.priorityCheckin == 1 %}checked{% endif %}>
+        <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+      </label>
+    </div>
+    <div class="fc-field fc-field--toggle">
+      <label>Priority Boarding</label>
+      <label class="fc-toggle">
+        <input type="checkbox" name="priorityBoarding" value="1"
+              {% if fc is not null and fc.priorityBoarding == 1 %}checked{% endif %}>
+        <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+      </label>
+    </div>
+    <div class="fc-field fc-field--toggle">
+      <label>Lounge Access</label>
+      <label class="fc-toggle">
+        <input type="checkbox" name="loungeAccess" value="1"
+              {% if fc is not null and fc.loungeAccess == 1 %}checked{% endif %}>
+        <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+      </label>
+    </div>
+  </div>
+</fieldset>
+
+<!-- BAGGAGE -->
+<fieldset class="fc-fieldset">
+  <legend>Baggage</legend>
+
+  <div class="fc-row-baggage">
+    <div class="fc-field fc-field--toggle">
+      <label>Carry-on Allowed</label>
+      <label class="fc-toggle">
+        <input type="checkbox" name="carryOnAllowed" value="1"
+               {% if fc is null or fc.carryOnAllowed == 1 %}checked{% endif %}>
+        <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+      </label>
+    </div>
+    <div class="fc-field">
+      <label for="carryOnWeightKg">Carry-on Limit (kg)</label>
+      <input id="carryOnWeightKg" name="carryOnWeightKg" type="number" min="0" max="50"
+             value="{% if fc is not null %}{{ fc.carryOnWeightKg }}{% else %}7{% endif %}">
+    </div>
+    <div class="fc-field">
+      <label for="checkedBaggagePieces">Checked Bags</label>
+      <input id="checkedBaggagePieces" name="checkedBaggagePieces" type="number" min="0" max="10"
+             value="{% if fc is not null %}{{ fc.checkedBaggagePieces }}{% else %}0{% endif %}">
+    </div>
+    <div class="fc-field">
+      <label for="checkedBaggageWeightKg">Checked Weight (kg)</label>
+      <input id="checkedBaggageWeightKg" name="checkedBaggageWeightKg" type="number" min="0" max="50"
+             value="{% if fc is not null %}{{ fc.checkedBaggageWeightKg }}{% else %}0{% endif %}">
+    </div>
+  </div>
+</fieldset>
+
+<!-- LOYALTY -->
+<fieldset class="fc-fieldset">
+  <legend>Loyalty &amp; Miles</legend>
+
+  <div class="fc-row-2">
+    <div class="fc-field">
+      <label for="milesEarnRate">Miles Earn Rate (multiplier)</label>
+      <input id="milesEarnRate" name="milesEarnRate" type="number" step="0.1" min="0"
+             value="{% if fc is not null %}{{ fc.milesEarnRate }}{% else %}1.0{% endif %}">
+    </div>
+    <div class="fc-field">
+      <label for="minimumMilesForBooking">Min Miles to Book</label>
+      <input id="minimumMilesForBooking" name="minimumMilesForBooking" type="number" min="0"
+             placeholder="Leave blank if N/A"
+             value="{% if fc is not null and fc.minimumMilesForBooking is not empty %}{{ fc.minimumMilesForBooking }}{% endif %}">
+    </div>
+  </div>
+</fieldset>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fare Classes</title>
+  <link rel="stylesheet" href="/static/css/Staff_Dashboard.css">
+  <link rel="stylesheet" href="/static/css/Staff_Fare_Class.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDE BAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">✈️</div>
+      <div class="brand-title">SkyFlow Staff</div>
+    </div>
+
+    <div class="nav-title">MAIN MENU</div>
+    <nav class="nav" aria-label="Staff navigation">
+      <a href="/staff/dashboard"><span class="ico" aria-hidden="true">📊</span> Operations Control</a>
+      <a href="/staff/flights"><span class="ico" aria-hidden="true">✈️</span> Flight Scheduler</a>
+      <a href="/staff/bookings"><span class="ico" aria-hidden="true">📄</span> Bookings</a>
+      <a href="/staff/inquiries"><span class="ico" aria-hidden="true">💬</span> Customer Inquiries</a>
+      <a href="/staff/notifications"><span class="ico" aria-hidden="true">🔄</span> Change Requests</a>
+      <a class="active" href="/staff/fare-class" aria-current="page">
+        <span class="ico" aria-hidden="true">📋</span> Fare Classes
+      </a>
+    </nav>
+
+    <div class="nav-title">SYSTEM</div>
+    <nav class="nav">
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a>
+      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">⚠️</span> Alert Configuration</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="logout" href="/staff/logout"><span class="ico">↩️</span> Log Out</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main" role="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="right">
+        <a class="top" href="#" data-large-font-toggle><span class="ico">🔤</span> Large Font</a>
+        <div class="profile">
+          <div class="avatar"></div>
+          <div class="name">
+            <b>{{ staffName }}</b>
+            <span>{{ staffRole }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <h1>Fare Classes</h1>
+
+      <!-- FLASH MESSAGES -->
+      {% if error is not empty %}
+        <div class="fc-alert fc-alert--error" role="alert">⚠ {{ error }}</div>
+      {% endif %}
+      {% if ok is not empty %}
+        <div class="fc-alert fc-alert--ok" role="status">✓ {{ ok }}</div>
+      {% endif %}
+
+      <!-- Two column layout -->
+      <div class="fc-layout">
+        
+        <!-- RIGHT COLUMN: create / edit form -->
+        <section class="panel fc-form-panel">
+  
+          {% if editId > 0 %}
+            <!-- EDIT FORM -->
+            {% for fcItem in fareClasses %}
+              {% if fcItem.id == editId %}
+                <h2>Edit Fare Class <code>{{ fcItem.classCode }}</code></h2>
+                <form method="post" action="/staff/fare-class/update" class="fc-form" novalidate>
+                  <input type="hidden" name="id" value="{{ fcItem.id }}">
+                  {% set fc = fcItem %}
+                  {% set isEdit = true %}
+                  {% include "fare_class_fields.peb" %}
+                  <div class="fc-form-actions">
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                    <a href="/staff/fare-class" class="btn-ghost">Cancel</a>
+                  </div>
+                </form>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <!-- CREATE FORM -->
+            <h2>Create New Fare Class</h2>
+            <form method="post" action="/staff/fare-class/create" class="fc-form" novalidate>
+              {% set fc = null %}
+              {% set isEdit = false %}
+              {% include "fare_class_fields.peb" %}
+              <div class="fc-form-actions">
+                <button type="submit" class="btn-primary">Create Fare Class</button>
+              </div>
+            </form>
+          {% endif %}
+  
+        </section>
+        
+        <!-- LEFT COLUMN: existing fare classes table -->
+        <section class="panel fc-list-panel">
+          <h2>Existing Fare Classes</h2>
+          {% if fareClasses is not empty %}
+            <div class="fc-table-wrap">
+              <table class="fc-table">
+                <thead>
+                  <tr>
+                    <th>Colour</th>
+                    <th>Code</th>
+                    <th>Display Name</th>
+                    <th>Cabin</th>
+                    <th>Price Mult.</th>
+                    <th>Baggage</th>
+                    <th>Perks</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for fc in fareClasses %}
+                  <tr class="fc-row {% if editId == fc.id %}fc-row--editing{% endif %}">
+                    <td>
+                      <span class="fc-colour-dot" style="background:{{ fc.colour }}" title="{{ fc.colour }}"></span>
+                    </td>
+                    <td><code class="fc-code">{{ fc.classCode }}</code></td>
+                    <td>{{ fc.displayName }}</td>
+                    <td>
+                      <span class="fc-cabin fc-cabin--{{ fc.cabinClass | lower }}">{{ fc.cabinClass }}</span>
+                    </td>
+                    <td>×{{ fc.milesEarnRate }}</td>
+                    <td>
+                      {% if fc.checkedBaggagePieces > 0 %}
+                        {{ fc.checkedBaggagePieces }}×{{ fc.checkedBaggageWeightKg }}kg
+                      {% else %}
+                        <span class="muted">None</span>
+                      {% endif %}
+                    </td>
+                    <td class="fc-perks">
+                      {% if fc.advanceSeatSelection == 1 %}<span class="perk" title="Advance seat selection">💺</span>{% endif %}
+                      {% if fc.priorityCheckin == 1 %}<span class="perk" title="Priority check-in">🏷</span>{% endif %}
+                      {% if fc.priorityBoarding == 1 %}<span class="perk" title="Priority boarding">🚪</span>{% endif %}
+                      {% if fc.loungeAccess == 1 %}<span class="perk" title="Lounge access">🛋</span>{% endif %}
+                    </td>
+                    <td class="fc-actions">
+                      <a class="btn-edit" href="/staff/fare-class?edit={{ fc.id }}">Edit</a>
+                      <form method="post" action="/staff/fare-class/delete" onsubmit="return confirm('Delete this fare class?')">
+                        <input type="hidden" name="id" value="{{ fc.id }}">
+                        <button type="submit" class="btn-del">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted">No fare classes yet. Create one using the form →</p>
+          {% endif %}
+        </section>
+
+      </div>
+
+      <div class="bottom">
+        <div>Signed in as <b>{{ staffEmail }}</b></div>
+        <div class="links">
+          <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Operational Policy</a>
+          <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Help Desk</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include "footer.peb" %}
+
+<script src="/static/javascript/Large_Font.js"></script>
+<script>
+  document.querySelectorAll('input[name="colour"]').forEach(function(input) {
+    var dot = input.closest('.fc-colour-row')?.querySelector('.fc-colour-preview');
+    if (!dot) return;
+    input.addEventListener('input', function() { dot.style.background = this.value; });
+  });
+</script>
+</body>
+</html>

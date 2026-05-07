@@ -16,6 +16,7 @@ import com.flightbooking.routes.paymentRoutes
 import com.flightbooking.routes.seatSelectionRoutes
 import com.flightbooking.routes.staffAuthRoutes
 import com.flightbooking.routes.staffBookingsRoutes
+import com.flightbooking.routes.staffFareClassRoutes
 import com.flightbooking.routes.staffInquiriesRoutes
 import com.flightbooking.routes.staffNotificationsRoutes
 import com.flightbooking.routes.staffPagesRoutes
@@ -182,5 +183,6 @@ private fun Application.registerRoutes() {
         confirmationRoutes()
         complaintsRoutes()
         staffInquiriesRoutes()
+        staffFareClassRoutes()
     }
 }

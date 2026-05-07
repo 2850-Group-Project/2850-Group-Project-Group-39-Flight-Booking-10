@@ -69,6 +69,7 @@ object FareClassTable : Table("fare_class") {
     val description = text("description").nullable()
     val createdAt = varchar("created_at", STANDARD_FIELD_LENGTH)
     val updatedAt = varchar("updated_at", STANDARD_FIELD_LENGTH)
+    val colour = varchar("colour", SHORT_FIELD_LENGTH).default("#6366f1")
 
     override val primaryKey = PrimaryKey(id)
 }

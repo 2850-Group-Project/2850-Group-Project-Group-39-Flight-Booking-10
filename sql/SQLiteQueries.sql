@@ -26,9 +26,10 @@
 -- complaint_response
 
 -- select * from complaint_response;
-select * from flight_fare where flight_id = 999992;
-select * from flight_fare;
+select * from fare_class;
 
+ALTER TABLE fare_class ADD COLUMN colour TEXT DEFAULT '#6366f1';
+select * from fare_class;
 
 -- CREATE TABLE IF NOT EXISTS user_points (
 --     user_points_id INTEGER PRIMARY KEY AUTOINCREMENT,
