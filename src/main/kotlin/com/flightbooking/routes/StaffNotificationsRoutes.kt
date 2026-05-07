@@ -219,6 +219,13 @@ private fun mapChangeRequestRow(
     )
 }
 
+/**
+ * Formats an ISO-style date-time string into a simplified display format.
+ * Milliseconds are removed and the `T` separator is replaced with a space.
+ *
+ * @receiver ISO-style date-time string.
+ * @return Formatted date-time string without milliseconds.
+ */
 private fun String.truncateDateTime(): String =
     this.substringBefore("T").let { date ->
         val time = this.substringAfter("T").substringBefore(".")
