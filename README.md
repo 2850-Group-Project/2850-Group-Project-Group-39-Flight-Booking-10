@@ -4,10 +4,10 @@
 
 ## Team Members
 
-- Weiming Chen
-- Patrick N. Butuza
-- Ephraim G. Chen
-- Dima Ivanovs
+- Weiming Chen (fy23wc@leeds.ac.uk)
+- Patrick N. Butuza (zfxf6456@leeds.ac.uk)
+- Ephraim G. Chen (cqmh5568@leeds.ac.uk)
+- Dima Ivanovs (ed20d2i@leeds.ac.uk)
 
 A Kotlin/Ktor web application for searching flights, booking seats, taking payments, managing loyalty points, and supporting staff workflows for a flight booking service.
 
