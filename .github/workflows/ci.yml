@@ -8,7 +8,7 @@ on:
 
 jobs:
   ktlint-detekt:
-    name: ktlint-detekt
+    name: ktlint-detekt-test
     runs-on: ubuntu-latest
 
     steps:
