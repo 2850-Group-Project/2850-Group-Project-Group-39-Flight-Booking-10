@@ -129,12 +129,13 @@ private suspend fun handlePostFareClassCreate(call: ApplicationCall) {
     val p = call.receiveParameters()
     val classCode = p["classCode"]?.trim()
 
-    val validationError = when {
-        classCode.isNullOrBlank() -> "Class+code+is+required"
+    val validationError =
+        when {
+            classCode.isNullOrBlank() -> "Class+code+is+required"
             FareClassTableAccess().getAll().any { it.classCode == classCode } ->
-                "Class+code+%27${classCode}%27+already+exists"
-        else -> null
-    }
+                "Class+code+%27$classCode%27+already+exists"
+            else -> null
+        }
 
     if (validationError != null) {
         call.respondRedirect("/staff/fare-class?error=$validationError")
@@ -149,7 +150,11 @@ private suspend fun handlePostFareClassCreate(call: ApplicationCall) {
             cabinClass = p["cabinClass"]?.trim()?.ifBlank { null },
             displayName = p["displayName"]?.trim()?.ifBlank { null },
             refundable = flag(p, "refundable"),
-            cancelProtocol = p["cancelProtocol"]?.trim()?.ifBlank { DEFAULT_CANCEL_PROTOCOL } ?: DEFAULT_CANCEL_PROTOCOL,
+            cancelProtocol =
+                p["cancelProtocol"]
+                    ?.trim()
+                    ?.ifBlank { DEFAULT_CANCEL_PROTOCOL }
+                    ?: DEFAULT_CANCEL_PROTOCOL,
             advanceSeatSelection = flag(p, "advanceSeatSelection"),
             priorityCheckin = flag(p, "priorityCheckin"),
             priorityBoarding = flag(p, "priorityBoarding"),
