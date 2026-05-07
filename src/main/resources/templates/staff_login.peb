@@ -41,7 +41,9 @@
 
     <main class="panel">
       <div class="card">
-        <a class="toplink" href="/login">Back To User Login</a >
+        <div class="back-to-user">
+          <a href="/login">← Back To User Login</a >
+        </div>
         <h2>Staff Sign In</h2>
         <p class="sub">Enter your staff email and password to continue.</p >
 
