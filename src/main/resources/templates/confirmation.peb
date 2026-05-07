@@ -74,6 +74,15 @@
           <span>Departure</span>
           <strong>{{ bookingSession.search.departureDate }}</strong>
         </div>
+
+        {% for entry in seatSelectionSession.seats %}
+          {% if entry.leg == "outbound" %}
+          <div class="row">
+            <span>{{ entry.passengerFirstName }} {{ entry.passengerLastName }}</span>
+            <strong>Seat {{ entry.seatCode }} — £{{ entry.seatCost }}</strong>
+          </div>
+          {% endif %}
+        {% endfor %}
       </div>
 
       <!-- RETURN: ONLY IF IT EXISTS -->
@@ -95,6 +104,15 @@
           <span>Return Date</span>
           <strong>{{ bookingSession.search.returnDate }}</strong>
         </div>
+
+        {% for entry in seatSelectionSession.seats %}
+          {% if entry.leg == "return" %}
+          <div class="row">
+            <span>{{ entry.passengerFirstName }} {{ entry.passengerLastName }}</span>
+            <strong>Seat {{ entry.seatCode }} — £{{ entry.seatCost }}</strong>
+          </div>
+          {% endif %}
+        {% endfor %}
       </div>
       {% endif %}
 

@@ -348,7 +348,6 @@ private suspend fun submitSeatSelection(
     val bookingTotal = params["bookingTotal"]?.toDoubleOrNull() ?: 0.0
 
     val seatAccess = SeatTableAccess()
-
     val seatRows = seatAccess.getByAttribute(SeatTable.flightId, flightId)
     val seatMap = seatRows.associateBy { it.seatCode }
     val validateSeatsError = validateSeats(selectedSeats, seatMap)
@@ -359,11 +358,10 @@ private suspend fun submitSeatSelection(
     }
 
     val bookingSegmentId = createBookingSegment(bookingSession, flightId)
-
     val seatEntries = assignSeats(selectedSeats, seatMap, bookingSegmentId, leg)
-    println(seatEntries)
-    val seatSelectionSession = SeatSelectionSession(seats = seatEntries)
-    call.sessions.set(seatSelectionSession)
+
+    val existingSession = call.sessions.get<SeatSelectionSession>() ?: SeatSelectionSession()
+    call.sessions.set(SeatSelectionSession(seats = existingSession.seats + seatEntries))
 
     val currentSession = call.sessions.get<BookingSession>() ?: bookingSession
     val updatedSession =

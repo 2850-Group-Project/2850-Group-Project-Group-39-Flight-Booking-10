@@ -47,6 +47,9 @@ import io.ktor.server.sessions.set
 import io.pebbletemplates.pebble.loader.ClasspathLoader
 import org.slf4j.event.Level
 import java.io.IOException
+import io.ktor.server.sessions.SessionSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 import java.sql.SQLException
 
 /**
@@ -123,9 +126,18 @@ private fun Application.configureServer() {
             cookie.httpOnly = true
         }
 
-        cookie<SeatSelectionSession>("SEAT_SELECTION") {
+        cookie<SeatSelectionSession>("SEAT_SELECTION", storage = SessionStorageMemory()) {
             cookie.path = "/"
             cookie.httpOnly = true
+
+            // Used Claude AI to generate serializer for seat selection
+            serializer = object : SessionSerializer<SeatSelectionSession> {
+                val json = Json { ignoreUnknownKeys = true }
+                override fun serialize(session: SeatSelectionSession): String =
+                    json.encodeToString(SeatSelectionSession.serializer(), session)
+                override fun deserialize(text: String): SeatSelectionSession =
+                    json.decodeFromString(SeatSelectionSession.serializer(), text)
+            }
         }
 
         cookie<BookingSession>("BOOKING_SESSION", storage = SessionStorageMemory()) {
