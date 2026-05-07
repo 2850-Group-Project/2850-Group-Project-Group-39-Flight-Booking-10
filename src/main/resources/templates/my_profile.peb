@@ -93,7 +93,7 @@
                 {% if membershipStatus == 'Gold' %}
                   100%
                 {% else %}
-                  {{ ((totalEarned * 100) / nextMilestone) | round }}%
+                  {{ (((totalEarned * 100) / nextMilestone)) | numberformat("0") }}%
                 {% endif %}
               </span>
             </div>
