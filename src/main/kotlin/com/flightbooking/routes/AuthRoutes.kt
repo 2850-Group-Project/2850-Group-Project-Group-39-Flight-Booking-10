@@ -66,8 +66,6 @@ fun Route.authRoutes() {
             val userTable = UserTableAccess()
             val userData = userTable.findByEmail(email)
 
-            print(userData)
-
             if (userData == null) {
                 call.respondRedirect("/login")
                 return@post

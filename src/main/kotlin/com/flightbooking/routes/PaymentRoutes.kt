@@ -81,11 +81,7 @@ private suspend fun handlePostPayment(call: ApplicationCall) {
 
     val params = call.receiveParameters()
     val cardNumber = params["cardNumber"]?.trim()
-    // val expiry = params["expiry"]?.trim()
-    // val cvv = params["cvv"]?.trim()
     var finalTotal = calculateTotal(bookingSession)
-
-    // println("Expiry: $expiry\nCVV: $cvv")
 
     val pointsToRedeem = params["pointsToRedeem"]?.toIntOrNull() ?: 0
 

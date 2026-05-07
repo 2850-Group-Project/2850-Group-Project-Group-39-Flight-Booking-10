@@ -32,6 +32,10 @@ private const val LARGE_FIRST_AISLE_GAP_INDEX = 3
 private const val LARGE_SECOND_AISLE_GAP_INDEX = 7
 private const val SMALL_SEATS_PER_ROW = 6
 private const val MEDIUM_SEATS_PER_ROW = 8
+
+/**
+ * Capacity threshold used as the default narrow-body seat layout.
+ */
 const val SMALL_AIRCRAFT_CAP_THRESHOLD = 180
 private const val MEDIUM_AIRCRAFT_CAP_THRESHOLD = 350
 
@@ -62,6 +66,9 @@ data class SeatLayout(
     val letters: List<String>,
     val aisleGapsAfterIndex: Set<Int>,
 ) {
+    /**
+     * Returns the seat position label for a zero-based seat index in the row.
+     */
     fun positionFor(index: Int): String {
         return when {
             index == 0 -> "window"
