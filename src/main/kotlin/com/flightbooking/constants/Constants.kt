@@ -178,7 +178,7 @@ const val MIN_SEATS_AVAILABLE = 5
 /**
  * Search window size around a requested flight date.
  */
-const val DAYS_BEFORE_AND_AFTER_TO_SHOW: Long = 5
+const val DAYS_BEFORE_AND_AFTER_TO_SHOW: Long = 3
 
 /**
  * Upper limit for generated timestamp day offsets.
