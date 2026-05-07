@@ -98,7 +98,9 @@
     flex: 0 1 140px;
 }
 
-.field-group label {
+.field-group label,
+.field-group .field-label {
+    display: block;
     font-size: 10px;
     font-weight: 700;
     color: rgba(255,255,255,.90);

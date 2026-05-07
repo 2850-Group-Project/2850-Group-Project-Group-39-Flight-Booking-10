@@ -15,14 +15,14 @@
       <span class="brand-title">SkyFlow</span>
     </a>
     <div class="nav-right">
-      <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
+      <button type="button" class="btn-ghost" data-large-font-toggle>Large Font</button>
       <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
       <a href="/profile" class="btn-primary">My Account</a>
     </div>
   </nav>
 
   <!-- MAIN BODY -->
-  <div class="error-page">
+  <main class="error-page">
     <div class="error-code">404</div>
     <h1 class="error-title">This page doesn't exist</h1>
     <p class="error-sub">The page you're looking for couldn't be found 😔</p>
@@ -30,7 +30,7 @@
       <a href="/home" class="btn-primary">Back to home</a>
       <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
     </div>
-  </div>
+  </main>
 
   <!-- FOOTER -->
   <footer>

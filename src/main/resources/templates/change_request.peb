@@ -9,14 +9,14 @@
 </head>
 <body>
   <!-- MAIN BODY -->
-  <div class="wrap">
+  <main class="wrap">
     <div class="topbar">
       <div class="brand">
         <div class="brand-badge">✈</div>
         <div>SkyFlow</div>
       </div>
       <div class="right">
-        <a class="navbtn" href="#" data-large-font-toggle>Large Font</a >
+        <button class="navbtn" type="button" data-large-font-toggle>Large Font</button>
         <span class="pill">{{ userSession.firstName }} • {{ userSession.userEmail }}</span>
         <a class="navbtn" href="/profile/bookings">← My Bookings</a >
         <a class="navbtn red" href="/logout">Logout</a >
@@ -96,7 +96,7 @@
 
       <!-- RIGHT: SEARCH FLIGHTS + SELECT -->
       <div class="card">
-        <h1>Flight Search</h1>
+        <h2>Flight Search</h2>
         <p class="sub">Search by flight number and pick a new flight. Seats shown on the left update after selecting a flight.</p >
 
         <form action="/profile/bookings/change" method="get" class="row" style="margin-top:10px;">
@@ -117,7 +117,7 @@
                 <th>Departure</th>
                 <th>Arrival</th>
                 <th>Status</th>
-                <th></th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -147,7 +147,7 @@
         {% endif %}
       </div>
     </div>
-  </div>
+  </main>
 
   <!-- FOOTER -->
   <footer>

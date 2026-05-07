@@ -119,6 +119,16 @@ Run detekt:
 ./gradlew detekt
 ```
 
+Run the axe-core accessibility check against a running local app:
+
+```bash
+npm install
+./gradlew run
+npm run a11y:axe
+```
+
+If Playwright has not installed a browser yet, run `npx playwright install chromium`. The check uses `APP_BASE_URL` when provided and otherwise targets `http://127.0.0.1:8080`. Set `CHROME_PATH` to use an existing local Chrome binary.
+
 The GitHub Actions workflow in `.github/workflows/ci.yml` runs ktlint and detekt on pushes and pull requests to `main`.
 
 ## Application Structure

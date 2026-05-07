@@ -17,7 +17,7 @@
       <span class="brand-title">SkyFlow</span>
     </a >
     <div class="nav-right">
-      <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
+      <button type="button" class="btn-ghost" data-large-font-toggle>Large Font</button>
       <a href="/home" class="btn-ghost">Search</a >
       <a href="/profile" class="btn-primary">My Profile</a >
       <a href="/logout" class="btn-danger">Logout</a >
@@ -25,7 +25,7 @@
   </nav>
 
   <!-- MAIN BOOKINGS -->
-  <div class="wrap">
+  <main class="wrap">
     <div class="page-top">
       <div>
         <h1>My Bookings</h1>
@@ -129,7 +129,7 @@
 
                       <!-- Used Claude AI to generate syntax for openSeatModal params, lines 138-150 -->
                       <div class="seg-right">
-                        <span class="mini-pill" style="cursor:pointer;"
+                        <button class="mini-pill" type="button"
                           onclick="openSeatModal(
                             '{% if seg.originName %}{{ seg.originName }}{% else %}{{ seg.originIata }}{% endif %}',
                             '{% if seg.destName %}{{ seg.destName}}{% else %}{{ seg.destIata }}{% endif %}',
@@ -142,7 +142,7 @@
                             '{{ seg.passengers }}'
                           )">
                           View Ticket
-                        </span>
+                        </button>
                       </div>
                     </div>
                   {% endfor %}
@@ -155,7 +155,7 @@
       </div>
     {% endif %}
 
-  </div>
+  </main>
 
   <!-- CANCEL CONFIRMATION POPUP -->
   <div class="modal-backdrop" id="cancelModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="cancelModalTitle" aria-describedby="cancelModalDescription" tabindex="-1">

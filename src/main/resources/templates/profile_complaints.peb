@@ -15,13 +15,13 @@
     <span class="brand-title">SkyFlow</span>
   </a>
   <div class="nav-right">
-      <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
+      <button type="button" class="btn-ghost" data-large-font-toggle>Large Font</button>
     <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
     <a href="/profile" class="btn-primary">My Account</a>
   </div>
 </nav>
 
-<div class="wrap">
+<main class="wrap">
 
   <div class="page-top">
     <div>
@@ -95,7 +95,7 @@
     </div>
   {% endif %}
 
-</div>
+</main>
 
 <!-- FOOTER -->
 <footer>

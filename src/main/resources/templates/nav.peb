@@ -4,7 +4,7 @@
         <span class="brand-title">SkyFlow</span>
     </a>
     <div class="nav-right">
-        <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
+        <button type="button" class="btn-ghost" data-large-font-toggle>Large Font</button>
         <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
         <a href="/profile" class="btn-primary">My Account<span class="notif-dot {% if unreadCount > 0 %}unread{% endif %}"></span></a>
     </div>

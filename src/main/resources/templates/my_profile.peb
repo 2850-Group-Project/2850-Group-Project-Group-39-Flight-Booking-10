@@ -17,7 +17,7 @@
     </a >
     <div class="nav-right">
       <span class="pill">{{ userSession.firstName }} - {{ userSession.userEmail }}</span>
-      <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
+      <button type="button" class="btn-ghost" data-large-font-toggle>Large Font</button>
       <a href="/home" class="btn-ghost">Search</a >
       <a href="/profile/bookings" class="btn-ghost">My Bookings</a >
       <a href="/logout" class="btn-primary">Log Out</a >

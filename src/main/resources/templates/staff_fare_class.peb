@@ -30,7 +30,7 @@
     </nav>
 
     <div class="nav-title">SYSTEM</div>
-    <nav class="nav">
+    <nav class="nav" aria-label="Staff system links">
       <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a>
       <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">⚠️</span> Alert Configuration</a>
     </nav>
@@ -46,7 +46,7 @@
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="right">
-        <a class="top" href="#" data-large-font-toggle><span class="ico">🔤</span> Large Font</a>
+        <button class="top" type="button" data-large-font-toggle><span class="ico">🔤</span> Large Font</button>
         <div class="profile">
           <div class="avatar"></div>
           <div class="name">
@@ -121,7 +121,7 @@
                     <th>Price Mult.</th>
                     <th>Baggage</th>
                     <th>Perks</th>
-                    <th></th>
+                    <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>

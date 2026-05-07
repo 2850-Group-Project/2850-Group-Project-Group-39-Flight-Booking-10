@@ -15,7 +15,7 @@
     <div class="top-actions">
       <span>Already have an account?</span>
       <a href="/login">Log In</a >
-      <a href="#" data-large-font-toggle>Large Font</a >
+      <button type="button" data-large-font-toggle>Large Font</button>
     </div>
   </header>
 

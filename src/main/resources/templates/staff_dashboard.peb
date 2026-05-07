@@ -39,7 +39,7 @@
     </nav>
 
     <div class="nav-title">SYSTEM</div>
-    <nav class="nav">
+    <nav class="nav" aria-label="Staff system links">
       <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">⚙️</span> Global Settings</a>
       <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">⚠️</span> Alert Configuration</a>
     </nav>
@@ -53,7 +53,7 @@
   <div class="main" role="main">
     <header class="topbar">
       <div class="right">
-        <a class="top" href="#" data-large-font-toggle><span class="ico">🔤</span> Large Font</a>
+        <button class="top" type="button" data-large-font-toggle><span class="ico">🔤</span> Large Font</button>
         <div class="profile">
           <div class="avatar"></div>
           <div class="name">
@@ -108,8 +108,8 @@
           <tbody>
             {% if flights is not empty %}
               {% for f in flights %}
-                <tr onclick="window.location.href='/staff/flights?q={{ f.no }}'" style="cursor:pointer;">
-                  <td><b>{{ f.no }}</b></td>
+                <tr>
+                  <td><a href="/staff/flights?q={{ f.no }}"><b>{{ f.no }}</b></a></td>
                   <td>{{ f.dest }}</td>
                   <td>{{ f.depatureDate }}</td>
                   <td>{{ f.depatureTime }}</td>
@@ -133,7 +133,7 @@
         <div class="bottom">
           <div>Signed in as <b>{{ staffEmail }}</b></div>
           <div class="links">
-            <a href=" " aria-disabled="true" tabindex="-1" onclick="return false;">Operational Policy</a >
+            <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Operational Policy</a >
             <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Help Desk</a >
           </div>
         </div>
