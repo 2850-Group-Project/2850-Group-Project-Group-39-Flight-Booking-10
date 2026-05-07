@@ -12,10 +12,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-const val RAND_CABIN_UPPER: Int = 100
-const val RAND_CABIN_BUSINESS_UPPER: Int = 6
-const val RAND_CABIN_PREMIUM_ECONOMY_UPPER: Int = 20
-
 /**
  * Class instance for using BookingSegment table
  */

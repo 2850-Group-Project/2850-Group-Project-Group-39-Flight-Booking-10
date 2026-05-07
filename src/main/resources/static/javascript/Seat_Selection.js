@@ -130,9 +130,9 @@ function updateUI() {
   var assignedCountEl = document.getElementById('fare-assigned-count');
 
   if (summaryEl && totalEl) {
-    var currency = summaryEl.getAttribute("data-currency");
-    var baseFare = parseFloat(summaryEl.getAttribute("data-price"));
-    runningTotal = 0
+    var currency = summaryEl.getAttribute('data-currency');
+    var baseFare = parseFloat(summaryEl.getAttribute('data-price'));
+    runningTotal = 0;
 
     var keys = Object.keys(seatSelections);
     for (var i = 0; i < keys.length; i++) {
@@ -140,12 +140,12 @@ function updateUI() {
       if (!seatCode) continue;
 
       var seatBtn = document.querySelector('[data-seat-code="' + seatCode + '"]');
-        var seatPrice = seatBtn ? parseFloat(seatBtn.getAttribute("data-price")?.replace("£", "")) : NaN;
-        runningTotal += isNaN(seatPrice) ? baseFare : seatPrice;
+      var seatPrice = seatBtn ? parseFloat(seatBtn.getAttribute('data-price')?.replace('£', '')) : NaN;
+      runningTotal += isNaN(seatPrice) ? baseFare : seatPrice;
     }
 
-    totalEl.textContent = currency + " " + runningTotal.toFixed(2);
-    assignedCountEl.textContent = assigned + " / " + totalPassengers;
+    totalEl.textContent = currency + ' ' + runningTotal.toFixed(2);
+    assignedCountEl.textContent = assigned + ' / ' + totalPassengers;
   }
 }
 
@@ -154,8 +154,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Set the correct form action based on which leg this page is for
   var form = document.getElementById('seat-form');
-  console.log('DEBUG leg from form:', form.getAttribute('data-leg'));
-  console.log('DEBUG form action:', form.action);
   var leg = form.getAttribute('data-leg');
   if (leg === 'return') {
     form.action = '/flights/seats/return';

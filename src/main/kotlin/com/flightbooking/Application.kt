@@ -91,7 +91,6 @@ private fun Application.configureServer() {
         }
         // any other 500 error (server error)
         exception<Throwable> { call, cause ->
-            cause.printStackTrace()
             call.application.log.error("Unhandled exception", cause)
             call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
         }
@@ -159,7 +158,7 @@ private fun Application.registerRoutes() {
     routing {
         staticResources("/static", "static") // allows easy stylesheet reference (like pebble "templates" prefix)
 
-        // to do: WE NEED TO MOVE THESE AWAY
+        // Root route keeps unauthenticated visitors on the login page.
         get("/") {
             call.respondRedirect("/login")
         }

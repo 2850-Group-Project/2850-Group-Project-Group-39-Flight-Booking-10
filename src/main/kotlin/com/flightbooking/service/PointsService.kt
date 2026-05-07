@@ -16,6 +16,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object PointsService {
     private val pointsTable = PointsTableAccess()
 
+    /**
+     * Returns the user's current points balance, or zero when no points row exists yet.
+     */
     fun getBalance(userId: Int): Int = pointsTable.getBalance(userId)?.balance ?: 0
 
     /**

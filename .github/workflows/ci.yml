@@ -8,7 +8,7 @@ on:
 
 jobs:
   ktlint-detekt:
-    name: ktlint-detekt
+    name: ktlint-detekt-test
     runs-on: ubuntu-latest
 
     steps:
@@ -30,3 +30,6 @@ jobs:
 
       - name: Run detekt
         run: ./gradlew detekt
+
+      - name: Run tests
+        run: ./gradlew test

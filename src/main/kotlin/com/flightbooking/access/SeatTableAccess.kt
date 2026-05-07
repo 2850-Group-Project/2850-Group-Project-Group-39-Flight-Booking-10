@@ -12,14 +12,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-const val DEFAULT_FLIGHT_CAPACITY: Int = 150
-const val BUSINESS_ROWS_UPPER_LIMIT: Int = 5
-const val PREMIUM_ROWS_UPPER_LIMIT: Int = 9
-const val PREMIUM_ROWS_LOWER_LIMIT: Int = 6
-const val ECONOMY_ROWS_DENOMINATOR: Float = 6.0f
-const val EXIT_ROW_OFFSET_1: Int = 4
-const val EXIT_ROW_OFFSET_2: Int = 5
-
 /**
  * Class instance for using seat table
  */

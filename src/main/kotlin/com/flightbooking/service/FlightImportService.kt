@@ -9,7 +9,7 @@ import com.flightbooking.tables.FlightTable
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-const val FLIGHT_IMPORT_LIMIT: Int = 100
+private const val FLIGHT_IMPORT_LIMIT: Int = 100
 
 /**
  * Service object for flight importing and other functions used
