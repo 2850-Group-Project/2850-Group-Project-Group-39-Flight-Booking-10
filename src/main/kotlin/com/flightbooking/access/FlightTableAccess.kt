@@ -152,6 +152,9 @@ class FlightTableAccess {
                 .filter { row -> row.getOrNull(FlightFareTable.id) != null }
                 .groupBy { it[FlightTable.id] }
                 .map { (_, rows) -> mapFlightWithFares(rows, originAirport, destinationAirport) }
+                .sortedBy { flight ->
+                    flight.fares.minOfOrNull { it.price }
+                }
         }
     }
 
