@@ -13,6 +13,9 @@ import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
+import kotlin.math.roundToInt
+
+private const val ROUNDING_MULTIPLIER = 100.0
 
 /**
  * Confirmation page routes
@@ -26,7 +29,7 @@ fun Route.confirmationRoutes() {
         val (_, userId) = AuthService.requireUser(call) ?: return@get
         val bookingSession = AuthService.requireBooking(call) ?: return@get
 
-        val totalPrice = bookingSession.totalPrice
+        val totalPrice = (bookingSession.totalPrice * ROUNDING_MULTIPLIER).roundToInt() / ROUNDING_MULTIPLIER
 
         val membershipStatus = PointsService.getUserPointsRow(userId)?.membershipStatus ?: "Bronze"
         val pointsEarned =
