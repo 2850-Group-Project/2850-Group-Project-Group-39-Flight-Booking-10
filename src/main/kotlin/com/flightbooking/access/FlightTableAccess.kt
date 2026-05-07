@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.neq
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
@@ -101,7 +102,7 @@ class FlightTableAccess {
     }
 
     /**
-     * Returns flights within ±5 days of [date] between [originCode] and [destinationCode],
+     * Returns flights within ±3 days of [date] between [originCode] and [destinationCode],
      * grouped by flight with all available fares attached.
      *
      * @param originCode origin IATA code
@@ -143,7 +144,8 @@ class FlightTableAccess {
                     (originAirport[AirportTable.iataCode] eq originCode) and
                         (destinationAirport[AirportTable.iataCode] eq destinationCode) and
                         (FlightTable.scheduledDepartureTime greaterEq dateFrom) and
-                        (FlightTable.scheduledDepartureTime lessEq dateTo)
+                        (FlightTable.scheduledDepartureTime lessEq dateTo) and
+                        (FlightTable.status neq "cancelled")
                 }
                 .toList()
                 .filter { row -> row.getOrNull(FlightFareTable.id) != null }

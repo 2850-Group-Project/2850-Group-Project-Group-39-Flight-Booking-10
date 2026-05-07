@@ -1,6 +1,7 @@
 package com.flightbooking.routes
 
 import com.flightbooking.access.AirportTableAccess
+import com.flightbooking.access.BookingTableAccess
 import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.access.FlightFareTableAccess
 import com.flightbooking.access.FlightTableAccess
@@ -12,7 +13,6 @@ import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FlightTable
-import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import io.ktor.server.application.ApplicationCall
@@ -28,7 +28,6 @@ import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
@@ -111,13 +110,20 @@ private fun buildSeatMapData(flightId: Int): SeatMapData {
 
     val seatStatusByCode =
         transaction {
+            val flightSeatIds = seats.map { it.id }.toSet()
             val assignedSeatIds =
                 SeatAssignmentTable
                     .select { SeatAssignmentTable.seatId.isNotNull() }
                     .mapNotNull { it[SeatAssignmentTable.seatId] }
+                    .filter { it in flightSeatIds } // only check seats for this flight
                     .toSet()
             seats.associate { seat ->
-                seat.seatCode to if (seat.id in assignedSeatIds) "occupied" else "available"
+                seat.seatCode to
+                    when {
+                        seat.id in assignedSeatIds -> "occupied"
+                        seat.status == "occupied" -> "occupied"
+                        else -> "available"
+                    }
             }
         }
 
@@ -157,12 +163,7 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
             FlightFareTableAccess().getByAttribute(FlightFareTable.id, it).firstOrNull()
         }
 
-    val passengers =
-        transaction {
-            PassengerTable
-                .select { PassengerTable.bookingId eq params.bookingSession.bookingId }
-                .map { row -> passengersMapper(row) }
-        }
+    val passengers = BookingTableAccess().getPassengersForBooking(params.bookingSession.bookingId)
 
     val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
     val seatMapData = buildSeatMapData(flight.id)
@@ -202,8 +203,22 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
     return base.toMutableMap().apply {
         put("hasReturnFlight", params.bookingSession.returnFlightId != null)
         put("leg", params.leg)
+        put(
+            "cabinColours",
+            seatMapData.cabinColourMap.map { (name, colour) ->
+                mapOf("name" to formatCabinName(name), "colour" to colour)
+            },
+        )
     }
 }
+
+/**
+ * Formats cabin class name
+ * @param name
+ * @return the name fixed
+ */
+private fun formatCabinName(name: String): String =
+    name.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar(Char::titlecase) }
 
 /**
  * Retrieves the display colour associated with each cabin class for a flight.
@@ -354,18 +369,6 @@ private suspend fun submitSeatSelection(
     call.sessions.set(updatedSession)
     call.respondRedirect(redirectTo)
 }
-
-/**
- * Mapper function for Exposed's result row to kotlin usable format
- * @param row result row
- * @return mapped passenger
- */
-private fun passengersMapper(row: ResultRow) =
-    mapOf(
-        "id" to row[PassengerTable.id],
-        "firstName" to row[PassengerTable.firstName],
-        "lastName" to row[PassengerTable.lastName],
-    )
 
 /**
  * Parameters for building the seat page model.

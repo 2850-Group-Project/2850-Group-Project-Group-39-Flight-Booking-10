@@ -4,6 +4,7 @@ import com.flightbooking.mappers.toBooking
 import com.flightbooking.models.Booking
 import com.flightbooking.models.BookingSession
 import com.flightbooking.tables.BookingTable
+import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.UserTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -128,5 +129,22 @@ class BookingTableAccess {
                     stmt[column] = value
                 }
             rows > 0
+        }
+
+    /**
+     * Searches passenger table for bookingId
+     * @param bookingId
+     */
+    fun getPassengersForBooking(bookingId: Int): List<Map<String, Any>> =
+        transaction {
+            PassengerTable
+                .select { PassengerTable.bookingId eq bookingId }
+                .map { row ->
+                    mapOf<String, Any>(
+                        "id" to row[PassengerTable.id],
+                        "firstName" to (row[PassengerTable.firstName] ?: ""),
+                        "lastName" to (row[PassengerTable.lastName] ?: ""),
+                    )
+                }
         }
 }
