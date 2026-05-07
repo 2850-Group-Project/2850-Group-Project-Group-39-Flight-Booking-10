@@ -166,6 +166,25 @@ nav {
   box-shadow: 0 6px 24px rgba(63,94,251,.45); 
 }
 
+.btn-danger{
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,77,77,.28);
+  background: rgba(255,77,77,.12);
+  color: rgba(255,255,255,.92);
+  text-decoration:none;
+  font-weight:900;
+  transition:.18s ease;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  font-size: 13px;
+  gap:8px;
+  user-select:none;
+  white-space:nowrap;
+}
+.btn-danger:hover{ background: rgba(255,77,77,.18); transform: translateY(-1px); }
+
 /* -- HERO -- */
 .hero {
   display: flex;

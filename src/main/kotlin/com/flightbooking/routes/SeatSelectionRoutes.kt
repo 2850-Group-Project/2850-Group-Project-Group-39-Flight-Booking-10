@@ -94,7 +94,17 @@ private data class SeatMapData(
 )
 
 /**
- * Fetches and assembles all seat-related data for a given flight.
+ * Builds and returns all seat rendering data required for the seat map UI.
+ *
+ * Collects:
+ * - seat availability status
+ * - seat-to-cabin mappings
+ * - cabin class colours
+ * - seat pricing
+ * - raw seat records
+ *
+ * @param flightId ID of the flight whose seat data should be loaded.
+ * @return Aggregated seat map data for rendering the seat selection UI.
  */
 private fun buildSeatMapData(flightId: Int): SeatMapData {
     val seats = SeatTableAccess().getByAttribute(SeatTable.flightId, flightId)
@@ -119,7 +129,18 @@ private fun buildSeatMapData(flightId: Int): SeatMapData {
 }
 
 /**
- * Builds the Pebble model for the seat selection page.
+ * Builds the model used to render the seat selection Pebble page.
+ *
+ * Loads:
+ * - flight details
+ * - origin/destination airports
+ * - selected fare
+ * - booking passengers
+ * - seat layout/render data
+ * - unread inquiry count
+ *
+ * @param params Parameters required to build the seat selection page model.
+ * @return Complete Pebble model map, or null if the flight does not exist.
  */
 private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
     val flight =
@@ -184,6 +205,15 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
     }
 }
 
+/**
+ * Retrieves the display colour associated with each cabin class for a flight.
+ *
+ * Joins fare classes with flight fares and maps cabin class names to their
+ * configured display colours.
+ *
+ * @param flightId ID of the flight whose cabin colours should be loaded.
+ * @return Map of cabin class names to colour values.
+ */
 private fun getCabinColourMap(flightId: Int): Map<String, String> =
     transaction {
         FlightFareTable
