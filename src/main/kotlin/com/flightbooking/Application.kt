@@ -4,6 +4,7 @@ import com.flightbooking.database.DBFactory
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.StaffSession
 import com.flightbooking.models.UserSession
+import com.flightbooking.models.SeatSelectionSession
 import com.flightbooking.routes.airportSearchRoutes
 import com.flightbooking.routes.authRoutes
 import com.flightbooking.routes.bookingRoutes
@@ -116,7 +117,13 @@ private fun Application.configureServer() {
             cookie.path = "/"
             cookie.httpOnly = true
         }
+
         cookie<StaffSession>("STAFF_SESSION") {
+            cookie.path = "/"
+            cookie.httpOnly = true
+        }
+
+        cookie<SeatSelectionSession>("SEAT_SELECTION") {
             cookie.path = "/"
             cookie.httpOnly = true
         }
