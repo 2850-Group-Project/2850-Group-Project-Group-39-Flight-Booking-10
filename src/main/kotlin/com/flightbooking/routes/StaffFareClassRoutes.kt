@@ -27,6 +27,20 @@ private const val DEFAULT_CARRY_ON_WEIGHT = 7
 private const val DEFAULT_COLOUR = "#6366f1"
 private const val DEFAULT_CANCEL_PROTOCOL = "free cancellation"
 
+/**
+ * Staff fare class management routes.
+ *
+ * Routes:
+ * - GET  /staff/fare-class ->
+ *   - Requires [StaffSession]; Retrieves all fare classes and staff info,
+ *   - then renders the staff fare class management page
+ * - POST /staff/fare-class/create ->
+ *   - Requires [StaffSession]; Validates, creates new fare classes from POST form data, redirects
+ * - POST /staff/fare-class/update ->
+ *   - Requires [StaffSession]; Validates fareClassId from form, updates then redirects
+ * - POST /staff/fare-class/delete ->
+ *   - Requires [StaffSession]; Validates fareClassId, deletes and redirects
+ */
 fun Route.staffFareClassRoutes() {
     get("/staff/fare-class") { handleGetStaffFareClass(call) }
     post("/staff/fare-class/create") { handlePostFareClassCreate(call) }
@@ -34,6 +48,14 @@ fun Route.staffFareClassRoutes() {
     post("/staff/fare-class/delete") { handlePostFareClassDelete(call) }
 }
 
+/**
+ * Handles GET requests for the staff fare class management page.
+ * Redirects to staff login if no valid session is found.
+ * Fetches all fare classes and maps them to a display-friendly format,
+ * then gets logged-in staff member's details page
+ *
+ * @param call the application call
+ */
 private suspend fun handleGetStaffFareClass(call: ApplicationCall) {
     val staffSession =
         call.sessions.get<StaffSession>() ?: run {
@@ -88,6 +110,16 @@ private suspend fun handleGetStaffFareClass(call: ApplicationCall) {
     call.respond(PebbleContent("staff_fare_class.peb", model))
 }
 
+/**
+ * Handler function for POST to create a new fare class.
+ * Redirects to staff login if no valid session is found.
+ * Validates that a class code is provided, then maps the submitted
+ * form parameters to a new [FareClass] object with sensible defaults
+ * for any missing optional fields, persists it to the database,
+ * and redirects back to the fare class management page.
+ *
+ * @param call the application call
+ */
 private suspend fun handlePostFareClassCreate(call: ApplicationCall) {
     call.sessions.get<StaffSession>() ?: run {
         call.respondRedirect("/staff/login")
@@ -134,6 +166,15 @@ private suspend fun handlePostFareClassCreate(call: ApplicationCall) {
     call.respondRedirect("/staff/fare-class?ok=Fare+class+created")
 }
 
+/**
+ * Handler function for POST to update an existing fare class.
+ * Redirects to staff login if no valid session
+ * Validates a fare class ID is present
+ * Applies the updates via [applyFareClassUpdates]
+ * Redirects back to the fare class management page with a success or error
+ *
+ * @param call the application call
+ */
 private suspend fun handlePostFareClassUpdate(call: ApplicationCall) {
     call.sessions.get<StaffSession>() ?: run {
         call.respondRedirect("/staff/login")
@@ -151,6 +192,14 @@ private suspend fun handlePostFareClassUpdate(call: ApplicationCall) {
     call.respondRedirect("/staff/fare-class?ok=Fare+class+updated")
 }
 
+/**
+ * Mapper for form parameters to corresponding fare class fields
+ * using [updateNullable] for optional fields that can be cleared
+ * [updateRecordByAttribute] for required fields with defaults
+ * Persists updates across DB
+ * @param id
+ * @param p: form parameters
+ */
 private fun applyFareClassUpdates(
     id: Int,
     p: Parameters,
@@ -204,6 +253,15 @@ private fun applyFareClassUpdates(
     }
 }
 
+/**
+ * Handler function for POST to delete a fare class in DB
+ * Redirects to staff login if no valid session
+ * Validates fare class ID is present in the form parameters
+ * Deletes the record via [FareClassTableAccess.deleteByID]
+ * Redirects to fare class management page with a success or error
+ *
+ * @param call the application call
+ */
 private suspend fun handlePostFareClassDelete(call: ApplicationCall) {
     call.sessions.get<StaffSession>() ?: run {
         call.respondRedirect("/staff/login")
@@ -221,11 +279,22 @@ private suspend fun handlePostFareClassDelete(call: ApplicationCall) {
     call.respondRedirect("/staff/fare-class?ok=Fare+class+deleted")
 }
 
+/**
+ * Converts form parameter into flag
+ * @param p: the parameters
+ * @param key: parameter key to check by
+ */
 private fun flag(
     p: Parameters,
     key: String,
 ): Int = if (p[key] == "1") 1 else 0
 
+/**
+ * Wrapper around updateRecordByAttribute for nullables
+ * @param id: fare class to update
+ * @param col
+ * @param value
+ */
 private fun <T> FareClassTableAccess.updateNullable(
     id: Int,
     col: Column<T?>,
