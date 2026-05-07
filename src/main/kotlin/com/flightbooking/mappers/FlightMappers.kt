@@ -69,7 +69,7 @@ fun ResultRow.toFareClass(): FareClass =
         description = this[FareClassTable.description],
         createdAt = this[FareClassTable.createdAt],
         updatedAt = this[FareClassTable.updatedAt],
-        colour = this[FareClassTable.colour]
+        colour = this[FareClassTable.colour],
     )
 
 /**
