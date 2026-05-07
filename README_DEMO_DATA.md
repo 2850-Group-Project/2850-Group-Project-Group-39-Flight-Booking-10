@@ -27,5 +27,7 @@ London Heathrow (LHR) <-> New York (JFK)
 
 ### Dates
 To/from either:
+
 12th August 2026 08/12/2026
+
 16th August 2026 08/16/2026

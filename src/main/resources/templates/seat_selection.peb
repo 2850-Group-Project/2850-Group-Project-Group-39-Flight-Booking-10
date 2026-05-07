@@ -78,7 +78,15 @@
           <span class="legend-square selected"></span>
           <span>Selected</span>
         </span>
-      </div>
+
+        <!-- CABIN CLASS LEGEND -->
+        <span class="legend-divider">|</span>
+        {% for cabin in cabinColours %}
+        <span class="legend-item">
+          <span class="legend-square" style="background-color: {{ cabin.colour }};"></span>
+          <span>{{ cabin.name }}</span>
+        </span>
+        {% endfor %}
 
       <!-- CURRENT PASSENGER -->
       <div class="current-passenger-info" aria-live="polite">
