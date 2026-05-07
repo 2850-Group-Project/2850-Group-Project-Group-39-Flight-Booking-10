@@ -102,7 +102,8 @@ data class BookingSession(
  * a single seat selection 
  */
 data class SeatSelectionEntry(
-    val passengerName: String,
+    val passengerFirstName: String,
+    val passengerLastName: String,
     val seatCode: String,
     val seatCost: Double,
 )

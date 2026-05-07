@@ -7,6 +7,8 @@ import com.flightbooking.access.FlightFareTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
 import com.flightbooking.models.BookingSession
+import com.flightbooking.models.SeatSelectionSession
+import com.flightbooking.models.SeatSelectionEntry
 import com.flightbooking.models.Seat
 import com.flightbooking.service.AuthService
 import com.flightbooking.tables.AirportTable
@@ -255,7 +257,7 @@ private fun getCabinColourMap(flightId: Int): Map<String, String> =
  * @param flightId The ID of the flight to look up fares for.
  * @return A map of seat codes to their corresponding fare prices, e.g. `{"1A" to 49.99}`.
  */
-private fun getSeatPriceMap(
+fun getSeatPriceMap(
     seats: List<Seat>,
     flightId: Int,
 ): Map<String, Double> =
@@ -356,7 +358,11 @@ private suspend fun submitSeatSelection(
     }
 
     val bookingSegmentId = createBookingSegment(bookingSession, flightId)
-    assignSeats(selectedSeats, seatMap, bookingSegmentId)
+
+    val seatEntries = assignSeats(selectedSeats, seatMap, bookingSegmentId)
+    println(seatEntries)
+    val seatSelectionSession = SeatSelectionSession(seats = seatEntries)
+    call.sessions.set(seatSelectionSession)
 
     val currentSession = call.sessions.get<BookingSession>() ?: bookingSession
     val updatedSession =
