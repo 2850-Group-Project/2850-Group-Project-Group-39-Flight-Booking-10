@@ -13,6 +13,7 @@ import com.flightbooking.tables.FareClassTable
 import com.flightbooking.tables.FlightFareTable
 import com.flightbooking.tables.FlightTable
 import com.flightbooking.tables.PassengerTable
+import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -108,10 +109,17 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
 
     val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
     val seats = SeatTableAccess().getByAttribute(SeatTable.flightId, flight.id)
-    val seatStatusByCode =
-        SeatTableAccess()
-            .getByAttribute(SeatTable.flightId, flight.id)
-            .associate { it.seatCode to it.status }
+    
+    val seatStatusByCode = transaction {
+        val assignedSeatIds = SeatAssignmentTable
+            .select { SeatAssignmentTable.seatId.isNotNull() }
+            .mapNotNull { it[SeatAssignmentTable.seatId] }
+            .toSet()
+
+        seats.associate { seat ->
+            seat.seatCode to if (seat.id in assignedSeatIds) "occupied" else "available"
+        }
+    }
 
     // Builds seat price map to pass to pebble
     val seatPriceMap = getSeatPriceMap(seats, flight.id)

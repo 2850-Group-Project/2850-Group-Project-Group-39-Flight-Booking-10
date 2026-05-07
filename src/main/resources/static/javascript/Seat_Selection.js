@@ -208,8 +208,15 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.addEventListener('mouseenter', function(e) {
       var code = btn.getAttribute('data-seat-code');
       var position = btn.getAttribute('data-seat-position') || '—';
-      var status = btn.getAttribute('data-seat-status') || '—';
-      var price = btn.getAttribute('data-price') || 'Not available';
+      var isSelected = btn.classList.contains('selected');
+      var isOccupied = btn.classList.contains('occupied') || btn.disabled;
+      var status = isOccupied ? 'occupied' : isSelected ? 'selected' : 'available';
+      var summaryEl = document.getElementById('fare-summary');
+      var currency = summaryEl ? summaryEl.getAttribute('data-currency') : '£';
+      var baseFare = summaryEl ? parseFloat(summaryEl.getAttribute('data-price')) : NaN;
+      var rawPrice = btn.getAttribute('data-price');
+      var parsedPrice = rawPrice ? parseFloat(rawPrice.replace('£', '')) : NaN;
+      var price = !isNaN(parsedPrice) ? currency + ' ' + parsedPrice.toFixed(2) : (!isNaN(baseFare) ? currency + ' ' + baseFare.toFixed(2) : 'Included in fare');
   
       document.getElementById('tooltip-code').textContent = 'Seat ' + code;
       document.getElementById('tooltip-position').textContent = position;
