@@ -98,6 +98,24 @@ data class BookingSession(
 )
 
 /**
+ * Seat selection entry data class that is used to keep track of all data about 
+ * a single seat selection 
+ */
+data class SeatSelectionEntry(
+    val passengerName: String,
+    val seatCode: String,
+    val seatCost: Double,
+)
+
+/**
+ * Seat selection session data class that is used to keep track of all data about 
+ * which seats are selected during a booking process
+ */
+data class SeatSelectionSession(
+    val seats: List<SeatSelectionEntry> = emptyList(),
+)
+
+/**
  * Class definition for user table
  */
 data class User(
