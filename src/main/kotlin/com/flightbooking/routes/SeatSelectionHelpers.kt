@@ -198,6 +198,7 @@ fun assignSeats(
     selectedSeats: Map<String, String>,
     seatMap: Map<String, Seat>,
     bookingSegmentId: Int,
+    leg: String,
 ): List<SeatSelectionEntry> {
     val entries = mutableListOf<SeatSelectionEntry>()
 
@@ -230,7 +231,8 @@ fun assignSeats(
                 passengerFirstName, 
                 passengerLastName, 
                 seatCode, 
-                seatCost
+                seatCost,
+                leg
             ))
         }
     }

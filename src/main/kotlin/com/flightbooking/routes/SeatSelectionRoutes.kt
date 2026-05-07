@@ -325,7 +325,7 @@ private suspend fun handlePostSeats(
     val (flightId, _) = resolveIds(bookingSession, leg)
 
     flightId?.also { id ->
-        submitSeatSelection(call, bookingSession, id, redirectTo = nextStep ?: PAYMENT_REDIRECT)
+        submitSeatSelection(call, bookingSession, id, leg, redirectTo = nextStep ?: PAYMENT_REDIRECT)
     } ?: call.respondRedirect(SEARCH_REDIRECT)
 }
 
@@ -339,6 +339,7 @@ private suspend fun submitSeatSelection(
     call: ApplicationCall,
     bookingSession: BookingSession,
     flightId: Int,
+    leg: String,
     redirectTo: String = PAYMENT_REDIRECT,
 ) {
     val params = call.receiveParameters()
@@ -359,7 +360,7 @@ private suspend fun submitSeatSelection(
 
     val bookingSegmentId = createBookingSegment(bookingSession, flightId)
 
-    val seatEntries = assignSeats(selectedSeats, seatMap, bookingSegmentId)
+    val seatEntries = assignSeats(selectedSeats, seatMap, bookingSegmentId, leg)
     println(seatEntries)
     val seatSelectionSession = SeatSelectionSession(seats = seatEntries)
     call.sessions.set(seatSelectionSession)
