@@ -103,7 +103,7 @@
           <span class="seat-status-label">Seats assigned:</span>
           <span class="seat-status-count" id="seat-count">0 / {{ passengers|length }}</span>
         </div>
-        <div class="seat-status-list" id="seat-list" aria-label="Selected seat assignments">
+        <div class="seat-status-list" id="seat-list" role="list" aria-label="Selected seat assignments">
           <!-- Filled by javascript -->
         </div>
         <div class="seat-actions">

@@ -14,7 +14,7 @@
           <div class="brand-badge">✈</div>
           <div>SkyFlow Staff</div>
         </div>
-        <a class="toplink" href="#" data-large-font-toggle>Large Font</a >
+        <button class="toplink" type="button" data-large-font-toggle>Large Font</button>
       </div>
 
       <div class="pill">Staff Onboarding</div>

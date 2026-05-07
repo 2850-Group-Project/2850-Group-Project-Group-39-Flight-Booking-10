@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/static/css/Staff_Flights.css">
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <!-- NAV -->
   <div class="topbar">
     <div class="brand">
@@ -15,7 +15,7 @@
       <div>SkyFlow Staff</div>
     </div>
     <div class="nav">
-        <a class="link" href="#" data-large-font-toggle>Large Font</a >
+        <button class="link" type="button" data-large-font-toggle>Large Font</button>
       <a class="link" href="/staff/dashboard">Dashboard</a >
       <a class="link red" href="/staff/logout">Logout</a >
     </div>
@@ -212,7 +212,7 @@
                 value="{{ q }}"
                 placeholder="Search by flight number (e.g. 101)" />
         <button class="a" type="submit" style="white-space:nowrap;" aria-label="Search flights">Search</button>
-        <a class="a" onclick="clearSearch()" style="white-space:nowrap;">Clear</a >
+        <button class="a" type="button" onclick="clearSearch()" style="white-space:nowrap;">Clear</button>
       </form>
       <table>
         <thead>
@@ -251,7 +251,7 @@
       </table>
     </div>
   </div>
-</div>
+</main>
 
 <!-- DELETE CONFIRMATION -->
 <div id="deleteModal" class="modal-backdrop" aria-hidden="true">

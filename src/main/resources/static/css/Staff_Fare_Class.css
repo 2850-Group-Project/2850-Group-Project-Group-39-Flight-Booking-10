@@ -79,6 +79,7 @@
   border-radius: 10px;
   background: rgba(255,255,255,.06);
   color: rgba(255,255,255,.85);
+  font-family: inherit;
   font-size: .8rem;
   font-weight: 700;
   text-decoration: none;
@@ -95,6 +96,7 @@
   border-radius: 10px;
   background: rgba(255,77,77,.10);
   color: #ffb4b4;
+  font-family: inherit;
   font-size: .8rem;
   font-weight: 700;
   border: 1px solid rgba(255,77,77,.25);
@@ -256,6 +258,14 @@
   color: rgba(255,255,255,.75);
   margin: 0;
 }
+.fc-toggle-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  cursor: pointer;
+}
 
 /* TOGGLE SWITCH */
 .fc-toggle { position: relative; cursor: pointer; }
@@ -270,6 +280,10 @@
   position: relative;
 }
 .fc-toggle input:checked + .fc-toggle-track { background: #3f5efb; }
+.fc-toggle input:focus-visible + .fc-toggle-track {
+  outline: 3px solid rgba(99,102,241,.55);
+  outline-offset: 3px;
+}
 .fc-toggle-thumb {
   position: absolute;
   top: 3px;
@@ -328,6 +342,7 @@
   border-radius: 12px;
   background: linear-gradient(90deg, #3f5efb, #2b7bff);
   color: #fff;
+  font-family: inherit;
   font-weight: 800;
   font-size: .9rem;
   border: none;
@@ -342,6 +357,7 @@
   border-radius: 12px;
   background: rgba(255,255,255,.06);
   color: rgba(255,255,255,.85);
+  font-family: inherit;
   font-weight: 700;
   font-size: .9rem;
   border: 1px solid rgba(255,255,255,.12);
@@ -410,6 +426,7 @@
   border: 1px solid rgba(255, 77, 77, .30);
   background: rgba(255, 77, 77, .12);
   color: rgba(255, 255, 255, .92);
+  font-family: inherit;
   font-weight: 900;
   font-size: 13px;
   cursor: pointer;

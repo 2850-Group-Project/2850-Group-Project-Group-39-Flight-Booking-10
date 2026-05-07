@@ -20,7 +20,7 @@
       <span class="brand-title">SkyFlow</span>
     </a>
     <div class="nav-right">
-      <a href="#" class="btn-ghost" data-large-font-toggle>Large Font</a>
+      <button type="button" class="btn-ghost" data-large-font-toggle>Large Font</button>
       <a href="/profile/bookings" class="btn-ghost">My Bookings</a>
       <a href="/profile" class="btn-primary">My Account<span class="notif-dot {% if unreadCount > 0 %}unread{% endif %}"></a>
     </div>
@@ -66,7 +66,7 @@
 
     <section class="passengers-section">
       <div class="passengers-header">
-        <h2 class="passengers-title">Passenger Details</h2>
+        <h1 class="passengers-title">Passenger Details</h1>
         <p class="passengers-subtitle">Please enter details exactly as they appear on each passenger's travel document.</p>
       </div>
 
@@ -83,7 +83,7 @@
             <input type="hidden" name="passengers[{{ p.idx }}][type]" value="adult" />
 
             <div class="field-group field-group--narrow">
-              <label>Title</label>
+              <span class="field-label">Title</span>
               <select name="passengers[{{ p.idx }}][title]" aria-label="Adult {{ p.label }} title" required>
                 <option value="">—</option>
                 <option value="Mr">Mr</option>
@@ -94,22 +94,22 @@
             </div>
 
             <div class="field-group">
-              <label>First name</label>
+              <span class="field-label">First name</span>
               <input type="text" name="passengers[{{ p.idx }}][firstName]" aria-label="Adult {{ p.label }} first name" placeholder="As on passport" required />
             </div>
 
             <div class="field-group">
-              <label>Last name</label>
+              <span class="field-label">Last name</span>
               <input type="text" name="passengers[{{ p.idx }}][lastName]" aria-label="Adult {{ p.label }} last name" placeholder="As on passport" required />
             </div>
 
             <div class="field-group">
-              <label>Date of birth</label>
+              <span class="field-label">Date of birth</span>
               <input type="date" name="passengers[{{ p.idx }}][dateOfBirth]" aria-label="Adult {{ p.label }} date of birth" required />
             </div>
 
             <div class="field-group field-group--narrow">
-              <label>Gender</label>
+              <span class="field-label">Gender</span>
               <select name="passengers[{{ p.idx }}][gender]" aria-label="Adult {{ p.label }} gender" required>
                 <option value="">—</option>
                 <option value="male">Male</option>
@@ -119,12 +119,12 @@
             </div>
 
             <div class="field-group">
-              <label>Email</label>
+              <span class="field-label">Email</span>
               <input type="email" name="passengers[{{ p.idx }}][email]" aria-label="Adult {{ p.label }} email" placeholder="For booking confirmation" />
             </div>
 
             <div class="field-group field-group--narrow">
-              <label>Nationality</label>
+              <span class="field-label">Nationality</span>
               <input type="text" name="passengers[{{ p.idx }}][nationality]" aria-label="Adult {{ p.label }} nationality" placeholder="e.g. GB" maxlength="2" />
             </div>
 
@@ -132,7 +132,7 @@
             <p class="passenger-section-label">Travel Document</p>
 
             <div class="field-group field-group--narrow">
-              <label>Document type</label>
+              <span class="field-label">Document type</span>
               <select name="passengers[{{ p.idx }}][documentType]" aria-label="Adult {{ p.label }} document type">
                 <option value="passport">Passport</option>
                 <option value="id_card">ID Card</option>
@@ -140,17 +140,17 @@
             </div>
 
             <div class="field-group">
-              <label>Document number</label>
+              <span class="field-label">Document number</span>
               <input type="text" name="passengers[{{ p.idx }}][documentNumber]" aria-label="Adult {{ p.label }} document number" placeholder="e.g. 123456789" />
             </div>
 
             <div class="field-group field-group--narrow">
-              <label>Issuing country</label>
+              <span class="field-label">Issuing country</span>
               <input type="text" name="passengers[{{ p.idx }}][documentCountry]" aria-label="Adult {{ p.label }} issuing country" placeholder="e.g. GB" maxlength="2" />
             </div>
 
             <div class="field-group">
-              <label>Expiry date</label>
+              <span class="field-label">Expiry date</span>
               <input type="date" name="passengers[{{ p.idx }}][documentExpiry]" aria-label="Adult {{ p.label }} document expiry date" />
             </div>
           </div>
@@ -168,7 +168,7 @@
             <input type="hidden" name="passengers[{{ p.idx }}][type]" value="child" />
 
             <div class="field-group field-group--narrow">
-              <label>Title</label>
+              <span class="field-label">Title</span>
               <select name="passengers[{{ p.idx }}][title]" aria-label="Child {{ p.label }} title">
                 <option value="Master">Master</option>
                 <option value="Miss">Miss</option>
@@ -176,22 +176,22 @@
             </div>
 
             <div class="field-group">
-              <label>First name</label>
+              <span class="field-label">First name</span>
               <input type="text" name="passengers[{{ p.idx }}][firstName]" aria-label="Child {{ p.label }} first name" placeholder="As on passport" required />
             </div>
 
             <div class="field-group">
-              <label>Last name</label>
+              <span class="field-label">Last name</span>
               <input type="text" name="passengers[{{ p.idx }}][lastName]" aria-label="Child {{ p.label }} last name" placeholder="As on passport" required />
             </div>
 
             <div class="field-group">
-              <label>Date of birth</label>
+              <span class="field-label">Date of birth</span>
               <input type="date" name="passengers[{{ p.idx }}][dateOfBirth]" aria-label="Child {{ p.label }} date of birth" required />
             </div>
 
             <div class="field-group field-group--narrow">
-              <label>Gender</label>
+              <span class="field-label">Gender</span>
               <select name="passengers[{{ p.idx }}][gender]" aria-label="Child {{ p.label }} gender">
                 <option value="">—</option>
                 <option value="male">Male</option>
@@ -201,7 +201,7 @@
             </div>
 
             <div class="field-group field-group--narrow">
-              <label>Nationality</label>
+              <span class="field-label">Nationality</span>
               <input type="text" name="passengers[{{ p.idx }}][nationality]" aria-label="Child {{ p.label }} nationality" placeholder="e.g. GB" maxlength="2" />
             </div>
 
@@ -209,7 +209,7 @@
             <p class="passenger-section-label">Travel Document</p>
 
             <div class="field-group field-group--narrow">
-              <label>Document type</label>
+              <span class="field-label">Document type</span>
               <select name="passengers[{{ p.idx }}][documentType]" aria-label="Child {{ p.label }} document type">
                 <option value="passport">Passport</option>
                 <option value="id_card">ID Card</option>
@@ -217,17 +217,17 @@
             </div>
 
             <div class="field-group">
-              <label>Document number</label>
+              <span class="field-label">Document number</span>
               <input type="text" name="passengers[{{ p.idx }}][documentNumber]" aria-label="Child {{ p.label }} document number" />
             </div>
 
             <div class="field-group field-group--narrow">
-              <label>Issuing country</label>
+              <span class="field-label">Issuing country</span>
               <input type="text" name="passengers[{{ p.idx }}][documentCountry]" aria-label="Child {{ p.label }} issuing country" placeholder="e.g. GB" maxlength="2" />
             </div>
 
             <div class="field-group">
-              <label>Expiry date</label>
+              <span class="field-label">Expiry date</span>
               <input type="date" name="passengers[{{ p.idx }}][documentExpiry]" aria-label="Child {{ p.label }} document expiry date" />
             </div>
           </div>
@@ -245,22 +245,22 @@
             <input type="hidden" name="passengers[{{ p.idx }}][type]" value="infant" />
 
             <div class="field-group">
-              <label>First name</label>
+              <span class="field-label">First name</span>
               <input type="text" name="passengers[{{ p.idx }}][firstName]" aria-label="Infant {{ p.label }} first name" placeholder="As on passport" required />
             </div>
 
             <div class="field-group">
-              <label>Last name</label>
+              <span class="field-label">Last name</span>
               <input type="text" name="passengers[{{ p.idx }}][lastName]" aria-label="Infant {{ p.label }} last name" placeholder="As on passport" required />
             </div>
 
             <div class="field-group">
-              <label>Date of birth</label>
+              <span class="field-label">Date of birth</span>
               <input type="date" name="passengers[{{ p.idx }}][dateOfBirth]" aria-label="Infant {{ p.label }} date of birth" required />
             </div>
 
             <div class="field-group field-group--narrow">
-              <label>Nationality</label>
+              <span class="field-label">Nationality</span>
               <input type="text" name="passengers[{{ p.idx }}][nationality]" aria-label="Infant {{ p.label }} nationality" placeholder="e.g. GB" maxlength="2" />
             </div>
 
@@ -268,17 +268,17 @@
             <p class="passenger-section-label">Travel Document</p>
 
             <div class="field-group">
-              <label>Passport number</label>
+              <span class="field-label">Passport number</span>
               <input type="text" name="passengers[{{ p.idx }}][documentNumber]" aria-label="Infant {{ p.label }} passport number" />
             </div>
 
             <div class="field-group field-group--narrow">
-              <label>Issuing country</label>
+              <span class="field-label">Issuing country</span>
               <input type="text" name="passengers[{{ p.idx }}][documentCountry]" aria-label="Infant {{ p.label }} issuing country" placeholder="e.g. GB" maxlength="2" />
             </div>
 
             <div class="field-group">
-              <label>Expiry date</label>
+              <span class="field-label">Expiry date</span>
               <input type="date" name="passengers[{{ p.idx }}][documentExpiry]" aria-label="Infant {{ p.label }} document expiry date" />
             </div>
           </div>

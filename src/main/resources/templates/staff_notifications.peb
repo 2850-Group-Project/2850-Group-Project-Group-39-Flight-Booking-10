@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/static/css/Staff_Notification.css">
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <!-- NAV -->
   <div class="topbar">
     <div class="brand">
@@ -15,7 +15,7 @@
       <div>SkyFlow Staff</div>
     </div>
     <div class="right">
-      <a class="navbtn" href="#" data-large-font-toggle>Large Font</a >
+      <button class="navbtn" type="button" data-large-font-toggle>Large Font</button>
       <a class="navbtn" href="/staff/dashboard">Dashboard</a >
       <a class="navbtn red" href="/staff/logout">Logout</a >
     </div>
@@ -145,7 +145,7 @@
       Note: <b>complete</b> marks a request as processed, but it remains visible until deleted.
     </div>
   </div>
-</div>
+</main>
 
 <!-- DELETE CONFIRMATION -->
 <div id="deleteModal" class="modal-backdrop" aria-hidden="true">

@@ -62,7 +62,7 @@
     <section class="passengers-section">
       <div class="passengers-header">
         <div>
-          <h2 class="passengers-title">Payment Details</h2>
+          <h1 class="passengers-title">Payment Details</h1>
           <p class="passengers-subtitle">Enter your card details to complete your booking.</p>
         </div>
         <div style="text-align: right;">
@@ -113,10 +113,10 @@
 
           <div class="passenger-fields">
             <div class="field-group">
-              <label style="font-size: 13px; color: rgba(255,255,255,.70); text-transform: none; letter-spacing: 0;">
+              <div style="font-size: 13px; color: rgba(255,255,255,.70); text-transform: none; letter-spacing: 0;">
                 You have <span style="color: white; font-weight: 700;">{{ pointsAvailable }} points</span> 
                 worth up to <span style="color: var(--good); font-weight: 700;">£{{ maxDiscount }}</span>
-              </label>
+              </div>
               <input type="hidden" name="pointsToRedeem" id="pointsToRedeem" value="0" />
               <button type="button" id="usePointsBtn" class="btn-primary" onclick="togglePoints()" aria-label="Use loyalty points for this payment" aria-pressed="false" style="margin-top: 10px; width: fit-content;">Use Points</button>
             </div>

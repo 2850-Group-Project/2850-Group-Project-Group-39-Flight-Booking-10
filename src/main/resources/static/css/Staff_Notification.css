@@ -81,6 +81,7 @@ body{
     background: rgba(255,255,255,.06);
     color: rgba(255,255,255,.9);
     text-decoration:none;
+    font-family: inherit;
     font-weight:700;
     transition:.18s ease;
     cursor:pointer;

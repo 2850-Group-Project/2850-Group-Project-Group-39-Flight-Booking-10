@@ -59,11 +59,13 @@
 
   <div class="fc-row-2">
     <div class="fc-field fc-field--toggle">
-      <label>Refundable</label>
-      <label class="fc-toggle">
+      <label class="fc-toggle-field">
+        <span>Refundable</span>
+        <span class="fc-toggle">
         <input type="checkbox" name="refundable" value="1"
                {% if fc is not null and fc.refundable == 1 %}checked{% endif %}>
         <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+        </span>
       </label>
     </div>
     <div class="fc-field">
@@ -81,35 +83,43 @@
 
   <div class="fc-toggles-grid">
     <div class="fc-field fc-field--toggle">
-      <label>Advance Seat Selection</label>
-      <label class="fc-toggle">
+      <label class="fc-toggle-field">
+        <span>Advance Seat Selection</span>
+        <span class="fc-toggle">
         <input type="checkbox" name="advanceSeatSelection" value="1"
                {% if fc is not null and fc.advanceSeatSelection == 1 %}checked{% endif %}>
         <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+        </span>
       </label>
     </div>
     <div class="fc-field fc-field--toggle">
-      <label>Priority Check-in</label>
-      <label class="fc-toggle">
+      <label class="fc-toggle-field">
+        <span>Priority Check-in</span>
+        <span class="fc-toggle">
         <input type="checkbox" name="priorityCheckin" value="1"
                {% if fc is not null and fc.priorityCheckin == 1 %}checked{% endif %}>
         <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+        </span>
       </label>
     </div>
     <div class="fc-field fc-field--toggle">
-      <label>Priority Boarding</label>
-      <label class="fc-toggle">
+      <label class="fc-toggle-field">
+        <span>Priority Boarding</span>
+        <span class="fc-toggle">
         <input type="checkbox" name="priorityBoarding" value="1"
               {% if fc is not null and fc.priorityBoarding == 1 %}checked{% endif %}>
         <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+        </span>
       </label>
     </div>
     <div class="fc-field fc-field--toggle">
-      <label>Lounge Access</label>
-      <label class="fc-toggle">
+      <label class="fc-toggle-field">
+        <span>Lounge Access</span>
+        <span class="fc-toggle">
         <input type="checkbox" name="loungeAccess" value="1"
               {% if fc is not null and fc.loungeAccess == 1 %}checked{% endif %}>
         <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+        </span>
       </label>
     </div>
   </div>
@@ -121,11 +131,13 @@
 
   <div class="fc-row-baggage">
     <div class="fc-field fc-field--toggle">
-      <label>Carry-on Allowed</label>
-      <label class="fc-toggle">
+      <label class="fc-toggle-field">
+        <span>Carry-on Allowed</span>
+        <span class="fc-toggle">
         <input type="checkbox" name="carryOnAllowed" value="1"
                {% if fc is null or fc.carryOnAllowed == 1 %}checked{% endif %}>
         <span class="fc-toggle-track"><span class="fc-toggle-thumb"></span></span>
+        </span>
       </label>
     </div>
     <div class="fc-field">

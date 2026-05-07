@@ -62,17 +62,22 @@ body{
     color: rgba(255,255,255,.70);
     font-size:13px;
 }
-.top-actions a{
+.top-actions a,
+.top-actions button{
     text-decoration:none;
     color: rgba(255,255,255,.85);
     border:1px solid rgba(255,255,255,.16);
     background: rgba(255,255,255,.06);
     padding:8px 12px;
     border-radius:999px;
+    font-family: inherit;
+    font-size: inherit;
     font-weight:700;
     transition:.18s ease;
+    cursor:pointer;
 }
-.top-actions a:hover{
+.top-actions a:hover,
+.top-actions button:hover{
     background: rgba(255,255,255,.10);
     transform: translateY(-1px);
 }

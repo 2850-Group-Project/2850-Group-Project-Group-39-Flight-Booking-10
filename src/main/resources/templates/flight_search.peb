@@ -12,6 +12,7 @@
   {% include "nav.peb" %}
 
   <main>
+    <h1 class="sr-only">Choose Your Flight</h1>
     <!-- ROW 1: SEARCH SUMMARY -->
     <section class="search-summary">
       <div class="summary-inner">
