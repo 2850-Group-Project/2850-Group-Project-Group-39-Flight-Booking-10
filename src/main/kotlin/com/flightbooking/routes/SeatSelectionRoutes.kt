@@ -8,6 +8,7 @@ import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.Seat
+import com.flightbooking.models.SeatSelectionSession
 import com.flightbooking.service.AuthService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FareClassTable
@@ -255,7 +256,7 @@ private fun getCabinColourMap(flightId: Int): Map<String, String> =
  * @param flightId The ID of the flight to look up fares for.
  * @return A map of seat codes to their corresponding fare prices, e.g. `{"1A" to 49.99}`.
  */
-private fun getSeatPriceMap(
+fun getSeatPriceMap(
     seats: List<Seat>,
     flightId: Int,
 ): Map<String, Double> =
@@ -323,7 +324,7 @@ private suspend fun handlePostSeats(
     val (flightId, _) = resolveIds(bookingSession, leg)
 
     flightId?.also { id ->
-        submitSeatSelection(call, bookingSession, id, redirectTo = nextStep ?: PAYMENT_REDIRECT)
+        submitSeatSelection(call, bookingSession, id, leg, redirectTo = nextStep ?: PAYMENT_REDIRECT)
     } ?: call.respondRedirect(SEARCH_REDIRECT)
 }
 
@@ -337,6 +338,7 @@ private suspend fun submitSeatSelection(
     call: ApplicationCall,
     bookingSession: BookingSession,
     flightId: Int,
+    leg: String,
     redirectTo: String = PAYMENT_REDIRECT,
 ) {
     val params = call.receiveParameters()
@@ -345,7 +347,6 @@ private suspend fun submitSeatSelection(
     val bookingTotal = params["bookingTotal"]?.toDoubleOrNull() ?: 0.0
 
     val seatAccess = SeatTableAccess()
-
     val seatRows = seatAccess.getByAttribute(SeatTable.flightId, flightId)
     val seatMap = seatRows.associateBy { it.seatCode }
     val validateSeatsError = validateSeats(selectedSeats, seatMap)
@@ -356,7 +357,10 @@ private suspend fun submitSeatSelection(
     }
 
     val bookingSegmentId = createBookingSegment(bookingSession, flightId)
-    assignSeats(selectedSeats, seatMap, bookingSegmentId)
+    val seatEntries = assignSeats(selectedSeats, seatMap, bookingSegmentId, leg)
+
+    val existingSession = call.sessions.get<SeatSelectionSession>() ?: SeatSelectionSession()
+    call.sessions.set(SeatSelectionSession(seats = existingSession.seats + seatEntries))
 
     val currentSession = call.sessions.get<BookingSession>() ?: bookingSession
     val updatedSession =

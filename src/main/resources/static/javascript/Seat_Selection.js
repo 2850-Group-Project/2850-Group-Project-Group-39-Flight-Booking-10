@@ -91,26 +91,24 @@ function updateUI() {
   var resetBtn = document.getElementById('reset-btn');
   var continueBtn = document.getElementById('continue-btn');
   var hintText = document.getElementById('hint-text');
-  var hasReturn = resetBtn.getAttribute('data-has-return') === 'true';
+  var hasReturn = document.getElementById('seat-form').getAttribute('data-leg') !== 'return' && 
+                  resetBtn.getAttribute('data-has-return') === 'true';
   var leg = resetBtn.getAttribute('data-leg');
+  console.log('leg:', leg, 'hasReturn:', hasReturn, 'allAssigned:', allAssigned);
 
   if (allAssigned) {
     if (leg === 'outbound' && hasReturn) {
-      resetBtn.textContent = 'Next flight →';
-      resetBtn.classList.add('btn-next-flight');
-      continueBtn.style.display = 'none';
+      continueBtn.textContent = 'Next flight →';
     } else {
-      resetBtn.textContent = 'Reset all seats';
-      resetBtn.classList.remove('btn-next-flight');
-      continueBtn.style.display = 'inline-flex';
+      continueBtn.textContent = 'Continue to next step →';
     }
+    continueBtn.style.display = 'inline-flex';
     continueBtn.disabled = false;
     continueBtn.setAttribute('aria-disabled', 'false');
     hintText.textContent = '✓ All passengers assigned! Click continue.';
     document.getElementById('current-passenger-name').textContent = 'All passengers assigned';
   } else {
-    resetBtn.textContent = 'Reset all seats';
-    resetBtn.classList.remove('btn-next-flight');
+    continueBtn.style.display = 'none';
     continueBtn.disabled = true;
     continueBtn.setAttribute('aria-disabled', 'true');
 
@@ -171,6 +169,11 @@ document.addEventListener('DOMContentLoaded', function() {
     e.preventDefault();
     document.getElementById('selected-seats-input').value = JSON.stringify(seatSelections);
     document.getElementById('booking-total-input').value = runningTotal.toFixed(2);
+    var leg = form.getAttribute('data-leg');
+    var hasReturn = document.getElementById('reset-btn').getAttribute('data-has-return') === 'true';
+    if (leg === 'outbound' && hasReturn) {
+      form.action = '/flights/seats/outbound';
+    }
     form.submit();
   });
 

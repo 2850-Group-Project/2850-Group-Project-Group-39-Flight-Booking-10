@@ -2,6 +2,7 @@ package com.flightbooking.routes
 
 import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.models.BookingSession
+import com.flightbooking.models.SeatSelectionSession
 import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
 import com.flightbooking.service.calculateEarning
@@ -43,11 +44,16 @@ fun Route.confirmationRoutes() {
 
         call.sessions.set("BOOKING_SESSION", BookingSession())
 
+        val seatSelectionSession = call.sessions.get<SeatSelectionSession>() ?: SeatSelectionSession()
+        println("at confirmation route")
+        println(seatSelectionSession)
+
         call.respond(
             PebbleContent(
                 "confirmation.peb",
                 mapOf(
                     "bookingSession" to bookingSession,
+                    "seatSelectionSession" to seatSelectionSession,
                     "pointsEarned" to pointsEarned,
                     "unreadCount" to unreadCount,
                 ),

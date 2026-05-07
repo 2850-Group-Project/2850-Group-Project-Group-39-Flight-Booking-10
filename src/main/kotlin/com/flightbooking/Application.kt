@@ -2,6 +2,7 @@ package com.flightbooking
 
 import com.flightbooking.database.DBFactory
 import com.flightbooking.models.BookingSession
+import com.flightbooking.models.SeatSelectionSession
 import com.flightbooking.models.StaffSession
 import com.flightbooking.models.UserSession
 import com.flightbooking.routes.airportSearchRoutes
@@ -38,12 +39,15 @@ import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import io.ktor.server.sessions.SessionSerializer
 import io.ktor.server.sessions.SessionStorageMemory
 import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.set
 import io.pebbletemplates.pebble.loader.ClasspathLoader
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.slf4j.event.Level
 import java.io.IOException
 import java.sql.SQLException
@@ -116,9 +120,27 @@ private fun Application.configureServer() {
             cookie.path = "/"
             cookie.httpOnly = true
         }
+
         cookie<StaffSession>("STAFF_SESSION") {
             cookie.path = "/"
             cookie.httpOnly = true
+        }
+
+        cookie<SeatSelectionSession>("SEAT_SELECTION", storage = SessionStorageMemory()) {
+            cookie.path = "/"
+            cookie.httpOnly = true
+
+            // Used Claude AI to generate serializer for seat selection
+            serializer =
+                object : SessionSerializer<SeatSelectionSession> {
+                    val json = Json { ignoreUnknownKeys = true }
+
+                    override fun serialize(session: SeatSelectionSession): String =
+                        json.encodeToString(SeatSelectionSession.serializer(), session)
+
+                    override fun deserialize(text: String): SeatSelectionSession =
+                        json.decodeFromString(SeatSelectionSession.serializer(), text)
+                }
         }
 
         cookie<BookingSession>("BOOKING_SESSION", storage = SessionStorageMemory()) {

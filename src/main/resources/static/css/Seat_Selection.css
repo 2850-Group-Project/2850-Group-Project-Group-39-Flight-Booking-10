@@ -636,35 +636,34 @@
 }
 
 .btn-continue {
-  padding: 14px 32px;
+  padding: 10px 20px;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
-  color: #dcfce7;
-  font-weight: 700;
-  font-size: 15px;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+  font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 280px;
 }
 
 .btn-continue:not(:disabled):hover {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.2));
-  border-color: rgba(34, 197, 94, 0.5);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.2);
-  transform: translateY(-2px);
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.55);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+  transform: translateY(-1px);
 }
 
 .btn-continue:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
   border-color: rgba(148, 163, 184, 0.15);
   background: rgba(148, 163, 184, 0.08);
-  color: rgba(226, 232, 240, 0.5);
+  color: rgba(226, 232, 240, 0.4);
 }
 
 .btn-reset {

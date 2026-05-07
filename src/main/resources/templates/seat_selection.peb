@@ -115,7 +115,7 @@
           aria-label="Reset all seats">
           Reset all seats
         </button>
-        <button type="button" class="btn-continue" id="continue-btn" style="display:none" aria-disabled="true" aria-label="Continue to next step">
+        <button type="button" class="btn-continue" id="continue-btn" aria-disabled="true" aria-label="Continue to next step">
           Continue to next step →
         </button>
       </div>

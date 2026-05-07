@@ -16,9 +16,9 @@
     <div class="confirm-pebble">
 
       <div class="confirm-icon">✅</div>
-      <h1 class="confirm-title">Booking Confirmed</h1>
+      <h1 class="confirm-title">Booking Confirmed!</h1>
       <p class="confirm-sub">
-        Your journey is locked in. Details below.
+        Your booking is ready. Check the details below.
       </p>
 
       <!-- BOOKING SUMMARY -->
@@ -74,6 +74,15 @@
           <span>Departure</span>
           <strong>{{ bookingSession.search.departureDate }}</strong>
         </div>
+
+        {% for entry in seatSelectionSession.seats %}
+          {% if entry.leg == "outbound" %}
+          <div class="row">
+            <span>{{ entry.passengerFirstName }} {{ entry.passengerLastName }}</span>
+            <strong><span class="seat-badge">Seat {{ entry.seatCode }}</span> £{{ entry.seatCost }}</strong>
+          </div>
+          {% endif %}
+        {% endfor %}
       </div>
 
       <!-- RETURN: ONLY IF IT EXISTS -->
@@ -95,18 +104,18 @@
           <span>Return Date</span>
           <strong>{{ bookingSession.search.returnDate }}</strong>
         </div>
+
+        {% for entry in seatSelectionSession.seats %}
+          {% if entry.leg == "return" %}
+          <div class="row">
+            <span>{{ entry.passengerFirstName }} {{ entry.passengerLastName }}</span>
+            <strong><span class="seat-badge">Seat {{ entry.seatCode }}</span> £{{ entry.seatCost }}</strong>
+          </div>
+          {% endif %}
+        {% endfor %}
       </div>
       {% endif %}
 
-      <!-- ACTIONS -->
-      <div class="confirm-actions">
-        <a href="/profile/bookings" class="btn-primary">View Booking</a>
-        <a href="/home" class="btn-ghost">Back to home</a>
-      </div>
-
-    </div>
-
-    <div class="confirm-pebble">
       <div class="confirm-details">
         <div class="row price-row">
           <span>Ticket Price</span>
@@ -118,8 +127,14 @@
           <strong><span class="points-badge">{{ pointsEarned }}</span></strong>
         </div>
       </div>
-    </div>
 
+      <!-- ACTIONS -->
+      <div class="confirm-actions">
+        <a href="/profile/bookings" class="btn-primary">View Booking</a>
+        <a href="/home" class="btn-ghost">Back to home</a>
+      </div>
+
+    </div>
   </div>
 
   <!-- FOOTER -->

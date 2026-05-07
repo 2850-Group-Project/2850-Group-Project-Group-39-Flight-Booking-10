@@ -4,7 +4,9 @@ import com.flightbooking.models.Airport
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.Flight
 import com.flightbooking.models.Seat
+import com.flightbooking.models.SeatSelectionEntry
 import com.flightbooking.tables.BookingSegmentTable
+import com.flightbooking.tables.PassengerTable
 import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.google.gson.Gson
@@ -195,7 +197,10 @@ fun assignSeats(
     selectedSeats: Map<String, String>,
     seatMap: Map<String, Seat>,
     bookingSegmentId: Int,
-) {
+    leg: String,
+): List<SeatSelectionEntry> {
+    val entries = mutableListOf<SeatSelectionEntry>()
+
     transaction {
         selectedSeats.forEach { (passengerId, seatCode) ->
             val seat = seatMap[seatCode]!!
@@ -211,8 +216,30 @@ fun assignSeats(
             SeatTable.update({ SeatTable.id eq seat.id }) {
                 it[SeatTable.status] = "occupied"
             }
+
+            val passenger =
+                PassengerTable
+                    .select { PassengerTable.id eq passengerId.toInt() }
+                    .firstOrNull()
+
+            val passengerFirstName = passenger?.get(PassengerTable.firstName) ?: "John"
+            val passengerLastName = passenger?.get(PassengerTable.lastName) ?: "Smith"
+
+            val seatCost = getSeatPriceMap(listOf(seat), seat.flightId)[seatCode] ?: 0.0
+
+            entries.add(
+                SeatSelectionEntry(
+                    passengerFirstName,
+                    passengerLastName,
+                    seatCode,
+                    seatCost,
+                    leg,
+                ),
+            )
         }
     }
+
+    return entries
 }
 
 /**
