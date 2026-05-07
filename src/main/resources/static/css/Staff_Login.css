@@ -229,6 +229,13 @@ label{
     font-size:13px;
     line-height:1.35;
 }
+.back-to-user {
+    margin-top: 18px;
+    display: flex;
+    justify-content: left;
+    color: rgba(255,255,255,.70);
+    font-size:13px;
+}
 .cta{
     margin-top:18px;
     display:flex;
@@ -237,12 +244,12 @@ label{
     color: rgba(255,255,255,.70);
     font-size:13px;
 }
-.cta a{
+.cta a, .back-to-user a{
     color: rgba(125,211,252,.95);
     text-decoration:none;
     font-weight:700;
 }
-.cta a:hover{ text-decoration:underline; }
+.cta a, .back-to-user a:hover{ text-decoration:underline; }
 .footer{
     margin-top:18px;
     display:flex;

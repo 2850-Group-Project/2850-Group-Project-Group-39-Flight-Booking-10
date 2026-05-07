@@ -26,10 +26,26 @@
 -- complaint_response
 
 -- select * from complaint_response;
+
+-- SELECT 
+--     s.seat_id,
+--     s.seat_code,
+--     s.flight_id,
+--     s.status AS seat_table_status,
+--     sa.seat_assignment_id,
+--     sa.passenger_id
+-- FROM seat s
+-- LEFT JOIN seat_assignment sa ON sa.seat_id = s.seat_id
+-- WHERE s.status = 'occupied'
+--   AND sa.seat_assignment_id IS NULL;
+--   AND s.flight_id = 10001;
+
 select * from fare_class;
 
-ALTER TABLE fare_class ADD COLUMN colour TEXT DEFAULT '#6366f1';
-select * from fare_class;
+
+-- select * from seat where flight_id;
+
+
 
 -- CREATE TABLE IF NOT EXISTS user_points (
 --     user_points_id INTEGER PRIMARY KEY AUTOINCREMENT,

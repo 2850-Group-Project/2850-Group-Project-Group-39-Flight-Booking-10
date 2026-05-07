@@ -157,6 +157,7 @@
                         data-seat-position="{{ s.position }}"
                         data-seat-status="{{ s.status }}"
                         data-price="{% if s.hasPrice %}£{{ s.price }}{% endif %}"
+                        style="{% if s.status != 'occupied' %}--seat-colour: {{ s.colour }};{% endif %}"
                         aria-label="Seat {{ s.code }}, {{ s.position }}, {{ s.status }}{% if s.hasPrice %}, £{{ s.price }}{% endif %}"
                         aria-pressed="false"
                         {% if s.status == "occupied" %}disabled{% endif %}
