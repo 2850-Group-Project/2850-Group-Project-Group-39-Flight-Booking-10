@@ -83,6 +83,42 @@ private fun resolveIds(
 }
 
 /**
+ * Holds the resolved seat map data needed to build the seat selection page.
+ */
+private data class SeatMapData(
+    val seatStatusByCode: Map<String, String>,
+    val seatCabinMap: Map<String, String>,
+    val cabinColourMap: Map<String, String>,
+    val seatPriceMap: Map<String, Double>,
+    val seats: List<Seat>,
+)
+
+/**
+ * Fetches and assembles all seat-related data for a given flight.
+ */
+private fun buildSeatMapData(flightId: Int): SeatMapData {
+    val seats = SeatTableAccess().getByAttribute(SeatTable.flightId, flightId)
+
+    val seatStatusByCode =
+        transaction {
+            val assignedSeatIds =
+                SeatAssignmentTable
+                    .select { SeatAssignmentTable.seatId.isNotNull() }
+                    .mapNotNull { it[SeatAssignmentTable.seatId] }
+                    .toSet()
+            seats.associate { seat ->
+                seat.seatCode to if (seat.id in assignedSeatIds) "occupied" else "available"
+            }
+        }
+
+    val seatCabinMap = seats.associate { it.seatCode to (it.cabinClass ?: "") }
+    val cabinColourMap = getCabinColourMap(flightId)
+    val seatPriceMap = getSeatPriceMap(seats, flightId)
+
+    return SeatMapData(seatStatusByCode, seatCabinMap, cabinColourMap, seatPriceMap, seats)
+}
+
+/**
  * Builds the Pebble model for the seat selection page.
  */
 private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
@@ -108,23 +144,20 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
         }
 
     val capacity = (flight.capacity ?: SMALL_AIRCRAFT_CAP_THRESHOLD).coerceAtLeast(1)
-    val seats = SeatTableAccess().getByAttribute(SeatTable.flightId, flight.id)
-    
-    val seatStatusByCode = transaction {
-        val assignedSeatIds = SeatAssignmentTable
-            .select { SeatAssignmentTable.seatId.isNotNull() }
-            .mapNotNull { it[SeatAssignmentTable.seatId] }
-            .toSet()
+    val seatMapData = buildSeatMapData(flight.id)
 
-        seats.associate { seat ->
-            seat.seatCode to if (seat.id in assignedSeatIds) "occupied" else "available"
-        }
-    }
+    val seatRows =
+        buildSeatRows(
+            capacity,
+            getLayout(capacity),
+            SeatRenderContext(
+                seatStatusByCode = seatMapData.seatStatusByCode,
+                seatPriceMap = seatMapData.seatPriceMap,
+                cabinColourMap = seatMapData.cabinColourMap,
+                seatCabinMap = seatMapData.seatCabinMap,
+            ),
+        )
 
-    // Builds seat price map to pass to pebble
-    val seatPriceMap = getSeatPriceMap(seats, flight.id)
-
-    val seatRows = buildSeatRows(capacity, getLayout(capacity), seatStatusByCode, seatPriceMap)
     val unreadCount = ComplaintResponseTableAccess().getUnreadResponsesCountForUser(params.userId)
 
     val base =
@@ -150,6 +183,20 @@ private fun buildSeatPageModel(params: SeatPageParams): Map<String, Any>? {
         put("leg", params.leg)
     }
 }
+
+private fun getCabinColourMap(flightId: Int): Map<String, String> =
+    transaction {
+        FlightFareTable
+            .join(FareClassTable, JoinType.INNER, additionalConstraint = {
+                FlightFareTable.fareClassId eq FareClassTable.id
+            })
+            .select { FlightFareTable.flightId eq flightId }
+            .mapNotNull { row ->
+                val cabin = row[FareClassTable.cabinClass] ?: return@mapNotNull null
+                cabin to row[FareClassTable.colour]
+            }
+            .toMap()
+    }
 
 /**
  * Builds a map of seat codes to their prices based on the cabin class of each seat.

@@ -83,6 +83,17 @@ data class SeatLayout(
 }
 
 /**
+ * Bundles the four per-seat lookup maps used when rendering the seat grid,
+ * replacing the repeated long parameter lists on [buildSeatRows] and [buildSeatRow].
+ */
+data class SeatRenderContext(
+    val seatStatusByCode: Map<String, String>,
+    val seatPriceMap: Map<String, Double> = emptyMap(),
+    val cabinColourMap: Map<String, String> = emptyMap(),
+    val seatCabinMap: Map<String, String> = emptyMap(),
+)
+
+/**
  * Helper function that returns a SeatLayout of the aircraft based on the capacity
  * @param capacity seat capacity
  * @return seat layout
@@ -288,31 +299,29 @@ fun buildSeatsModel(params: SeatsModelParams): Map<String, Any> {
  * Builds seat rows, a list of SeatRow, based on capacity and layout
  * @param capacity seat capacity
  * @param layout seat layout
- * @param seatStatusByCode seatCode→status map
+ * @param context seat render context (status, price, colour, cabin maps)
  * @return list of seat rows
  */
 fun buildSeatRows(
     capacity: Int,
     layout: SeatLayout,
-    seatStatusByCode: Map<String, String>,
-    seatPriceMap: Map<String, Double> = emptyMap(),
+    context: SeatRenderContext,
 ): List<Map<String, Any>> {
     val totalRows = ceil(capacity / layout.seatsPerRow.toDouble()).toInt().coerceAtLeast(1)
-    return (1..totalRows).map { buildSeatRow(it, layout, seatStatusByCode, seatPriceMap) }
+    return (1..totalRows).map { buildSeatRow(it, layout, context) }
 }
 
 /**
  * Builds a seat row for the seat selection page to use to display
  * @param rowNum row number
  * @param layout seat layout
- * @param seatStatusByCode seatCode→status map
+ * @param context seat render context (status, price, colour, cabin maps)
  * @return seat row model
  */
 fun buildSeatRow(
     rowNum: Int,
     layout: SeatLayout,
-    seatStatusByCode: Map<String, String>,
-    seatPriceMap: Map<String, Double> = emptyMap(),
+    context: SeatRenderContext,
 ): Map<String, Any> {
     val seats = mutableListOf<Map<String, Any>>()
 
@@ -324,8 +333,10 @@ fun buildSeatRow(
                     letter = letter,
                     idx = idx,
                     layout = layout,
-                    seatStatusByCode = seatStatusByCode,
-                    seatPriceMap = seatPriceMap,
+                    seatStatusByCode = context.seatStatusByCode,
+                    seatPriceMap = context.seatPriceMap,
+                    cabinColourMap = context.cabinColourMap,
+                    seatCabinMap = context.seatCabinMap,
                 ),
             ),
         )
@@ -352,20 +363,23 @@ data class SeatBuildParams(
     val layout: SeatLayout,
     val seatStatusByCode: Map<String, String>,
     val seatPriceMap: Map<String, Double> = emptyMap(),
+    val cabinColourMap: Map<String, String> = emptyMap(),
+    val seatCabinMap: Map<String, String> = emptyMap(),
 )
 
 /**
  * Builds a single seat model for seat selection page
- * @param rowNum row number
- * @param letter seat letter
- * @param idx seat index
- * @param layout seat layout
- * @param seatStatusByCode seatCode→status map
+ * @param params seat build params
  * @return seat model
  */
 fun buildSeat(params: SeatBuildParams): Map<String, Any> {
     val code = "${params.rowNum}${params.letter}"
     val price = params.seatPriceMap[code]
+
+    val cabin = params.seatCabinMap[code] ?: ""
+    val colour = params.cabinColourMap[cabin] ?: "#6366f1"
+    println(colour)
+
     return mapOf(
         "code" to code,
         "letter" to params.letter,
@@ -374,5 +388,6 @@ fun buildSeat(params: SeatBuildParams): Map<String, Any> {
         "isAisleGap" to false,
         "price" to (price ?: 0.0),
         "hasPrice" to (price != null),
+        "colour" to colour,
     )
 }
