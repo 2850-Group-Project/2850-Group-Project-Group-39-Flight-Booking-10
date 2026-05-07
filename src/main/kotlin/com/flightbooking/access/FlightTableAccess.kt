@@ -16,8 +16,6 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
@@ -31,7 +29,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-const val HOURS_DENOMINATOR: Int = 60
+private const val HOURS_DENOMINATOR: Int = 60
 
 /**
  * Provides database access operations for the [FlightTable].
@@ -131,7 +129,6 @@ class FlightTableAccess {
         val destinationAirport = AirportTable.alias("destination")
 
         return transaction {
-            addLogger(StdOutSqlLogger)
             FlightTable
                 .join(originAirport, JoinType.INNER, FlightTable.originAirport, originAirport[AirportTable.id])
                 .join(

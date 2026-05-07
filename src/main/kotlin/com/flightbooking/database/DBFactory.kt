@@ -21,6 +21,7 @@ import com.flightbooking.tables.UserTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
 
 /**
  * Class responsible for creating/mainting connection to database.
@@ -31,6 +32,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object DBFactory {
     private const val DEFAULT_URL = "jdbc:sqlite:data/flight_booking_DB.db"
     private const val DEFAULT_DRIVER = "org.sqlite.JDBC"
+    private val logger = LoggerFactory.getLogger(DBFactory::class.java)
 
     /**
      * Initialised connection to database and checks for/creates missing tables
@@ -46,7 +48,7 @@ object DBFactory {
             url = url,
             driver = driver,
         )
-        println("Checking if all tables exist...")
+        logger.info("Checking if all tables exist")
         transaction {
             SchemaUtils.create(
                 AirportTable,
@@ -69,6 +71,6 @@ object DBFactory {
                 PointsTransactionTable,
             )
         }
-        println("All tables present")
+        logger.info("All tables present")
     }
 }

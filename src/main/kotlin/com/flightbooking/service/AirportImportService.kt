@@ -4,7 +4,7 @@ import com.flightbooking.access.AirportTableAccess
 import com.flightbooking.api.AviationStackClient
 import com.flightbooking.models.Airport
 
-const val IMPORT_LIMIT: Int = 100
+private const val IMPORT_LIMIT: Int = 100
 
 /**
  * Service object for airport importing using AviationStack API
