@@ -351,3 +351,77 @@
   transition: background .15s, transform .15s;
 }
 .btn-ghost:hover { background: rgba(255,255,255,.10); transform: translateY(-1px); }
+
+/* DELETE CONFRIMATION MODAL */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .6);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal {
+  background: rgba(15, 19, 32, .98);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+  padding: 28px;
+  max-width: 420px;
+  width: 90%;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0;
+  margin-bottom: 10px;
+  color: #f1f5f9;
+}
+
+.modal-sub {
+  color: rgba(255, 255, 255, .60);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.modal-actions form {
+  display: contents;
+}
+
+.btn-del {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 77, 77, .30);
+  background: rgba(255, 77, 77, .12);
+  color: rgba(255, 255, 255, .92);
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  transition: .18s ease;
+  white-space: nowrap;
+}
+
+.btn-del:hover {
+  background: rgba(255, 77, 77, .20);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  cursor: pointer;
+}

@@ -151,10 +151,7 @@
                     </td>
                     <td class="fc-actions">
                       <a class="btn-edit" href="/staff/fare-class?edit={{ fc.id }}">Edit</a>
-                      <form method="post" action="/staff/fare-class/delete" onsubmit="return confirm('Delete this fare class?')">
-                        <input type="hidden" name="id" value="{{ fc.id }}">
-                        <button type="submit" class="btn-del">Delete</button>
-                      </form>
+                      <button type="button" class="btn-del" onclick="openDeleteModal({{ fc.id }})">Delete</button>
                     </td>
                   </tr>
                   {% endfor %}
@@ -179,9 +176,25 @@
   </div>
 </div>
 
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal-backdrop" id="deleteModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="deleteModalTitle" aria-describedby="deleteModalDescription" tabindex="-1">
+  <div class="modal">
+    <div class="modal-title" id="deleteModalTitle">Delete Fare Class?</div>
+    <p class="modal-sub" id="deleteModalDescription">This action cannot be undone. This fare class will be permanently deleted.</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" type="button" onclick="closeDeleteModal()">Go Back</button>
+      <form id="deleteForm" action="/staff/fare-class/delete" method="post" style="margin:0;">
+        <input type="hidden" name="id" id="deleteId" />
+        <button class="btn-del" type="submit">Yes, Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% include "footer.peb" %}
 
 <script src="/static/javascript/Large_Font.js"></script>
+<script src="/static/javascript/StaffFareClass.js"></script>
 <script>
   document.querySelectorAll('input[name="colour"]').forEach(function(input) {
     var dot = input.closest('.fc-colour-row')?.querySelector('.fc-colour-preview');
