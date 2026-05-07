@@ -2,6 +2,7 @@ package com.flightbooking.routes
 
 import com.flightbooking.access.ComplaintResponseTableAccess
 import com.flightbooking.models.BookingSession
+import com.flightbooking.models.SeatSelectionSession
 import com.flightbooking.service.AuthService
 import com.flightbooking.service.PointsService
 import com.flightbooking.service.calculateEarning

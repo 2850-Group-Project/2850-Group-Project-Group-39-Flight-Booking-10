@@ -106,6 +106,7 @@ data class SeatSelectionEntry(
     val passengerLastName: String,
     val seatCode: String,
     val seatCost: Double,
+    val leg: String,
 )
 
 /**
