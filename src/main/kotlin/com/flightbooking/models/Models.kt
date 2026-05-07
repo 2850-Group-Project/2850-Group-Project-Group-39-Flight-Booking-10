@@ -98,8 +98,8 @@ data class BookingSession(
 )
 
 /**
- * Seat selection entry data class that is used to keep track of all data about 
- * a single seat selection 
+ * Seat selection entry data class that is used to keep track of all data about
+ * a single seat selection
  */
 @Serializable
 data class SeatSelectionEntry(
@@ -111,7 +111,7 @@ data class SeatSelectionEntry(
 )
 
 /**
- * Seat selection session data class that is used to keep track of all data about 
+ * Seat selection session data class that is used to keep track of all data about
  * which seats are selected during a booking process
  */
 @Serializable

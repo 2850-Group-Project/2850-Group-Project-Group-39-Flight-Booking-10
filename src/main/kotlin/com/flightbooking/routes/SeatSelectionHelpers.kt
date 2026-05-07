@@ -4,11 +4,10 @@ import com.flightbooking.models.Airport
 import com.flightbooking.models.BookingSession
 import com.flightbooking.models.Flight
 import com.flightbooking.models.Seat
-import com.flightbooking.models.SeatSelectionSession
 import com.flightbooking.models.SeatSelectionEntry
 import com.flightbooking.tables.BookingSegmentTable
-import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.PassengerTable
+import com.flightbooking.tables.SeatAssignmentTable
 import com.flightbooking.tables.SeatTable
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
@@ -218,25 +217,28 @@ fun assignSeats(
                 it[SeatTable.status] = "occupied"
             }
 
-            val passenger = PassengerTable
-                .select { PassengerTable.id eq passengerId.toInt() }
-                .firstOrNull()
-            
+            val passenger =
+                PassengerTable
+                    .select { PassengerTable.id eq passengerId.toInt() }
+                    .firstOrNull()
+
             val passengerFirstName = passenger?.get(PassengerTable.firstName) ?: "John"
             val passengerLastName = passenger?.get(PassengerTable.lastName) ?: "Smith"
 
             val seatCost = getSeatPriceMap(listOf(seat), seat.flightId)[seatCode] ?: 0.0
 
-            entries.add(SeatSelectionEntry(
-                passengerFirstName, 
-                passengerLastName, 
-                seatCode, 
-                seatCost,
-                leg
-            ))
+            entries.add(
+                SeatSelectionEntry(
+                    passengerFirstName,
+                    passengerLastName,
+                    seatCode,
+                    seatCost,
+                    leg,
+                ),
+            )
         }
     }
-    
+
     return entries
 }
 

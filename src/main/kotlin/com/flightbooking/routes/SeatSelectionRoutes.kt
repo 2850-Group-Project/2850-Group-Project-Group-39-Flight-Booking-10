@@ -7,9 +7,8 @@ import com.flightbooking.access.FlightFareTableAccess
 import com.flightbooking.access.FlightTableAccess
 import com.flightbooking.access.SeatTableAccess
 import com.flightbooking.models.BookingSession
-import com.flightbooking.models.SeatSelectionSession
-import com.flightbooking.models.SeatSelectionEntry
 import com.flightbooking.models.Seat
+import com.flightbooking.models.SeatSelectionSession
 import com.flightbooking.service.AuthService
 import com.flightbooking.tables.AirportTable
 import com.flightbooking.tables.FareClassTable
