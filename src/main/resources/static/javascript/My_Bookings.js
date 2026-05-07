@@ -60,100 +60,110 @@ async function geocodeCity(name) {
   return null;
 }
 
-async function openSeatModal(originName, destName, flightNum, dep, arr, status, passengers) {
-  document.getElementById('seatModalRoute').textContent = originName + ' → ' + destName;
-  document.getElementById('seatModalFlight').textContent = flightNum;
-  document.getElementById('seatModalDep').textContent = dep;
-  document.getElementById('seatModalArr').textContent = arr;
-  document.getElementById('seatModalStatus').textContent = status;
-
+// Used Claude AI to generate new open seat modal function for new ticket design
+async function openSeatModal(originName, destName, originIata, destIata, flightNum, dep, arr, status, passengers) {
   const JSONpassengers = JSON.parse(passengers);
-
-  // Rendering passengers
-  // Used Claude AI to generate the inline HTML/Pebble, lines 81-108
-  var passengerHtml = '';
-  if (JSONpassengers && JSONpassengers.length > 0) {
-    JSONpassengers.forEach(function(p) {
-        passengerHtml +=
-            '<div class="passenger-detail-card">' +
-            '<div class="passenger-detail-header">' +
-                '<span class="passenger-detail-icon">👤</span>' +
-                '<span class="passenger-detail-name">' + (p.firstName || '') + ' ' + (p.lastName || '') + '</span>' +
-                '<div class="seat-code mini-pill">' +
-                  '<span class="passenger-detail-field-label">Seat</span>' +
-                  '<span class="passenger-detail-field-value">' + (p.seatCode || '-') + '</span>' +
-                '</div>' +
-                '<span class="passenger-detail-checkin ' + (p.checkedIn == 1 ? 'checked-in' : '') + '">' +
-                (p.checkedIn == 1 ? '✓ Checked In' : '○ Not Checked In') +
-                '</span>' +
-            '</div>' +
-            '<div class="passenger-detail-grid">' +
-                '<div class="passenger-detail-field">' +
-                '<span class="passenger-detail-field-label">Date of Birth</span>' +
-                '<span class="passenger-detail-field-value">' + (p.dob || '-') + '</span>' +
-                '</div>' +
-                '<div class="passenger-detail-field">' +
-                '<span class="passenger-detail-field-label">Nationality</span>' +
-                '<span class="passenger-detail-field-value">' + (p.nationality || '-') + '</span>' +
-                '</div>' +
-                '<div class="passenger-detail-field">' +
-                '<span class="passenger-detail-field-label">Document Type</span>' +
-                '<span class="passenger-detail-field-value">' + (p.docType || '-') + '</span>' +
-                '</div>' +
-                '<div class="passenger-detail-field">' +
-                '<span class="passenger-detail-field-label">Document Number</span>' +
-                '<span class="passenger-detail-field-value">' + (p.docNumber || '-') + '</span>' +
-                '</div>' +
-            '</div>' +
-            '</div>';
-        });
-  } else {
-    passengerHtml = '<span class="flight-details-modal-label">No passenger data available.</span>';
-  }
-  document.getElementById('seatModalPassengers').innerHTML = passengerHtml;
-
-  var modal = document.getElementById('seatModal');
-  modal.setAttribute('aria-hidden', 'false');
-  modal.style.display = 'flex';
 
   if (flightMap) {
     flightMap.remove();
     flightMap = null;
   }
 
-  // Used Claude AI to find dark theme flight map, line 125
-  flightMap = L.map('flightMap', { zoomControl: true, attributionControl: false });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(flightMap);
+  var modal = document.getElementById('seatModal');
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
 
-  var originCoords = await geocodeCity(originName);
-  var destCoords = await geocodeCity(destName);
+  document.getElementById('seatModalBody').innerHTML = `
+    <div id="flightMap" style="width:100%; height:200px; min-height:200px;"></div>
+    <div class="ticket-route">
+      <div>
+        <p class="ticket-iata">${originIata}</p>
+        <p class="ticket-city">${originName}</p>
+      </div>
+      <div class="ticket-arrow">
+        <div class="ticket-arrow-line"></div>
+        <span>✈ ${flightNum}</span>
+      </div>
+      <div style="text-align:right;">
+        <p class="ticket-iata">${destIata}</p>
+        <p class="ticket-city">${destName}</p>
+      </div>
+    </div>
+    <div class="ticket-info-grid">
+      <div class="ticket-info-cell">
+        <p class="ticket-info-label">Departure</p>
+        <p class="ticket-info-value">${dep}</p>
+      </div>
+      <div class="ticket-info-cell">
+        <p class="ticket-info-label">Arrival</p>
+        <p class="ticket-info-value">${arr}</p>
+      </div>
+      <div class="ticket-info-cell">
+        <p class="ticket-info-label">Status</p>
+        <p class="ticket-info-value">${status}</p>
+      </div>
+    </div>
+    <div class="ticket-tear">
+      <div class="ticket-tear-line"></div>
+    </div>
+    <div class="ticket-passengers">
+      <p class="ticket-passengers-label">Passengers</p>
+      ${JSONpassengers && JSONpassengers.length > 0 ? JSONpassengers.map(function(p) {
+        var initials = ((p.firstName || '')[0] || '') + ((p.lastName || '')[0] || '');
+        var checkedIn = p.checkedIn == 1;
+        return `
+          <div class="ticket-passenger-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="ticket-passenger-avatar">${initials.toUpperCase()}</div>
+              <div>
+                <p style="margin:0;font-size:13px;font-weight:500;color:#f1f5f9;">${p.firstName || ''} ${p.lastName || ''}</p>
+                <p style="margin:2px 0 0;font-size:11px;color:rgba(255,255,255,.45);">${p.dob || ''}</p>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="text-align:right;">
+                <p class="ticket-seat-label">Seat</p>
+                <p class="ticket-seat-number">${p.seatCode || '—'}</p>
+              </div>
+              <span style="font-size:11px;padding:3px 8px;border-radius:999px;background:${checkedIn ? 'rgba(34,197,94,.1)' : 'rgba(255,255,255,.05)'};color:${checkedIn ? '#86efac' : 'rgba(255,255,255,.4)'};border:1px solid ${checkedIn ? 'rgba(34,197,94,.3)' : 'rgba(255,255,255,.1)'};">
+                ${checkedIn ? '✓ checked in' : '○ not checked in'}
+              </span>
+            </div>
+          </div>`;
+      }).join('') : '<span style="font-size:13px;color:rgba(255,255,255,.4);">No passenger data available.</span>'}
+    </div>
+  `;
 
-  if (originCoords && destCoords) {
-    // Draw line between 2 airports
-    var latlngs = [originCoords, destCoords];
-    L.polyline(latlngs, { color: '#ffffffe8', weight: 2, dashArray: '5 4' }).addTo(flightMap);
+  requestAnimationFrame(function() {
+    requestAnimationFrame(async function() {
+      var mapEl = document.getElementById('flightMap');
+      if (!mapEl) return;
 
-    // Used Claude AI to write the circle markers, lines 137-142
-    // Airport markers
-    L.circleMarker(originCoords, { radius: 6, color: '#0062ffc5', fillColor: '#3b82f6', fillOpacity: 1 })
-      .bindTooltip(originName, { permanent: false })
-      .addTo(flightMap);
-    L.circleMarker(destCoords, { radius: 6, color: '#22c55ebf', fillColor: '#22c55e', fillOpacity: 1 })
-      .bindTooltip(destName, { permanent: false })
-      .addTo(flightMap);
+      flightMap = L.map(mapEl, { zoomControl: true, attributionControl: false });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(flightMap);
 
-    // fit map to show both points
-    flightMap.fitBounds(L.latLngBounds([originCoords, destCoords]), { padding: [30, 30] });
-  } else {
-    // fallback to world view if geocoding fails
-    flightMap.setView([20, 0], 2);
-  }
+      var originCoords = await geocodeCity(originName);
+      var destCoords = await geocodeCity(destName);
+
+      flightMap.invalidateSize();
+
+      if (originCoords && destCoords) {
+        L.polyline([originCoords, destCoords], { color: '#ffffffe8', weight: 2, dashArray: '5 4' }).addTo(flightMap);
+        L.circleMarker(originCoords, { radius: 6, color: '#0062ffc5', fillColor: '#3b82f6', fillOpacity: 1 }).bindTooltip(originName).addTo(flightMap);
+        L.circleMarker(destCoords, { radius: 6, color: '#22c55ebf', fillColor: '#22c55e', fillOpacity: 1 }).bindTooltip(destName).addTo(flightMap);
+        flightMap.fitBounds(L.latLngBounds([originCoords, destCoords]), { padding: [30, 30] });
+      } else {
+        flightMap.setView([20, 0], 2);
+      }
+    });
+  });
 }
 
 function closeSeatModal() {
   var modal = document.getElementById('seatModal');
+  modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
-  modal.style.display = 'none';
+  modal.style.display = '';
   if (flightMap) {
     flightMap.remove();
     flightMap = null;
