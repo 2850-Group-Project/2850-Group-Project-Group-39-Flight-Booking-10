@@ -43,11 +43,14 @@ fun Route.confirmationRoutes() {
 
         call.sessions.set("BOOKING_SESSION", BookingSession())
 
+        val seatSelectionSession = call.sessions.get<SeatSelectionSession>() ?: SeatSelectionSession()
+
         call.respond(
             PebbleContent(
                 "confirmation.peb",
                 mapOf(
                     "bookingSession" to bookingSession,
+                    "seatSelectionSession" to seatSelectionSession,
                     "pointsEarned" to pointsEarned,
                     "unreadCount" to unreadCount,
                 ),
