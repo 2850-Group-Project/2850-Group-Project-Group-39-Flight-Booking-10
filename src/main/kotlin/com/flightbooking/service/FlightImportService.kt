@@ -43,7 +43,7 @@ class FlightImportService(
 
     /**
      * Fetches all flights from AviationStack API, handles pagination
-     * Returns: list of ApiFlight objects
+     * @return list of ApiFlight objects
      */
     private suspend fun fetchAllFlights(): List<ApiFlight> {
         val results = mutableListOf<ApiFlight>()
@@ -63,8 +63,9 @@ class FlightImportService(
 
     /**
      * Validates ApiFlight data against database
-     * Parameters: apiFlight - the flight data, iataToID - map of IATAcodes to databases airport IDs
-     * Returns: ValidatedFlight if valid, null if missing Iata or unknown airport
+     * @param apiFlight: the flight data
+     * @param iataToID: map of IATAcodes to databases airport IDs
+     * @return ValidatedFlight if valid, null if missing Iata or unknown airport
      */
     private fun validateFlight(
         apiFlight: ApiFlight,
@@ -92,7 +93,7 @@ class FlightImportService(
 
     /**
      * Inserts a validated flight into the database
-     * Parameters: valid - the flight data (assuming already validated)
+     * @param valid: the flight data (assuming already validated)
      */
     private fun insertFlight(valid: ValidatedFlight) {
         val api = valid.apiFlight

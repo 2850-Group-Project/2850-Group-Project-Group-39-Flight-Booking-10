@@ -13,7 +13,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ComplaintsRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated users should be redirected to login from the complaints page.
+    /**
+     * Unauthenticated users should be redirected to login from the complaints page.
+     */
     @Test
     fun unauthenticatedComplaintsRedirectsToLogin() =
         testApplication {
@@ -26,7 +28,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unauthenticated complaint submissions should be redirected to login.
+    /**
+     * Unauthenticated complaint submissions should be redirected to login.
+     */
     @Test
     fun unauthenticatedComplaintSubmitRedirectsToLogin() =
         testApplication {
@@ -39,7 +43,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unauthenticated users should be redirected to login from profile complaints.
+    /**
+     * Unauthenticated users should be redirected to login from profile complaints.
+     */
     @Test
     fun unauthenticatedProfileComplaintsRedirectsToLogin() =
         testApplication {
@@ -52,7 +58,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Authenticated users should be able to open the complaints form.
+    /**
+     * Authenticated users should be able to open the complaints form.
+     */
     @Test
     fun complaintsPageLoadsForAuthenticatedUser() =
         testApplication {
@@ -68,7 +76,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Request type"))
         }
 
-    // Success query should show the submitted confirmation message.
+    /**
+     * Success query should show the submitted confirmation message.
+     */
     @Test
     fun complaintsPageShowsSuccessMessageFromQuery() =
         testApplication {
@@ -81,7 +91,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Your request has been submitted"))
         }
 
-    // Error queries should show the matching validation or server error message.
+    /**
+     * Error queries should show the matching validation or server error message.
+     */
     @Test
     fun complaintsPageShowsErrorMessagesFromQuery() =
         testApplication {
@@ -97,7 +109,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertTrue(serverErrorResponse.bodyAsText().contains("Sorry, something went wrong"))
         }
 
-    // Submitted complaints should be saved for the logged-in user.
+    /**
+     * Submitted complaints should be saved for the logged-in user.
+     */
     @Test
     fun complaintSubmitCreatesComplaint() =
         testApplication {
@@ -125,7 +139,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertEquals("open", complaint.status)
         }
 
-    // Short complaint submissions should redirect with a validation error.
+    /**
+     * Short complaint submissions should redirect with a validation error.
+     */
     @Test
     fun complaintSubmitRejectsMissingMessage() =
         testApplication {
@@ -147,7 +163,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertEquals(0, complaintCount())
         }
 
-    // Complaint submissions should handle unusual but valid input safely.
+    /**
+     * Complaint submissions should handle unusual but valid input safely.
+     */
     @Test
     fun complaintSubmitHandlesUnusualInputSafely() =
         testApplication {
@@ -173,7 +191,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertEquals("open", complaint.status)
         }
 
-    // The profile complaints page should show an empty state when the user has no complaints.
+    /**
+     * The profile complaints page should show an empty state when the user has no complaints.
+     */
     @Test
     fun profileComplaintsShowsEmptyState() =
         testApplication {
@@ -188,7 +208,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("submit a request"))
         }
 
-    // The profile complaints page should list complaints for the logged-in user.
+    /**
+     * The profile complaints page should list complaints for the logged-in user.
+     */
     @Test
     fun profileComplaintsShowsUserComplaints() =
         testApplication {
@@ -207,7 +229,9 @@ class ComplaintsRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("open"))
         }
 
-    // Profile complaints should not include complaints owned by another user.
+    /**
+     * Profile complaints should not include complaints owned by another user.
+     */
     @Test
     fun profileComplaintsOnlyShowsCurrentUsersComplaints() =
         testApplication {

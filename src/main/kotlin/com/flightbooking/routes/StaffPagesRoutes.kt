@@ -160,6 +160,10 @@ private suspend fun handleGetStaffFlights(call: ApplicationCall) {
     call.respond(PebbleContent("staff_flights.peb", model))
 }
 
+/**
+ * Handler functionfor Staff creating flights (POST)
+ * @param call: request call
+ */
 private suspend fun handlePostStaffFlightsCreate(call: ApplicationCall) {
     AuthService.requireStaff(call)
 

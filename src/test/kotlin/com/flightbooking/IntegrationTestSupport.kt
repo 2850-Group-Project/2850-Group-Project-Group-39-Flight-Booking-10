@@ -13,13 +13,18 @@ import kotlin.test.AfterTest
 abstract class IntegrationTestSupport {
     private val tempDbFiles = mutableListOf<Path>()
 
+    /**
+     * Cleans the temp databases
+     */
     @AfterTest
     fun cleanupTempDatabases() {
         tempDbFiles.forEach { it.deleteIfExists() }
         tempDbFiles.clear()
     }
 
-    // Boot the app against a fresh temporary SQLite database for each test.
+    /**
+     * Boot the app against a fresh temporary SQLite database for each test.
+     */
     protected fun ApplicationTestBuilder.configureApp() {
         val dbFile = Files.createTempFile("flight-booking-test-", ".db")
         tempDbFiles.add(dbFile)

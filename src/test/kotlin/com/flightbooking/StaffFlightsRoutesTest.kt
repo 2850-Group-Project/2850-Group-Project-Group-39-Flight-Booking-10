@@ -18,7 +18,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class StaffFlightsRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated staff users should be sent to the staff login page.
+    /**
+     * Unauthenticated staff users should be sent to the staff login page.
+     */
     @Test
     fun unauthenticatedStaffFlightsRedirectsToStaffLogin() =
         testApplication {
@@ -30,7 +32,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/login", response.headers[HttpHeaders.Location])
         }
 
-    // An authenticated staff user should be able to load the staff flights page.
+    /**
+     * An authenticated staff user should be able to load the staff flights page.
+     */
     @Test
     fun authenticatedStaffFlightsPageLoads() =
         testApplication {
@@ -42,7 +46,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Flight Scheduler"))
         }
 
-    // Staff flights search should filter the list by flight number.
+    /**
+     * Staff flights search should filter the list by flight number.
+     */
     @Test
     fun staffFlightsSearchFiltersByFlightNumber() =
         testApplication {
@@ -62,7 +68,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains(">902<"))
         }
 
-    // The edit query should load the selected flight into the edit form.
+    /**
+     * The edit query should load the selected flight into the edit form.
+     */
     @Test
     fun editQueryLoadsSelectedFlightIntoEditForm() =
         testApplication {
@@ -83,7 +91,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("DXB Dubai International"))
         }
 
-    // Staff should be able to create a flight from the management page.
+    /**
+     * Staff should be able to create a flight from the management page.
+     */
     @Test
     fun createFlightRedirectsWithSuccessMessage() =
         testApplication {
@@ -112,7 +122,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/flights?ok=Flight created", response.headers[HttpHeaders.Location])
         }
 
-    // Flight creation should reject invalid route input and redirect with an error.
+    /**
+     * Flight creation should reject invalid route input and redirect with an error.
+     */
     @Test
     fun createFlightRejectsInvalidRouteData() =
         testApplication {
@@ -143,7 +155,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             )
         }
 
-    // Flight creation should reject missing route endpoints.
+    /**
+     * Flight creation should reject missing route endpoints.
+     */
     @Test
     fun createFlightRejectsMissingOriginOrDestination() =
         testApplication {
@@ -171,7 +185,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             )
         }
 
-    // Staff should be able to update an existing flight.
+    /**
+     * Staff should be able to update an existing flight.
+     */
     @Test
     fun updateFlightRedirectsWithSuccessMessage() =
         testApplication {
@@ -218,7 +234,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/flights?ok=Flight updated", response.headers[HttpHeaders.Location])
         }
 
-    // Flight updates should reject requests with no flight id.
+    /**
+     * Flight updates should reject requests with no flight id.
+     */
     @Test
     fun updateFlightRejectsMissingFlightId() =
         testApplication {
@@ -247,7 +265,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/flights?error=Missing flight id", response.headers[HttpHeaders.Location])
         }
 
-    // Flight updates should reject missing route endpoints.
+    /**
+     * Flight updates should reject missing route endpoints.
+     */
     @Test
     fun updateFlightRejectsMissingOriginOrDestination() =
         testApplication {
@@ -280,7 +300,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             )
         }
 
-    // Flight updates should reject routes with the same origin and destination.
+    /**
+     * Flight updates should reject routes with the same origin and destination.
+     */
     @Test
     fun updateFlightRejectsSameOriginAndDestination() =
         testApplication {
@@ -314,7 +336,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             )
         }
 
-    // Staff should be able to delete an existing flight.
+    /**
+     * Staff should be able to delete an existing flight.
+     */
     @Test
     fun deleteFlightRedirectsWithSuccessMessage() =
         testApplication {
@@ -354,7 +378,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/flights?ok=Flight deleted", response.headers[HttpHeaders.Location])
         }
 
-    // Flight deletion should reject requests with no flight id.
+    /**
+     * Flight deletion should reject requests with no flight id.
+     */
     @Test
     fun deleteFlightRejectsMissingFlightId() =
         testApplication {
@@ -368,7 +394,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/flights?error=Missing flight id", response.headers[HttpHeaders.Location])
         }
 
-    // Flight deletion should remove the flight row.
+    /**
+     * Flight deletion should remove the flight row.
+     */
     @Test
     fun deleteFlightRemovesFlightRow() =
         testApplication {
@@ -392,7 +420,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertFalse(flightExists(flightId))
         }
 
-    // Creating a flight should automatically generate seats for that flight.
+    /**
+     * Creating a flight should automatically generate seats for that flight.
+     */
     @Test
     fun createFlightAutoGeneratesSeats() =
         testApplication {
@@ -427,7 +457,9 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals("2B", seatCodes.last())
         }
 
-    // Updating a flight with existing seats should not duplicate them.
+    /**
+     * Updating a flight with existing seats should not duplicate them.
+     */
     @Test
     fun seatGenerationDoesNotDuplicateExistingSeats() =
         testApplication {
@@ -476,6 +508,11 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
             assertEquals(6, seatCountForFlight(flightId))
         }
 
+    /**
+     * Check the flight is in table
+     * @param flightId
+     * @return true if it exists, false if not
+     */
     private fun flightExists(flightId: Int): Boolean =
         transaction {
             FlightTable
@@ -483,6 +520,11 @@ class StaffFlightsRoutesTest : IntegrationTestSupport() {
                 .any()
         }
 
+    /**
+     * Counts total number of seats in a flight
+     * @param flightId
+     * @return seat count
+     */
     private fun seatCountForFlight(flightId: Int): Int =
         transaction {
             SeatTable
