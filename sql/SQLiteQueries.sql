@@ -42,13 +42,6 @@
 
 select * from fare_class;
 
--- SELECT DISTINCT s.cabin_class, ff.price
--- FROM seat s
--- LEFT JOIN flight_fare ff ON ff.flight_id = s.flight_id
--- LEFT JOIN fare_class fc ON fc.fare_class_id = ff.fare_class_id 
---     AND fc.cabin_class = s.cabin_class
--- WHERE s.flight_id = 1  -- replace with your flight_id
--- ORDER BY s.cabin_class;
 
 -- select * from seat where flight_id;
 
