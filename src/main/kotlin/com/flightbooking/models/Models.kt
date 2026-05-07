@@ -161,6 +161,7 @@ data class FareClass(
     val description: String?,
     val createdAt: String,
     val updatedAt: String,
+    val colour: String = "#6366f1",
 )
 
 /**
