@@ -17,14 +17,25 @@
 
     <!-- OPTIONS: SIDEBAR -->
     <div class="nav-title">MAIN MENU</div>
-    <nav class="nav">
-      <a class="active" href="/staff/dashboard" aria-current="page"><span class="ico">📊</span> Operations Control</a>
-      <a href="/staff/flights"><span class="ico">✈️</span> Flight Scheduler</a>
-      <a href="/staff/bookings"><span class="ico">📄</span> Bookings</a>
-      <a href="/staff/inquiries"><span class="ico">💬</span> Customer Inquiries</a>
-      <a href="/staff/notifications"><span class="ico">🔄</span> Change Requests</a>
-      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">👤</span> Crew Assignments</a>
-      <a href="#" aria-disabled="true" tabindex="-1" onclick="return false;"><span class="ico">📋</span> Compliance Reports</a>
+    <nav class="nav" aria-label="Staff navigation">
+      <a class="active" href="/staff/dashboard" aria-current="page">
+        <span class="ico" aria-hidden="true">📊</span> Operations Control
+      </a>
+      <a href="/staff/flights">
+        <span class="ico" aria-hidden="true">✈️</span> Flight Scheduler
+      </a>
+      <a href="/staff/bookings">
+        <span class="ico" aria-hidden="true">📄</span> Bookings
+      </a>
+      <a href="/staff/inquiries">
+        <span class="ico" aria-hidden="true">💬</span> Customer Inquiries
+      </a>
+      <a href="/staff/notifications">
+        <span class="ico" aria-hidden="true">🔄</span> Change Requests
+      </a>
+      <a href="/staff/fare-class">
+        <span class="ico" aria-hidden="true">📋</span> Fare Classes
+      </a>
     </nav>
 
     <div class="nav-title">SYSTEM</div>
