@@ -21,7 +21,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ConfirmationRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated users should be redirected to login from confirmation.
+    /**
+     * Unauthenticated users should be redirected to login from confirmation.
+     */
     @Test
     fun unauthenticatedConfirmationRedirectsToLogin() =
         testApplication {
@@ -34,7 +36,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Users without a booking session should be redirected home from confirmation.
+    /**
+     * Users without a booking session should be redirected home from confirmation.
+     */
     @Test
     fun confirmationRedirectsHomeWhenBookingSessionMissing() =
         testApplication {
@@ -47,7 +51,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
             assertEquals("/home", response.headers[HttpHeaders.Location])
         }
 
-    // Confirmation should render the one-way booking session summary.
+    /**
+     * Confirmation should render the one-way booking session summary.
+     */
     @Test
     fun confirmationPageShowsOneWayBookingSummary() =
         testApplication {
@@ -70,7 +76,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Loyalty Points Earned"))
         }
 
-    // Confirmation should include return details when the booking session has a return leg.
+    /**
+     * Confirmation should include return details when the booking session has a return leg.
+     */
     @Test
     fun confirmationPageShowsReturnBookingSummary() =
         testApplication {
@@ -90,7 +98,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("30"))
         }
 
-    // Confirmation should show points earned from a known paid booking total.
+    /**
+     * Confirmation should show points earned from a known paid booking total.
+     */
     @Test
     fun confirmationPageShowsPointsEarnedForKnownTotalPrice() =
         testApplication {
@@ -110,7 +120,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("100"))
         }
 
-    // Confirmation should include child and infant passenger counts.
+    /**
+     * Confirmation should include child and infant passenger counts.
+     */
     @Test
     fun confirmationPageShowsChildrenAndInfantsPassengerCounts() =
         testApplication {
@@ -133,7 +145,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("1 Infant"))
         }
 
-    // Confirmation should render the exact selected outbound and return ids that are shown on the page.
+    /**
+     * Confirmation should render the exact selected outbound and return ids that are shown on the page.
+     */
     @Test
     fun confirmationPageShowsExactSelectedFlightAndFareIds() =
         testApplication {
@@ -155,7 +169,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("3030"))
         }
 
-    // Confirmation should still render safely when no payment total has been set.
+    /**
+     * Confirmation should still render safely when no payment total has been set.
+     */
     @Test
     fun confirmationPageRendersSafelyWithZeroTotal() =
         testApplication {
@@ -173,6 +189,14 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("0"))
         }
 
+    /**
+     * Submits form for post /flights/select
+     * @param flightId
+     * @param fareId
+     * @param adults
+     * @param children
+     * @param infants
+     */
     private suspend fun HttpClient.selectOneWayTrip(
         flightId: Int,
         fareId: Int,
@@ -198,6 +222,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Test only route to create fake booking session
+     */
     private fun io.ktor.server.testing.ApplicationTestBuilder.installTestConfirmationSessionRoute() {
         application {
             routing {
@@ -228,6 +255,9 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
         }
     }
 
+    /**
+     * Helper function to choose the flight ids
+     */
     private suspend fun io.ktor.client.HttpClient.selectReturnTrip() {
         selectReturnTrip(
             outboundFlightId = 10,
@@ -237,6 +267,13 @@ class ConfirmationRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Submits two forms for flights/select, outbound and return
+     * @param outboundFlightId
+     * @param outboundFareId
+     * @param returnFlightId
+     * @param returnFareId
+     */
     private suspend fun HttpClient.selectReturnTrip(
         outboundFlightId: Int,
         outboundFareId: Int,

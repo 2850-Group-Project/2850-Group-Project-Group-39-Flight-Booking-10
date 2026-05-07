@@ -16,7 +16,9 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class FlightRoutesTest : IntegrationTestSupport() {
-    // Airport search should return an empty list for short queries.
+    /**
+     * Airport search should return an empty list for short queries.
+     */
     @Test
     fun airportSearchShortQueryReturnsEmptyList() =
         testApplication {
@@ -30,7 +32,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("[]", response.bodyAsText())
         }
 
-    // Airport search should return seeded airports matching the query.
+    /**
+     * Airport search should return seeded airports matching the query.
+     */
     @Test
     fun airportSearchReturnsMatchingAirport() =
         testApplication {
@@ -48,7 +52,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("DXB"))
         }
 
-    // Airport search should return an empty list when no airports match.
+    /**
+     * Airport search should return an empty list when no airports match.
+     */
     @Test
     fun airportSearchUnknownQueryReturnsEmptyList() =
         testApplication {
@@ -62,7 +68,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("[]", response.bodyAsText())
         }
 
-    // Unauthenticated users should be redirected to login when selecting a flight.
+    /**
+     * Unauthenticated users should be redirected to login when selecting a flight.
+     */
     @Test
     fun unauthenticatedFlightSelectRedirectsToLogin() =
         testApplication {
@@ -84,7 +92,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Flight selection should reject requests with no flight id.
+    /**
+     * Flight selection should reject requests with no flight id.
+     */
     @Test
     fun flightSelectRejectsMissingFlightId() =
         testApplication {
@@ -105,7 +115,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("Missing flightId", response.bodyAsText())
         }
 
-    // Flight selection should reject non-numeric flight ids.
+    /**
+     * Flight selection should reject non-numeric flight ids.
+     */
     @Test
     fun flightSelectRejectsNonNumericFlightId() =
         testApplication {
@@ -127,7 +139,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("Missing flightId", response.bodyAsText())
         }
 
-    // Flight selection should reject requests with no fare id.
+    /**
+     * Flight selection should reject requests with no fare id.
+     */
     @Test
     fun flightSelectRejectsMissingFareId() =
         testApplication {
@@ -148,7 +162,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("Missing fareId", response.bodyAsText())
         }
 
-    // Flight selection should reject non-numeric fare ids.
+    /**
+     * Flight selection should reject non-numeric fare ids.
+     */
     @Test
     fun flightSelectRejectsNonNumericFareId() =
         testApplication {
@@ -170,7 +186,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("Missing fareId", response.bodyAsText())
         }
 
-    // Flight selection should reject requests with no leg value.
+    /**
+     * Flight selection should reject requests with no leg value.
+     */
     @Test
     fun flightSelectRejectsMissingLeg() =
         testApplication {
@@ -191,7 +209,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("Missing leg", response.bodyAsText())
         }
 
-    // Flight selection should reject requests with an invalid leg value.
+    /**
+     * Flight selection should reject requests with an invalid leg value.
+     */
     @Test
     fun flightSelectRejectsInvalidLeg() =
         testApplication {
@@ -213,7 +233,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertEquals("Invalid leg", response.bodyAsText())
         }
 
-    // Selecting an outbound flight should store the outbound booking session values.
+    /**
+     * Selecting an outbound flight should store the outbound booking session values.
+     */
     @Test
     fun flightSelectStoresOutboundSelectionInBookingSession() =
         testApplication {
@@ -244,7 +266,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertTrue(bookingCookie.value.isNotBlank())
         }
 
-    // Selecting a return flight should preserve the existing outbound selection.
+    /**
+     * Selecting a return flight should preserve the existing outbound selection.
+     */
     @Test
     fun flightSelectPreservesOutboundSelectionWhenSelectingReturnLeg() =
         testApplication {
@@ -295,7 +319,9 @@ class FlightRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("30"))
         }
 
-    // Selecting a return flight should store the return booking session values.
+    /**
+     * Selecting a return flight should store the return booking session values.
+     */
     @Test
     fun flightSelectStoresReturnSelectionInBookingSession() =
         testApplication {

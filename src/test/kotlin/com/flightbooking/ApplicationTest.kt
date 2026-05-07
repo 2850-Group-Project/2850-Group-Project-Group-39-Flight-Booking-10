@@ -10,7 +10,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ApplicationTest : IntegrationTestSupport() {
-    // Health check should return ok for uptime checks.
+    /**
+     * Health check should return ok for uptime checks.
+     */
     @Test
     fun healthCheckReturnsOk() =
         testApplication {
@@ -22,7 +24,9 @@ class ApplicationTest : IntegrationTestSupport() {
             assertEquals("ok", response.bodyAsText())
         }
 
-    // The landing route should send users to login.
+    /**
+     * The landing route should send users to login.
+     */
     @Test
     fun landingRouteRedirectsToLogin() =
         testApplication {
@@ -35,7 +39,9 @@ class ApplicationTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Smoke test to verify the login page renders successfully.
+    /**
+     * Smoke test to verify the login page renders successfully.
+     */
     @Test
     fun loginPageLoads() =
         testApplication {
@@ -46,7 +52,9 @@ class ApplicationTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Login"))
         }
 
-    // Unauthenticated users should be redirected to the login page from home.
+    /**
+     * Unauthenticated users should be redirected to the login page from home.
+     */
     @Test
     fun unauthenticatedHomeRedirectsToLogin() =
         testApplication {
@@ -58,7 +66,9 @@ class ApplicationTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unknown routes should render the shared not found status.
+    /**
+     * Unknown routes should render the shared not found status.
+     */
     @Test
     fun unknownRouteReturnsNotFound() =
         testApplication {

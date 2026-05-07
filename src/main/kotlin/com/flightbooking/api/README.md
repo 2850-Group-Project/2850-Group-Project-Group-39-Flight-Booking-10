@@ -1,4 +1,4 @@
-tried in Application.kt, none of the data had city names
+Temporary functions that were used to import from API in Application.kt
 
 Application.kt imports needed:
 

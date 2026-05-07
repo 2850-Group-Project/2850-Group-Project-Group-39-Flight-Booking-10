@@ -63,7 +63,6 @@ fun Route.pagesRoutes() {
     get("/flights/search") { handleGetFlightSearch(call) }
     get("/flights/passengers") { handleGetFlightPassengers(call) }
     get("/profile") { handleGetProfile(call) }
-    get("/profile/notifications") { handleGetNotifications(call) }
     get("/404") { handleNotFound(call) }
     get("/profile/bookings") {
         handleGetBookings(call)
@@ -250,19 +249,6 @@ private suspend fun handleGetProfile(call: ApplicationCall) {
             ),
         ),
     )
-}
-
-/**
- * Placeholder for notifications page (not implemented yet).
- *
- * GET /profile/notifications
- * - Always redirects to /404 (until implemented).
- *
- * @param call application call
- */
-private suspend fun handleGetNotifications(call: ApplicationCall) {
-    // Placeholder for notifications page (not implemented yet)
-    call.respondRedirect("/404")
 }
 
 /**

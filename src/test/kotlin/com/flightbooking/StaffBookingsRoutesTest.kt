@@ -17,7 +17,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class StaffBookingsRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated staff users should be sent to the staff login page.
+    /**
+     * Unauthenticated staff users should be sent to the staff login page.
+     */
     @Test
     fun unauthenticatedStaffBookingsRedirectsToStaffLogin() =
         testApplication {
@@ -30,7 +32,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/login", response.headers[HttpHeaders.Location])
         }
 
-    // Authenticated staff users should be able to load the bookings page.
+    /**
+     * Authenticated staff users should be able to load the bookings page.
+     */
     @Test
     fun authenticatedStaffBookingsPageLoads() =
         testApplication {
@@ -45,7 +49,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Existing Bookings"))
         }
 
-    // The bookings list should show seeded booking, passenger, and seat details.
+    /**
+     * The bookings list should show seeded booking, passenger, and seat details.
+     */
     @Test
     fun bookingsListShowsSeededBookingPassengerAndSeat() =
         testApplication {
@@ -64,7 +70,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Current: 1A"))
         }
 
-    // Searching by booking id should filter the list to that booking.
+    /**
+     * Searching by booking id should filter the list to that booking.
+     */
     @Test
     fun bookingsSearchByBookingIdFiltersList() =
         testApplication {
@@ -90,7 +98,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains(otherBooking.email))
         }
 
-    // Non-matching text search should show an empty bookings list.
+    /**
+     * Non-matching text search should show an empty bookings list.
+     */
     @Test
     fun bookingsSearchWithUnknownTextReturnsEmptyList() =
         testApplication {
@@ -107,7 +117,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("BOOKONE"))
         }
 
-    // Staff should be able to create a booking from the bookings management page.
+    /**
+     * Staff should be able to create a booking from the bookings management page.
+     */
     @Test
     fun createBookingRedirectsWithSuccessMessage() =
         testApplication {
@@ -139,7 +151,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/bookings", response.headers[HttpHeaders.Location])
         }
 
-    // Booking creation should reject missing required inputs without creating a booking.
+    /**
+     * Booking creation should reject missing required inputs without creating a booking.
+     */
     @Test
     fun createBookingRejectsMissingRequiredParams() =
         testApplication {
@@ -154,7 +168,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals(0, bookingCount())
         }
 
-    // Booking creation should reject passenger emails that do not belong to a user.
+    /**
+     * Booking creation should reject passenger emails that do not belong to a user.
+     */
     @Test
     fun createBookingRejectsUnknownPassengerEmail() =
         testApplication {
@@ -183,7 +199,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals(0, bookingCount())
         }
 
-    // Booking creation with a selected seat should assign and occupy that seat.
+    /**
+     * Booking creation with a selected seat should assign and occupy that seat.
+     */
     @Test
     fun createBookingWithSelectedSeatAssignsAndOccupiesSeat() =
         testApplication {
@@ -217,7 +235,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals("occupied", seatStatus(seatId))
         }
 
-    // Staff should be able to update a booking status successfully.
+    /**
+     * Staff should be able to update a booking status successfully.
+     */
     @Test
     fun updateBookingStatusRedirectsWithSuccessMessage() =
         testApplication {
@@ -261,7 +281,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/bookings", response.headers[HttpHeaders.Location])
         }
 
-    // Booking updates without a booking id should redirect safely.
+    /**
+     * Booking updates without a booking id should redirect safely.
+     */
     @Test
     fun updateBookingMissingBookingIdRedirectsSafely() =
         testApplication {
@@ -274,7 +296,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/bookings", response.headers[HttpHeaders.Location])
         }
 
-    // A seat from another flight should not be assigned to the booking.
+    /**
+     * A seat from another flight should not be assigned to the booking.
+     */
     @Test
     fun updateBookingWithSeatFromDifferentFlightDoesNotAssignIt() =
         testApplication {
@@ -298,7 +322,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals("available", seatStatus(wrongFlightSeatId))
         }
 
-    // Removing a seat from the same flight should free the old seat.
+    /**
+     * Removing a seat from the same flight should free the old seat.
+     */
     @Test
     fun removingSeatFreesOldSeat() =
         testApplication {
@@ -319,7 +345,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals("available", seatStatus(booking.seatId))
         }
 
-    // Staff should be able to change the seat assignment for a booking.
+    /**
+     * Staff should be able to change the seat assignment for a booking.
+     */
     @Test
     fun changeSeatAssignmentRedirectsWithSuccessMessage() =
         testApplication {
@@ -367,7 +395,9 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals(seatId, assignedSeatIdForBooking(bookingId))
         }
 
-    // Reassigning a booking to a different flight should handle seat state correctly.
+    /**
+     * Reassigning a booking to a different flight should handle seat state correctly.
+     */
     @Test
     fun reassignBookingFlightHandlesSeatCorrectly() =
         testApplication {
@@ -424,6 +454,15 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
             assertEquals(null, assignedSeatIdForBooking(bookingId))
         }
 
+    /**
+     * Seeds staff booking + seats
+     * @param reference
+     * @param email
+     * @param originCode
+     * @param destinationCode
+     * @param fareClassId
+     * @return the staff booking
+     */
     private fun seedStaffBookingWithSeat(
         reference: String = "STAFFBOOK",
         email: String = "passenger@example.com",
@@ -455,17 +494,27 @@ class StaffBookingsRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Returns total count in BookingTable
+     */
     private fun bookingCount(): Int =
         transaction {
             BookingTable.selectAll().count().toInt()
         }
 
+    /**
+     * Submits form to /staff/bookings/update
+     * @param vararg
+     */
     private suspend fun HttpClient.updateBooking(vararg params: Pair<String, String>) =
         submitForm(
             url = "/staff/bookings/update",
             formParameters = parameters { params.forEach { (k, v) -> append(k, v) } },
         )
 
+    /**
+     * Data class definition for seeded staff booking
+     */
     private data class SeededStaffBooking(
         val bookingId: Int,
         val reference: String,

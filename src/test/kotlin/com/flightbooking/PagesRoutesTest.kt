@@ -23,7 +23,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PagesRoutesTest : IntegrationTestSupport() {
-    // Authenticated users should be able to open the home page when airports exist.
+    /**
+     * Authenticated users should be able to open the home page when airports exist.
+     */
     @Test
     fun authenticatedHomePageLoadsWithAirports() =
         testApplication {
@@ -40,7 +42,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Search flights"))
         }
 
-    // Valid one-way searches should render outbound flight options.
+    /**
+     * Valid one-way searches should render outbound flight options.
+     */
     @Test
     fun oneWayFlightSearchRendersOutboundFlights() =
         testApplication {
@@ -64,7 +68,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("return-track"))
         }
 
-    // Valid return searches should render outbound and return flight options.
+    /**
+     * Valid return searches should render outbound and return flight options.
+     */
     @Test
     fun returnFlightSearchRendersOutboundAndReturnFlights() =
         testApplication {
@@ -88,7 +94,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Flight #702"))
         }
 
-    // Invalid searches should redirect users back home.
+    /**
+     * Invalid searches should redirect users back home.
+     */
     @Test
     fun invalidFlightSearchRedirectsHome() =
         testApplication {
@@ -101,7 +109,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertEquals("/home", response.headers[HttpHeaders.Location])
         }
 
-    // Passenger details page should render rows for adult, child, and infant counts.
+    /**
+     * Passenger details page should render rows for adult, child, and infant counts.
+     */
     @Test
     fun passengersPageRendersPassengerCounts() =
         testApplication {
@@ -121,7 +131,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("passengers[2][firstName]"))
         }
 
-    // Unauthenticated users should be redirected to login from the profile page.
+    /**
+     * Unauthenticated users should be redirected to login from the profile page.
+     */
     @Test
     fun unauthenticatedProfileRedirectsToLogin() =
         testApplication {
@@ -134,7 +146,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unauthenticated users should be redirected to login from their bookings page.
+    /**
+     * Unauthenticated users should be redirected to login from their bookings page.
+     */
     @Test
     fun unauthenticatedBookingsRedirectsToLogin() =
         testApplication {
@@ -147,7 +161,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // The shared 404 route should render with a not found status.
+    /**
+     * The shared 404 route should render with a not found status.
+     */
     @Test
     fun notFoundPageReturnsNotFoundStatus() =
         testApplication {
@@ -158,7 +174,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertEquals(HttpStatusCode.NotFound, response.status)
         }
 
-    // Authenticated users should be able to open their profile page.
+    /**
+     * Authenticated users should be able to open their profile page.
+     */
     @Test
     fun authenticatedProfilePageLoads() =
         testApplication {
@@ -173,7 +191,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Loyalty Points"))
         }
 
-    // The bookings page should show bookings owned by the logged-in user.
+    /**
+     * The bookings page should show bookings owned by the logged-in user.
+     */
     @Test
     fun bookingsPageShowsUserBookings() =
         testApplication {
@@ -193,7 +213,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("1A"))
         }
 
-    // Booking status filters should only show matching bookings.
+    /**
+     * Booking status filters should only show matching bookings.
+     */
     @Test
     fun bookingsPageFiltersByConfirmedStatus() =
         testApplication {
@@ -211,7 +233,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("CANCEL123"))
         }
 
-    // Booking id filters should show only the matching booking.
+    /**
+     * Booking id filters should show only the matching booking.
+     */
     @Test
     fun bookingsPageFiltersByBookingId() =
         testApplication {
@@ -228,7 +252,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("OTHER123"))
         }
 
-    // Text booking searches should render an empty bookings list.
+    /**
+     * Text booking searches should render an empty bookings list.
+     */
     @Test
     fun bookingsPageTextSearchReturnsEmptyList() =
         testApplication {
@@ -244,7 +270,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("TEST123"))
         }
 
-    // Cancelling a booking should mark it cancelled and free the assigned seat.
+    /**
+     * Cancelling a booking should mark it cancelled and free the assigned seat.
+     */
     @Test
     fun cancelBookingCancelsBookingAndFreesSeat() =
         testApplication {
@@ -268,7 +296,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertFalse(seatAssignmentExists(booking.segmentId))
         }
 
-    // Cancelling an unknown booking should redirect to the shared not found route.
+    /**
+     * Cancelling an unknown booking should redirect to the shared not found route.
+     */
     @Test
     fun cancelUnknownBookingRedirectsToNotFound() =
         testApplication {
@@ -288,7 +318,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertEquals("/404", response.headers[HttpHeaders.Location])
         }
 
-    // Deleting a booking should remove its booking and related segment rows.
+    /**
+     * Deleting a booking should remove its booking and related segment rows.
+     */
     @Test
     fun deleteBookingDeletesBookingAndSegments() =
         testApplication {
@@ -312,7 +344,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertFalse(seatAssignmentExists(booking.segmentId))
         }
 
-    // Deleting an unknown booking should redirect to the shared not found route.
+    /**
+     * Deleting an unknown booking should redirect to the shared not found route.
+     */
     @Test
     fun deleteUnknownBookingRedirectsToNotFound() =
         testApplication {
@@ -332,7 +366,9 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertEquals("/404", response.headers[HttpHeaders.Location])
         }
 
-    // Users should not be able to cancel or delete bookings owned by another user.
+    /**
+     * Users should not be able to cancel or delete bookings owned by another user.
+     */
     @Test
     fun userCannotCancelOrDeleteAnotherUsersBooking() =
         testApplication {
@@ -366,6 +402,13 @@ class PagesRoutesTest : IntegrationTestSupport() {
             assertTrue(bookingExists(booking.bookingId))
         }
 
+    /**
+     * Seeds all booking related db records for test user
+     * @param userId
+     * @param bookingReference
+     * @param bookingStatus
+     * @return key Ids
+     */
     private fun seedUserBooking(
         userId: Int = userIdByEmail(),
         bookingReference: String = "TEST123",
@@ -390,6 +433,13 @@ class PagesRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Seeds airport
+     * @param iataCode
+     * @param name
+     * @param city
+     * @return airport id
+     */
     private fun seedAirportWithCity(
         iataCode: String,
         name: String,
@@ -413,6 +463,11 @@ class PagesRoutesTest : IntegrationTestSupport() {
         return airportId
     }
 
+    /**
+     * Seeds flight search
+     * @param departureDate
+     * @param returnDate
+     */
     private fun seedSearchFlights(
         departureDate: LocalDate,
         returnDate: LocalDate? = null,
@@ -426,6 +481,14 @@ class PagesRoutesTest : IntegrationTestSupport() {
         }
     }
 
+    /**
+     * Seeds flight into db
+     * @param originAirportId
+     * @param destinationAirportId
+     * @param departureDate
+     * @param flightNumber
+     * @param fareClassId
+     */
     private fun seedSearchFlight(
         originAirportId: Int,
         destinationAirportId: Int,
@@ -445,6 +508,10 @@ class PagesRoutesTest : IntegrationTestSupport() {
         seedFlightFare(flightId, fareClassId)
     }
 
+    /**
+     * Seeds fare class/gets
+     * @return fare class id
+     */
     private fun seedOrGetFareClass(): Int =
         transaction {
             FareClassTable
@@ -454,6 +521,12 @@ class PagesRoutesTest : IntegrationTestSupport() {
                 ?.get(FareClassTable.id)
         } ?: seedFareClass()
 
+    /**
+     * Seeds booking session
+     * @param adults
+     * @param children
+     * @param infants
+     */
     private suspend fun HttpClient.seedBookingSession(
         adults: String,
         children: String,
@@ -480,11 +553,17 @@ class PagesRoutesTest : IntegrationTestSupport() {
         assertEquals(HttpStatusCode.OK, response.status)
     }
 
+    /**
+     * Defines formatter object for date time
+     */
     private companion object {
         val flightDateTimeFormatter: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     }
 
+    /**
+     * Data class definition for seeding user booking
+     */
     private data class SeededUserBooking(
         val bookingId: Int,
         val segmentId: Int,

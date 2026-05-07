@@ -101,6 +101,10 @@ private suspend fun handleProfileComplaints(call: io.ktor.server.application.App
     )
 }
 
+/**
+ * Handler function to submit responses, and updates view status of complaint response
+ * @param call request call
+ */
 private suspend fun handleViewResponses(call: io.ktor.server.application.ApplicationCall) {
     val (_, _) = AuthService.requireUser(call) ?: return
     val params = call.receiveParameters()

@@ -91,6 +91,15 @@ fun Route.authRoutes() {
     }
 }
 
+/**
+ * Helper function to validate that both inputted passwords match, first and last name aren't blank
+ * and to check password strength
+ * @param password: the first password inputted
+ * @param confirmPassword: the second password input
+ * @param firstName: inputted first name
+ * @param lastName: inputted last name
+ * @return string describing error, null if passes
+ */
 private fun validateRegistrationInput(
     password: String,
     confirmPassword: String,

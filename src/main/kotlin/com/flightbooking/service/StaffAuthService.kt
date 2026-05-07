@@ -11,8 +11,12 @@ object StaffAuthService {
 
     /**
      * Registers a new staff member with email and password
-     * Parameters: email, password, firstName, lastName, role
-     * Returns: true if registration successful, false if email or password is blank
+     * @param email
+     * @param password
+     * @param firstName
+     * @param lastName
+     * @param role
+     * @return true if registration successful, false if email or password is blank
      */
     fun register(
         email: String,
@@ -28,8 +32,9 @@ object StaffAuthService {
 
     /**
      * Logs in a staff member with email and password
-     * Parameters: email, password
-     * Returns: true if password correct, false if email not found or password wrong
+     * @param email
+     * @param password
+     * @return true if password correct, false if email not found or password wrong
      */
     fun login(
         email: String,

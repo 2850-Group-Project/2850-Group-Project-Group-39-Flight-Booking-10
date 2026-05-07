@@ -18,7 +18,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class StaffNotificationsRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated staff users should be redirected to staff login from notifications.
+    /**
+     * Unauthenticated staff users should be redirected to staff login from notifications.
+     */
     @Test
     fun unauthenticatedStaffNotificationsRedirectsToStaffLogin() =
         testApplication {
@@ -31,7 +33,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unauthenticated notification status updates should be redirected to staff login.
+    /**
+     * Unauthenticated notification status updates should be redirected to staff login.
+     */
     @Test
     fun unauthenticatedStaffNotificationStatusRedirectsToStaffLogin() =
         testApplication {
@@ -44,7 +48,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unauthenticated notification deletes should be redirected to staff login.
+    /**
+     * Unauthenticated notification deletes should be redirected to staff login.
+     */
     @Test
     fun unauthenticatedStaffNotificationDeleteRedirectsToStaffLogin() =
         testApplication {
@@ -57,7 +63,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/login", response.headers[HttpHeaders.Location])
         }
 
-    // Authenticated staff users should be able to load the notifications page.
+    /**
+     * Authenticated staff users should be able to load the notifications page.
+     */
     @Test
     fun authenticatedStaffNotificationsPageLoads() =
         testApplication {
@@ -72,7 +80,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Review and manage user change requests."))
         }
 
-    // The notifications page should list seeded change request details.
+    /**
+     * The notifications page should list seeded change request details.
+     */
     @Test
     fun notificationsPageListsSeededChangeRequests() =
         testApplication {
@@ -94,7 +104,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Reason: Earlier flight preferred"))
         }
 
-    // Numeric search should filter notifications by change request id.
+    /**
+     * Numeric search should filter notifications by change request id.
+     */
     @Test
     fun notificationsSearchByRequestIdFiltersList() =
         testApplication {
@@ -129,7 +141,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("CR-${otherRequest.requestId}"))
         }
 
-    // Non-numeric search cannot match request ids and should return an empty list.
+    /**
+     * Non-numeric search cannot match request ids and should return an empty list.
+     */
     @Test
     fun notificationsSearchWithTextReturnsEmptyList() =
         testApplication {
@@ -149,7 +163,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertFalse(body.contains("Visible request"))
         }
 
-    // Staff status updates should persist each supported status value.
+    /**
+     * Staff status updates should persist each supported status value.
+     */
     @Test
     fun notificationStatusUpdateChangesRequestStatus() =
         testApplication {
@@ -174,7 +190,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             }
         }
 
-    // Invalid statuses should redirect with an error and leave the request unchanged.
+    /**
+     * Invalid statuses should redirect with an error and leave the request unchanged.
+     */
     @Test
     fun notificationStatusUpdateRejectsInvalidStatus() =
         testApplication {
@@ -197,7 +215,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertEquals("pending", changeRequestStatus(request.requestId))
         }
 
-    // Missing request id or status should redirect with a validation error.
+    /**
+     * Missing request id or status should redirect with a validation error.
+     */
     @Test
     fun notificationStatusUpdateRejectsMissingRequestIdOrStatus() =
         testApplication {
@@ -233,7 +253,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             )
         }
 
-    // Deleting a notification should remove the matching change request row.
+    /**
+     * Deleting a notification should remove the matching change request row.
+     */
     @Test
     fun notificationDeleteRemovesChangeRequestRow() =
         testApplication {
@@ -255,7 +277,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertFalse(changeRequestExists(request.requestId))
         }
 
-    // Missing or unknown delete ids should redirect with an error.
+    /**
+     * Missing or unknown delete ids should redirect with an error.
+     */
     @Test
     fun notificationDeleteRejectsMissingOrUnknownRequestId() =
         testApplication {
@@ -278,6 +302,11 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/notifications?error=Delete failed", unknownResponse.headers[HttpHeaders.Location])
         }
 
+    /**
+     * Seeds a staff change request
+     * @param options: seed values
+     * @return the seeded change request
+     */
     private fun seedStaffChangeRequest(
         options: StaffChangeRequestSeedOptions = StaffChangeRequestSeedOptions(),
     ): SeededStaffChangeRequest {
@@ -337,6 +366,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
         )
     }
 
+    /**
+     * Data class definition for seeded change request parameters
+     */
     private class StaffChangeRequestSeedOptions {
         var email: String = "passenger@example.com"
         var reason: String = "Earlier flight preferred"
@@ -348,6 +380,11 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
         var fareClassId: Int? = null
     }
 
+    /**
+     * Searches for a change requests status with id
+     * @param requestId
+     * @return the status found
+     */
     private fun changeRequestStatus(requestId: Int): String =
         transaction {
             ChangeRequestTable
@@ -356,6 +393,11 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
                 .first()[ChangeRequestTable.status]
         }
 
+    /**
+     * Check a change request is in table
+     * @param requestId
+     * @return true if it does, false otherwise
+     */
     private fun changeRequestExists(requestId: Int): Boolean =
         transaction {
             ChangeRequestTable
@@ -363,6 +405,9 @@ class StaffNotificationsRoutesTest : IntegrationTestSupport() {
                 .any()
         }
 
+    /**
+     * Data class definition for the seeded change request
+     */
     private data class SeededStaffChangeRequest(
         val requestId: Int,
         val email: String,

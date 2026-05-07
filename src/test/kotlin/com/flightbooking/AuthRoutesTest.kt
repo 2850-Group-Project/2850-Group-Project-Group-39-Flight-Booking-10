@@ -16,7 +16,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class AuthRoutesTest : IntegrationTestSupport() {
-    // The register page should load successfully.
+    /**
+     * The register page should load successfully.
+     */
     @Test
     fun registerPageLoads() =
         testApplication {
@@ -27,7 +29,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Create Account"))
         }
 
-    // The login page should load successfully.
+    /**
+     * The login page should load successfully.
+     */
     @Test
     fun loginPageLoads() =
         testApplication {
@@ -38,7 +42,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Login"))
         }
 
-    // A user should be able to register, then log in and receive a session cookie.
+    /**
+     * A user should be able to register, then log in and receive a session cookie.
+     */
     @Test
     fun registerThenLoginRedirectsToHomeAndSetsSessionCookie() =
         testApplication {
@@ -76,7 +82,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertNotNull(loginResponse.headers.getAll(HttpHeaders.SetCookie)?.find { it.contains("USER_SESSION") })
         }
 
-    // Registration should fail when the passwords do not match.
+    /**
+     * Registration should fail when the passwords do not match.
+     */
     @Test
     fun registerRejectsPasswordMismatch() =
         testApplication {
@@ -100,7 +108,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Passwords do not match"))
         }
 
-    // Registration should fail when the email is missing.
+    /**
+     * Registration should fail when the email is missing.
+     */
     @Test
     fun registerRejectsMissingEmail() =
         testApplication {
@@ -119,7 +129,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("User already exists"))
         }
 
-    // Registration should fail when the password is missing.
+    /**
+     * Registration should fail when the password is missing.
+     */
     @Test
     fun registerRejectsMissingPassword() =
         testApplication {
@@ -138,7 +150,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("User already exists"))
         }
 
-    // Registration should fail when the name fields are missing.
+    /**
+     * Registration should fail when the name fields are missing.
+     */
     @Test
     fun registerRejectsMissingNameFields() =
         testApplication {
@@ -156,7 +170,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(HttpStatusCode.OK, response.status)
         }
 
-    // Registration should reject weak passwords when password strength is enforced.
+    /**
+     * Registration should reject weak passwords when password strength is enforced.
+     */
     @Test
     fun registerRejectsWeakPassword() =
         testApplication {
@@ -174,7 +190,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(HttpStatusCode.OK, response.status)
         }
 
-    // Registration should fail when the user already exists.
+    /**
+     * Registration should fail when the user already exists.
+     */
     @Test
     fun registerRejectsDuplicateUser() =
         testApplication {
@@ -214,7 +232,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, secondResponse.bodyAsText().contains("User already exists"))
         }
 
-    // Login should fail when the credentials are invalid.
+    /**
+     * Login should fail when the credentials are invalid.
+     */
     @Test
     fun loginRejectsInvalidCredentials() =
         testApplication {
@@ -250,7 +270,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Invalid credentials"))
         }
 
-    // Login should fail when the email is missing.
+    /**
+     * Login should fail when the email is missing.
+     */
     @Test
     fun loginRejectsMissingEmail() =
         testApplication {
@@ -266,7 +288,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Invalid credentials"))
         }
 
-    // Login should fail when the password is missing.
+    /**
+     * Login should fail when the password is missing.
+     */
     @Test
     fun loginRejectsMissingPassword() =
         testApplication {
@@ -282,7 +306,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Invalid credentials"))
         }
 
-    // Visiting login while already authenticated should still render safely.
+    /**
+     * Visiting login while already authenticated should still render safely.
+     */
     @Test
     fun loginPageLoadsWhenAlreadyAuthenticated() =
         testApplication {
@@ -295,7 +321,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals(true, response.bodyAsText().contains("Login"))
         }
 
-    // Logout should clear the user session and redirect to the landing page.
+    /**
+     * Logout should clear the user session and redirect to the landing page.
+     */
     @Test
     fun logoutClearsSessionAndRedirectsToLandingPage() =
         testApplication {
@@ -343,7 +371,9 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", homeResponse.headers[HttpHeaders.Location])
         }
 
-    // Logout should redirect safely even when no user is logged in.
+    /**
+     * Logout should redirect safely even when no user is logged in.
+     */
     @Test
     fun logoutRedirectsWhenNotLoggedIn() =
         testApplication {
@@ -356,12 +386,20 @@ class AuthRoutesTest : IntegrationTestSupport() {
             assertEquals("/", response.headers[HttpHeaders.Location])
         }
 
+    /**
+     * Sends a post request to register
+     * @param vararg: key value pairs
+     */
     private suspend fun io.ktor.client.HttpClient.registerWith(vararg fields: Pair<String, String>) =
         post("/register") {
             contentType(ContentType.Application.FormUrlEncoded)
             setBody(fields.toList().formUrlEncode())
         }
 
+    /**
+     * Sends a post request to login
+     * @param vararg: key value pairs
+     */
     private suspend fun io.ktor.client.HttpClient.loginWith(vararg fields: Pair<String, String>) =
         post("/login") {
             contentType(ContentType.Application.FormUrlEncoded)

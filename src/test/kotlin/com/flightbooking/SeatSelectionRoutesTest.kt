@@ -31,7 +31,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class SeatSelectionRoutesTest : IntegrationTestSupport() {
-    // Unauthenticated users should be redirected to login from seat selection.
+    /**
+     * Unauthenticated users should be redirected to login from seat selection.
+     */
     @Test
     fun unauthenticatedSeatSelectionRedirectsToLogin() =
         testApplication {
@@ -44,7 +46,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Unauthenticated seat submissions should be redirected to login.
+    /**
+     * Unauthenticated seat submissions should be redirected to login.
+     */
     @Test
     fun unauthenticatedSeatSubmitRedirectsToLogin() =
         testApplication {
@@ -57,7 +61,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertEquals("/login", response.headers[HttpHeaders.Location])
         }
 
-    // Authenticated users with a booking session should see the seat map.
+    /**
+     * Authenticated users with a booking session should see the seat map.
+     */
     @Test
     fun authenticatedSeatSelectionRendersSeatMap() =
         testApplication {
@@ -78,7 +84,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("DXB"))
         }
 
-    // The seat map should include passengers already saved for the booking.
+    /**
+     * The seat map should include passengers already saved for the booking.
+     */
     @Test
     fun seatMapIncludesPassengersFromBooking() =
         testApplication {
@@ -97,7 +105,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("0 / 2"))
         }
 
-    // Blank seat selections should redirect back with a clear error.
+    /**
+     * Blank seat selections should redirect back with a clear error.
+     */
     @Test
     fun blankSelectedSeatsRedirectsWithError() =
         testApplication {
@@ -113,7 +123,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertRedirectError(response.headers[HttpHeaders.Location], "No seats selected")
         }
 
-    // Malformed seat selection JSON should redirect back with a clear error.
+    /**
+     * Malformed seat selection JSON should redirect back with a clear error.
+     */
     @Test
     fun invalidSelectedSeatsJsonRedirectsWithError() =
         testApplication {
@@ -129,7 +141,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertRedirectError(response.headers[HttpHeaders.Location], "Invalid seat selection format")
         }
 
-    // Unknown seat codes should be rejected.
+    /**
+     * Unknown seat codes should be rejected.
+     */
     @Test
     fun unknownSeatCodeRedirectsWithError() =
         testApplication {
@@ -145,7 +159,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertRedirectError(response.headers[HttpHeaders.Location], "Seat 99Z not found")
         }
 
-    // Occupied seats should be rejected.
+    /**
+     * Occupied seats should be rejected.
+     */
     @Test
     fun occupiedSeatRedirectsWithError() =
         testApplication {
@@ -161,7 +177,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertRedirectError(response.headers[HttpHeaders.Location], "Seat 1A is already occupied")
         }
 
-    // Valid selections should create a booking segment and seat assignment.
+    /**
+     * Valid selections should create a booking segment and seat assignment.
+     */
     @Test
     fun validSeatSelectionCreatesBookingSegmentAndSeatAssignment() =
         testApplication {
@@ -179,7 +197,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertEquals(scenario.seatIdsByCode["1A"], assignedSeatIdForBooking(scenario.bookingId))
         }
 
-    // Valid selections should mark the selected seat occupied.
+    /**
+     * Valid selections should mark the selected seat occupied.
+     */
     @Test
     fun validSeatSelectionMarksSelectedSeatOccupied() =
         testApplication {
@@ -195,7 +215,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertEquals("occupied", seatStatus(scenario.seatIdsByCode.getValue("1A")))
         }
 
-    // One booking with multiple passengers should submit separate seat choices together.
+    /**
+     * One booking with multiple passengers should submit separate seat choices together.
+     */
     @Test
     fun multiplePassengersCanSelectSeats() =
         testApplication {
@@ -216,7 +238,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             assertEquals("occupied", seatStatus(scenario.seatIdsByCode.getValue("1B")))
         }
 
-    // Call the test-only route to attach the seeded booking session to this client.
+    /**
+     * Call the test-only route to attach the seeded booking session to this client.
+     */
     private suspend fun HttpClient.setSeatBookingSession(
         scenario: SeededSeatSelectionScenario,
         adults: String = "1",
@@ -233,7 +257,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
         assertEquals(HttpStatusCode.OK, response.status)
     }
 
-    // Submit the same hidden selectedSeats field that the seat selection page posts.
+    /**
+     * Submit the same hidden selectedSeats field that the seat selection page posts.
+     */
     private suspend fun HttpClient.submitSeats(selectedSeats: String) =
         submitForm(
             url = "/flights/seats",
@@ -243,7 +269,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
                 },
         )
 
-    // Test-only route for putting a matching booking session into the authenticated client.
+    /**
+     * Test-only route for putting a matching booking session into the authenticated client.
+     */
     private fun ApplicationTestBuilder.installSeatSessionRoute() {
         application {
             routing {
@@ -277,7 +305,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
         }
     }
 
-    // Seed the minimum real DB rows needed by GET and POST /flights/seats.
+    /**
+     * Seed the minimum real DB rows needed by GET and POST /flights/seats.
+     */
     private fun seedSeatSelectionScenario(
         passengerCount: Int = 1,
         occupiedSeatCodes: List<String> = emptyList(),
@@ -318,7 +348,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
         )
     }
 
-    // Mark a seeded seat as available or occupied for validation tests.
+    /**
+     * Mark a seeded seat as available or occupied for validation tests.
+     */
     private fun updateSeatStatus(
         seatId: Int,
         status: String,
@@ -330,7 +362,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
         }
     }
 
-    // Count assignments across this booking's generated seat-selection segments.
+    /**
+     * Count assignments across this booking's generated seat-selection segments.
+     */
     private fun seatAssignmentCountForBooking(bookingId: Int): Int =
         transaction {
             val segmentIds =
@@ -346,7 +380,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
             }
         }
 
-    // Decode redirect locations so error messages can be asserted as normal text.
+    /**
+     * Decode redirect locations so error messages can be asserted as normal text.
+     */
     private fun assertRedirectError(
         location: String?,
         expectedError: String,
@@ -357,7 +393,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
         assertTrue(decodedLocation.contains(expectedError))
     }
 
-    // Keep the ids seeded for each test together so assertions can use exact rows.
+    /**
+     * Keep the ids seeded for each test together so assertions can use exact rows.
+     */
     private data class SeededSeatSelectionScenario(
         val bookingId: Int,
         val flightId: Int,
@@ -366,6 +404,9 @@ class SeatSelectionRoutesTest : IntegrationTestSupport() {
         val seatIdsByCode: Map<String, Int>,
     )
 
+    /**
+     * List of names
+     */
     private companion object {
         val passengerFirstNames = listOf("Alex", "Casey", "Jordan", "Taylor")
     }

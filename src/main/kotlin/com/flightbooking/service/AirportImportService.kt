@@ -15,6 +15,10 @@ class AirportImportService(
 ) {
     /**
      * Imports airport data from AviationStack API
+     * @param limit: import limit
+     * @param offset
+     * @param total: how many total
+     * @param done
      */
     suspend fun importAllAirports() {
         val limit = IMPORT_LIMIT

@@ -17,7 +17,9 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class StaffAuthRoutesTest : IntegrationTestSupport() {
-    // Staff registration page should render the staff account form.
+    /**
+     * Staff registration page should render the staff account form.
+     */
     @Test
     fun staffRegisterPageLoads() =
         testApplication {
@@ -31,7 +33,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Create Account"))
         }
 
-    // Staff login page should render the staff sign-in form.
+    /**
+     * Staff login page should render the staff sign-in form.
+     */
     @Test
     fun staffLoginPageLoads() =
         testApplication {
@@ -45,7 +49,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertTrue(body.contains("Sign In"))
         }
 
-    // A staff user should be able to register, then log in successfully.
+    /**
+     * A staff user should be able to register, then log in successfully.
+     */
     @Test
     fun registerThenLoginRedirectsToDashboardAndSetsSessionCookie() =
         testApplication {
@@ -64,7 +70,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             )
         }
 
-    // Staff registration should reject missing server-required credentials.
+    /**
+     * Staff registration should reject missing server-required credentials.
+     */
     @Test
     fun staffRegisterRejectsMissingCredentials() =
         testApplication {
@@ -90,7 +98,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Staff already exists"))
         }
 
-    // Staff registration should reject mismatched password confirmation.
+    /**
+     * Staff registration should reject mismatched password confirmation.
+     */
     @Test
     fun staffRegisterRejectsPasswordMismatch() =
         testApplication {
@@ -116,7 +126,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Passwords do not match"))
         }
 
-    // Staff login should fail when the email does not exist.
+    /**
+     * Staff login should fail when the email does not exist.
+     */
     @Test
     fun loginRejectsUnknownEmail() =
         testApplication {
@@ -129,7 +141,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Invalid staff credentials"))
         }
 
-    // Staff login should fail when the password is incorrect.
+    /**
+     * Staff login should fail when the password is incorrect.
+     */
     @Test
     fun loginRejectsInvalidPassword() =
         testApplication {
@@ -143,7 +157,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Invalid staff credentials"))
         }
 
-    // Staff registration should fail when the invite code is invalid.
+    /**
+     * Staff registration should fail when the invite code is invalid.
+     */
     @Test
     fun staffRegisterRejectsWrongInviteCode() =
         testApplication {
@@ -169,7 +185,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertTrue(response.bodyAsText().contains("Invalid invite code"))
         }
 
-    // Staff registration should fail when the account already exists.
+    /**
+     * Staff registration should fail when the account already exists.
+     */
     @Test
     fun duplicateRegisterShowsAlreadyExistsError() =
         testApplication {
@@ -185,7 +203,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertTrue(secondResponse.bodyAsText().contains("Staff already exists"))
         }
 
-    // Staff logout should clear the session and redirect back to staff login.
+    /**
+     * Staff logout should clear the session and redirect back to staff login.
+     */
     @Test
     fun logoutClearsSessionAndRedirectsToStaffLogin() =
         testApplication {
@@ -210,7 +230,9 @@ class StaffAuthRoutesTest : IntegrationTestSupport() {
             assertEquals("/staff/login", dashboardResponse.headers[HttpHeaders.Location])
         }
 
-    // Staff sessions alone should not unlock user-only routes.
+    /**
+     * Staff sessions alone should not unlock user-only routes.
+     */
     @Test
     fun loggedInStaffCannotAccessUserOnlyRoutes() =
         testApplication {
