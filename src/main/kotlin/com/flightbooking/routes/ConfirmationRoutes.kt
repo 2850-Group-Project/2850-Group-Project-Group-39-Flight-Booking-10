@@ -45,8 +45,6 @@ fun Route.confirmationRoutes() {
         call.sessions.set("BOOKING_SESSION", BookingSession())
 
         val seatSelectionSession = call.sessions.get<SeatSelectionSession>() ?: SeatSelectionSession()
-        println("at confirmation route")
-        println(seatSelectionSession)
 
         call.respond(
             PebbleContent(
