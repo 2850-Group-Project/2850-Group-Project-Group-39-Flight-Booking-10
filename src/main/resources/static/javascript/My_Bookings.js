@@ -61,7 +61,7 @@ async function geocodeCity(name) {
 }
 
 // Used Claude AI to generate new open seat modal function for new ticket design
-async function openSeatModal(originName, destName, originIata, destIata, flightNum, dep, arr, status, passengers) {
+async function openSeatModal(originName, destName, originCity, destCity, originIata, destIata, flightNum, dep, arr, status, passengers) {
   const JSONpassengers = JSON.parse(passengers);
 
   if (flightMap) {
@@ -142,8 +142,8 @@ async function openSeatModal(originName, destName, originIata, destIata, flightN
       flightMap = L.map(mapEl, { zoomControl: true, attributionControl: false });
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(flightMap);
 
-      var originCoords = await geocodeCity(originName);
-      var destCoords = await geocodeCity(destName);
+      var originCoords = await geocodeCity(originCity || originName);
+      var destCoords = await geocodeCity(destCity || destName);
 
       flightMap.invalidateSize();
 
@@ -168,16 +168,4 @@ function closeSeatModal() {
     flightMap.remove();
     flightMap = null;
   }
-}
-
-// Used Claude AI to generate geocodeAirportFunction to search airports more accurately
-async function geocodeAirport(query) {
-  var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' 
-    + encodeURIComponent(query + ' airport');
-  var res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-  var data = await res.json();
-  if (data.length > 0) {
-    return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-  }
-  return null;
 }
