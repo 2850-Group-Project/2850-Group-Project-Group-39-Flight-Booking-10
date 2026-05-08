@@ -168,7 +168,7 @@ async function openSeatModal(originName, destName, originCity, destCity, originI
           iconAnchor: [14, 14],
         });
 
-        L.marker(originCoords, { icon: makeIcon('#3b82f6') }).bindTooltip(`<b>${originIata}</b> ${originName}`, { className: 'map-tip' }).addTo(flightMap);
+        L.marker(originCoords, { icon: makeIcon('#e0ecffa2') }).bindTooltip(`<b>${originIata}</b> ${originName}`, { className: 'map-tip' }).addTo(flightMap);
         L.marker(destCoords, { icon: makeIcon('#22c55e') }).bindTooltip(`<b>${destIata}</b> ${destName}`, { className: 'map-tip' }).addTo(flightMap);
 
         flightMap.fitBounds(L.latLngBounds([originCoords, destCoords]), { padding: [30, 30] });
