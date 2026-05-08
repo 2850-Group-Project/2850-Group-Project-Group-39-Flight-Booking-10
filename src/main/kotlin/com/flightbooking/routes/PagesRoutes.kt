@@ -283,6 +283,7 @@ private suspend fun handleGetBookings(call: ApplicationCall) {
             val rows = fetchBookingRows(cond, origin, dest)
             groupIntoBookings(if (qId != null) rows else filterRowsByAirport(rows, q))
         }
+    println(bookings)
 
     call.respond(
         PebbleContent(

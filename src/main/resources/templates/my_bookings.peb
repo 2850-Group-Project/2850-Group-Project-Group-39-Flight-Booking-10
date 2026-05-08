@@ -132,7 +132,9 @@
                         <button class="mini-pill" type="button"
                           onclick="openSeatModal(
                             '{% if seg.originName %}{{ seg.originName }}{% else %}{{ seg.originIata }}{% endif %}',
-                            '{% if seg.destName %}{{ seg.destName}}{% else %}{{ seg.destIata }}{% endif %}',
+                            '{% if seg.destName %}{{ seg.destName }}{% else %}{{ seg.destIata }}{% endif %}',
+                            '{% if seg.originCity %}{{ seg.originCity }}{% else %}{{ seg.originIata }}{% endif %}',
+                            '{% if seg.destCity %}{{ seg.destCity }}{% else %}{{ seg.destIata }}{% endif %}',
                             '{{ seg.originIata| default('—') }}',
                             '{{ seg.destIata | default('—') }}',
                             '{{ seg.flightNumber | default('—') }}',

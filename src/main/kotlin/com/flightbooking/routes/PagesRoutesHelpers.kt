@@ -106,6 +106,8 @@ fun fetchBookingRows(
             PassengerTable.id, PassengerTable.firstName, PassengerTable.lastName,
             PassengerTable.dateOfBirth, PassengerTable.nationality, PassengerTable.documentType,
             PassengerTable.documentNumber, PassengerTable.checkedIn,
+            origin[AirportTable.iataCode], origin[AirportTable.name], origin[AirportTable.city],
+            dest[AirportTable.iataCode], dest[AirportTable.name], dest[AirportTable.city],
         )
         .select { cond }
         .orderBy(BookingTable.createdAt, SortOrder.DESC)
@@ -137,6 +139,8 @@ fun mapBookingRow(
         "arr" to (r.getOrNull(FlightTable.scheduledArrivalTime) ?: ""),
         "originIata" to r.getOrNull(origin[AirportTable.iataCode]),
         "originName" to r.getOrNull(origin[AirportTable.name]),
+        "originCity" to r[origin[AirportTable.city]],
+        "destCity" to r[dest[AirportTable.city]],
         "destIata" to r.getOrNull(dest[AirportTable.iataCode]),
         "destName" to r.getOrNull(dest[AirportTable.name]),
         "seatCode" to r.getOrNull(SeatTable.seatCode),

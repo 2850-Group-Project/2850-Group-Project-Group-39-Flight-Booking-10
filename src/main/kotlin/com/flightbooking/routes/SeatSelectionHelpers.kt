@@ -412,7 +412,6 @@ fun buildSeat(params: SeatBuildParams): Map<String, Any> {
 
     val cabin = params.seatCabinMap[code] ?: ""
     val colour = params.cabinColourMap[cabin] ?: "#6366f1"
-    println(colour)
 
     return mapOf(
         "code" to code,

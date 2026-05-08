@@ -61,7 +61,7 @@ async function geocodeCity(name) {
 }
 
 // Used Claude AI to generate new open seat modal function for new ticket design
-async function openSeatModal(originName, destName, originIata, destIata, flightNum, dep, arr, status, passengers) {
+async function openSeatModal(originName, destName, originCity, destCity, originIata, destIata, flightNum, dep, arr, status, passengers) {
   const JSONpassengers = JSON.parse(passengers);
 
   if (flightMap) {
@@ -142,15 +142,35 @@ async function openSeatModal(originName, destName, originIata, destIata, flightN
       flightMap = L.map(mapEl, { zoomControl: true, attributionControl: false });
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(flightMap);
 
-      var originCoords = await geocodeCity(originName);
-      var destCoords = await geocodeCity(destName);
+      var originCoords = await geocodeCity(originCity || originName);
+      var destCoords = await geocodeCity(destCity || destName);
 
       flightMap.invalidateSize();
 
       if (originCoords && destCoords) {
-        L.polyline([originCoords, destCoords], { color: '#ffffffe8', weight: 2, dashArray: '5 4' }).addTo(flightMap);
-        L.circleMarker(originCoords, { radius: 6, color: '#0062ffc5', fillColor: '#3b82f6', fillOpacity: 1 }).bindTooltip(originName).addTo(flightMap);
-        L.circleMarker(destCoords, { radius: 6, color: '#22c55ebf', fillColor: '#22c55e', fillOpacity: 1 }).bindTooltip(destName).addTo(flightMap);
+        const latlngs = [];
+        for (let i = 0; i <= 50; i++) {
+          const t = i / 50;
+          const lat = originCoords[0] + (destCoords[0] - originCoords[0]) * t;
+          const lng = originCoords[1] + (destCoords[1] - originCoords[1]) * t;
+          const arc = Math.sin(Math.PI * t) * (L.latLng(originCoords).distanceTo(L.latLng(destCoords)) / 800000);
+          latlngs.push([lat + arc, lng]);
+        }
+        L.polyline(latlngs, { color: 'rgba(255,255,255,0.25)', weight: 1.5, dashArray: '4 6' }).addTo(flightMap);
+
+        const makeIcon = (color) => L.divIcon({
+          className: '',
+          html: `<div style="position:relative;width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
+            <div style="position:absolute;width:28px;height:28px;border-radius:50%;background:${color};opacity:0.15;"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:${color};box-shadow:0 0 0 2px rgba(0,0,0,0.5),0 0 8px ${color};"></div>
+          </div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+        });
+
+        L.marker(originCoords, { icon: makeIcon('#e0ecffa2') }).bindTooltip(`<b>${originIata}</b> ${originName}`, { className: 'map-tip' }).addTo(flightMap);
+        L.marker(destCoords, { icon: makeIcon('#22c55e') }).bindTooltip(`<b>${destIata}</b> ${destName}`, { className: 'map-tip' }).addTo(flightMap);
+
         flightMap.fitBounds(L.latLngBounds([originCoords, destCoords]), { padding: [30, 30] });
       } else {
         flightMap.setView([20, 0], 2);
@@ -168,16 +188,4 @@ function closeSeatModal() {
     flightMap.remove();
     flightMap = null;
   }
-}
-
-// Used Claude AI to generate geocodeAirportFunction to search airports more accurately
-async function geocodeAirport(query) {
-  var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' 
-    + encodeURIComponent(query + ' airport');
-  var res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-  var data = await res.json();
-  if (data.length > 0) {
-    return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-  }
-  return null;
 }
